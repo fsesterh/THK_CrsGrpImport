@@ -90,7 +90,7 @@ class ImportCsvObject
      */
     public function getAction() : string
     {
-        return $this->action;
+        return strtolower($this->action);
     }
 
     /**
@@ -234,8 +234,11 @@ class ImportCsvObject
      */
     public function getValidatedAdmins() : array
     {
-        $logins = explode(',', $this->admins);
-        return $logins;
+        if(strlen($this->getAdmins()) > 0) {
+            $logins = explode(',', $this->admins);
+            return $logins;
+        }
+        return [];
     }
 
     /**

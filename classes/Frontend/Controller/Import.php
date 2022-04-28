@@ -11,6 +11,7 @@ use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
 use ILIAS\Plugin\CrsGrpImport\Data\Conversions;
 use ILIAS\Plugin\CrsGrpImport\Creator\Course;
 use ILIAS\Plugin\CrsGrpImport\Creator\Group;
+use ILIAS\Plugin\CrsGrpImport\Creator\BaseObject;
 
 /**
  * Class Index
@@ -69,11 +70,31 @@ class Import extends Base
         $csv_array = $this->convertCSVToArray($uploadResult->getPath(), $parent_ref_id);
         foreach ($csv_array as $key => $data) {
             if($data->getType() === 'crs') {
-                $new_course = new Course($data);
-                $new_course->import();
+                if($data->getAction() === BaseObject::INSERT){
+                    $new_course = new Course($data);
+                    $new_course->insert();
+                } elseif($data->getAction() === BaseObject::UPDATE){
+                    $new_course = new Course($data);
+                    $new_course->update();
+                } elseif($data->getAction() === BaseObject::IGNORE){
+
+                } else {
+                    //Todo: error
+                }
+
             } else if($data->getType() === 'grp') {
-                $new_group = new Group($data);
-                $new_group->import();
+                if($data->getAction() === BaseObject::INSERT){
+                    $new_group = new Group($data);
+                    $new_group->insert();
+                } elseif($data->getAction() === BaseObject::UPDATE){
+                    $new_group = new Group($data);
+                    $new_group->update();
+                } elseif($data->getAction() === BaseObject::IGNORE){
+
+                } else {
+                    //Todo: error
+                }
+
             } else {
                 //Todo: Error
             }
@@ -83,7 +104,7 @@ class Import extends Base
 
     /**
      * @param string $importFile
-     * @return array
+     * @return ImportCSVObject[]
      */
     public function convertCSVToArray(string $importFile, ?int $parent_ref_id = null) : array
     {
