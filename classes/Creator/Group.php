@@ -4,9 +4,26 @@ namespace ILIAS\Plugin\CrsGrpImport\Creator;
 use ilDateTime;
 use ilObjGroup;
 use ilDate;
+use ilObjectActivation;
 
 class Group extends BaseObject
 {
+    /**
+     * @param ilObjGroup $group
+     * @return bool
+     */
+    protected function addAdminsToNewGroup(ilObjGroup $group) : bool
+    {
+        $usr_ids = \ilObjUser::_lookupId($this->getData()->getValidatedAdmins());
+        if (is_array($usr_ids) && count($usr_ids) > 0) {
+            foreach ($usr_ids as $usr_id) {
+                $group->getMembersObject()->add($usr_id, IL_GRP_ADMIN);
+            }
+            return true;
+        }
+        return false;
+    }
+
     public function ignore()
     {
         // TODO: Implement ignore() method.
@@ -39,7 +56,7 @@ class Group extends BaseObject
             $end = new ilDateTime($this->getData()->getEventEnd(), 2);
             $group->setPeriod($start, $end);
             $group->setOfflineStatus(! (bool)$this->getData()->getOnline());
-            #//Todo: Availability
+
             $group->setRegistrationType($this->getData()->getRegistration());
             $group->setPassword($this->getData()->getRegistrationPass());
             $group->enableRegistrationAccessCode($this->getData()->getAdmissionLink());
@@ -50,10 +67,16 @@ class Group extends BaseObject
             $unsubscribe_end = new ilDate($this->getData()->getUnsubscribeEnd(), 2);
             $group->setCancellationEnd($unsubscribe_end);
             $group->update();
-            $group->update();
-            #$lp = new \ilLPObjSettings($group->getId());
-            #$lp->setMode(\ilLPObjSettings::LP_MODE_BY_ENROLMENT);
-            #$lp->update();
+
+            $availability_start = new ilDateTime($this->getData()->getAvailabilityStart(), 2);
+            $availability_end = new ilDateTime($this->getData()->getAvailabilityEnd(), 2);
+            $activation = new ilObjectActivation();
+            $activation->setTimingType(1);
+            $activation->setTimingStart($availability_start->getUnixTime());
+            $activation->setTimingEnd($availability_end->getUnixTime());
+            $activation->update($ref_id);
+
+            $this->addAdminsToNewGroup($group);
             return (int) $ref_id;
         }
     }

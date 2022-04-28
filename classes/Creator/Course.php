@@ -5,6 +5,7 @@ namespace ILIAS\Plugin\CrsGrpImport\Creator;
 use ilObjCourse;
 use ilDateTime;
 use ilDate;
+use ilObjectActivation;
 
 class Course extends BaseObject
 {
@@ -63,6 +64,14 @@ class Course extends BaseObject
             #$lp = new \ilLPObjSettings($group->getId());
             #$lp->setMode(\ilLPObjSettings::LP_MODE_BY_ENROLMENT);
             #$lp->update();
+
+            $availability_start = new ilDateTime($this->getData()->getAvailabilityStart(), 2);
+            $availability_end = new ilDateTime($this->getData()->getAvailabilityEnd(), 2);
+            $activation = new ilObjectActivation();
+            $activation->setTimingType(1);
+            $activation->setTimingStart($availability_start->getUnixTime());
+            $activation->setTimingEnd($availability_end->getUnixTime());
+            $activation->update($ref_id);
 
             $this->addAdminsToNewCourse($course);
 
