@@ -230,6 +230,15 @@ class ImportCsvObject
     }
 
     /**
+     * @return array
+     */
+    public function getValidatedAdmins() : array
+    {
+        $logins = explode(',', $this->admins);
+        return $logins;
+    }
+
+    /**
      * @return int|null
      */
     public function getParentRefId() : ?int
