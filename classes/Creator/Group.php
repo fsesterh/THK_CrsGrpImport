@@ -37,7 +37,7 @@ class Group extends BaseObject
     /**
      * @throws \ilDateTimeException
      */
-    public function insert()
+    public function insert() : int
     {
         if($this->getData() !== null) {
             $group = new ilObjGroup();

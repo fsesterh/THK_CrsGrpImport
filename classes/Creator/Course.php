@@ -35,7 +35,7 @@ class Course extends BaseObject
         // TODO: Implement update() method.
     }
 
-    public function insert()
+    public function insert() : int
     {
         if($this->getData() !== null) {
             $course = new ilObjCourse();
@@ -50,7 +50,6 @@ class Course extends BaseObject
             $end = new ilDateTime($this->getData()->getEventEnd(), 2);
             $course->setCoursePeriod($start, $end);
             $course->setOfflineStatus(! (bool)$this->getData()->getOnline());
-            #//Todo: Availability
             $course->setSubscriptionType($this->getData()->getRegistration());
             $course->setSubscriptionPassword($this->getData()->getRegistrationPass());
             $course->enableRegistrationAccessCode($this->getData()->getAdmissionLink());

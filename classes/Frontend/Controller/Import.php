@@ -12,6 +12,13 @@ use ILIAS\Plugin\CrsGrpImport\Data\Conversions;
 use ILIAS\Plugin\CrsGrpImport\Creator\Course;
 use ILIAS\Plugin\CrsGrpImport\Creator\Group;
 use ILIAS\Plugin\CrsGrpImport\Creator\BaseObject;
+use ILIAS\BackgroundTasks\Implementation\Bucket\BasicBucket;
+use ILIAS\Plugin\CrsGrpImport\BackgroundTasks\ilCrsGrpImportJob;
+use ILIAS\BackgroundTasks\Implementation\TaskManager\MockObserver;
+use ILIAS\BackgroundTasks\Implementation\TaskManager\BasicTaskManager;
+use ILIAS\BackgroundTasks\Implementation\TaskManager\AsyncTaskManager;
+use ILIAS\BackgroundTasks\Implementation\TaskManager\SyncTaskManager;
+use ILIAS\Plugin\CrsGrpImport\BackgroundTasks\ilCrsGrpImportReport;
 
 /**
  * Class Index
@@ -68,6 +75,20 @@ class Import extends Base
         }
 
         $csv_array = $this->convertCSVToArray($uploadResult->getPath(), $parent_ref_id);
+        $bucket = new BasicBucket();
+        $bucket->setUserId($this->dic->user()->getId());
+        $csvExport = $this->dic->backgroundTasks()->taskFactory()->createTask(ilCrsGrpImportJob::class, [
+           serialize($csv_array)
+        ]);
+
+        $task = $this->dic->backgroundTasks()->taskFactory()->createTask(ilCrsGrpImportReport::class, [
+            $csvExport, 'test.csv'
+        ]);
+        $bucket->setTask($task);
+        $bucket->setTitle('Course and Group CSV import task... ' . time());
+        $bucket->setDescription('Course and Group CSV import task');
+        $this->dic->backgroundTasks()->taskManager()->run($bucket);
+
         foreach ($csv_array as $key => $data) {
             if($data->getType() === 'crs') {
                 if($data->getAction() === BaseObject::INSERT){

@@ -6,5 +6,5 @@ interface ObjectImporter
 {
     public function ignore();
     public function update();
-    public function insert();
+    public function insert() : int;
 }

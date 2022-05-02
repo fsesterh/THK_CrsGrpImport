@@ -23,17 +23,14 @@ class BaseObject implements ObjectImporter
 
     public function ignore()
     {
-        // TODO: Implement ignore() method.
     }
 
     public function update()
     {
-        // TODO: Implement update() method.
     }
 
-    public function insert()
+    public function insert() : int
     {
-        // TODO: Implement insert() method.
     }
 
 }
