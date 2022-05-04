@@ -134,31 +134,36 @@ class Import extends Base
         $csv_array = [];
         if (($handle = fopen($importFile, "r")) !== false) {
             while (($data = fgetcsv($handle, 1000, ";")) !== false) {
-                $row++;
-                if ($row === 1) {
-                    continue;
-                }
-                $action = $conversion->ensureStringType($data[0]);
-                $type = $conversion->ensureStringType($data[1]);
-                $ref_id = $conversion->ensureIntType($data[2]);
-                $grp_type = $conversion->ensureIntType($data[3]);
-                $title = $conversion->ensureStringType($data[4]);
-                $description = $conversion->ensureStringType($data[5]);
-                $event_start = $conversion->ensureStringType($data[6]);
-                $event_end = $conversion->ensureStringType($data[7]);
-                $online =  $conversion->ensureIntType($data[8]);
-                $availability_start = $conversion->ensureStringType($data[9]);
-                $availability_end = $conversion->ensureStringType($data[10]);
-                $registration =  $conversion->ensureIntType($data[11]);
-                $registration_pass = $conversion->ensureStringType($data[12]);
-                $admission_link = $conversion->ensureStringType($data[13]);
-                $registration_start = $conversion->ensureStringType($data[14]);
-                $registration_end = $conversion->ensureStringType($data[15]);
-                $unsubscribe_end = $conversion->ensureStringType($data[16]);
-                $admins = $conversion->ensureStringType($data[17]);
+                if(count($data) > 1) {
+                    $row++;
+                    if ($row === 1) {
+                        continue;
+                    }
+                    $action = $conversion->ensureStringType($data[0]);
+                    $type = $conversion->ensureStringType($data[1]);
+                    $ref_id = $conversion->ensureIntType($data[2]);
+                    $grp_type = $conversion->ensureIntType($data[3]);
+                    $title = $conversion->ensureStringType($data[4]);
+                    $description = $conversion->ensureStringType($data[5]);
+                    $event_start = $conversion->ensureStringType($data[6]);
+                    $event_end = $conversion->ensureStringType($data[7]);
+                    $online =  $conversion->ensureIntType($data[8]);
+                    $availability_start = $conversion->ensureStringType($data[9]);
+                    $availability_end = $conversion->ensureStringType($data[10]);
+                    $registration =  $conversion->ensureIntType($data[11]);
+                    $registration_pass = $conversion->ensureStringType($data[12]);
+                    $admission_link = $conversion->ensureStringType($data[13]);
+                    $registration_start = $conversion->ensureStringType($data[14]);
+                    $registration_end = $conversion->ensureStringType($data[15]);
+                    $unsubscribe_end = $conversion->ensureStringType($data[16]);
+                    $admins = $conversion->ensureStringType($data[17]);
 
-               $import_row = new ImportCsvObject($action,$type,$ref_id,$grp_type,$title,$description,$event_start,$event_end,$online,$availability_start,$availability_end,$registration,$registration_pass,$admission_link,$registration_start,$registration_end,$unsubscribe_end,$admins, $parent_ref_id);
-               $csv_array[] = $import_row;
+                    $import_row = new ImportCsvObject($action,$type,$ref_id,$grp_type,$title,$description,$event_start,$event_end,$online,$availability_start,$availability_end,$registration,$registration_pass,$admission_link,$registration_start,$registration_end,$unsubscribe_end,$admins, $parent_ref_id);
+                    $csv_array[] = $import_row;
+                } else {
+                    // Todo: error csv format not correct!
+                }
+
             }
             fclose($handle);
         }
