@@ -39,7 +39,7 @@ class Group extends BaseObject
      */
     public function insert() : int
     {
-        if($this->getData() !== null) {
+        if($this->getData() !== null && $this->ensureDataIsValidAndComplete() ) {
             $group = new ilObjGroup();
             $group->setTitle($this->getData()->getTitle());
             $group->setDescription($this->getData()->getDescription());
@@ -79,5 +79,11 @@ class Group extends BaseObject
             $this->addAdminsToNewGroup($group);
             return (int) $ref_id;
         }
+    }
+
+    public function ensureDataIsValidAndComplete() : bool
+    {
+        $valid_data = parent::ensureDataIsValidAndComplete();
+        return true;
     }
 }

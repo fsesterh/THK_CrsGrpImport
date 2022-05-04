@@ -236,6 +236,7 @@ class ImportCsvObject
     {
         if(strlen($this->getAdmins()) > 0) {
             $logins = explode(',', $this->admins);
+            $logins = array_map('trim', $logins);
             return $logins;
         }
         return [];

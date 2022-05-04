@@ -37,7 +37,7 @@ class Course extends BaseObject
 
     public function insert() : int
     {
-        if($this->getData() !== null) {
+        if($this->getData() !== null && $this->ensureDataIsValidAndComplete() ) {
             $course = new ilObjCourse();
             $course->setTitle($this->getData()->getTitle());
             $course->setDescription($this->getData()->getDescription());
@@ -78,4 +78,9 @@ class Course extends BaseObject
         }
     }
 
+    public function ensureDataIsValidAndComplete() : bool
+    {
+        $valid_data = parent::ensureDataIsValidAndComplete();
+        return true;
+    }
 }

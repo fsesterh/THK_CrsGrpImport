@@ -89,37 +89,6 @@ class Import extends Base
         $bucket->setDescription('Course and Group CSV import task');
         $this->dic->backgroundTasks()->taskManager()->run($bucket);
 
-        foreach ($csv_array as $key => $data) {
-            if($data->getType() === 'crs') {
-                if($data->getAction() === BaseObject::INSERT){
-                    $new_course = new Course($data);
-                    $new_course->insert();
-                } elseif($data->getAction() === BaseObject::UPDATE){
-                    $new_course = new Course($data);
-                    $new_course->update();
-                } elseif($data->getAction() === BaseObject::IGNORE){
-
-                } else {
-                    //Todo: error
-                }
-
-            } else if($data->getType() === 'grp') {
-                if($data->getAction() === BaseObject::INSERT){
-                    $new_group = new Group($data);
-                    $new_group->insert();
-                } elseif($data->getAction() === BaseObject::UPDATE){
-                    $new_group = new Group($data);
-                    $new_group->update();
-                } elseif($data->getAction() === BaseObject::IGNORE){
-
-                } else {
-                    //Todo: error
-                }
-
-            } else {
-                //Todo: Error
-            }
-        }
         return '<pre>' . $parent_ref_id . print_r($csv_array,true) . '</pre>';
 	}
 

@@ -33,4 +33,12 @@ class BaseObject implements ObjectImporter
     {
     }
 
+    public function ensureDataIsValidAndComplete() : bool
+    {
+        if($this->getData()->getTitle() === '') {
+            return false;
+        }
+        return true;
+    }
+
 }
