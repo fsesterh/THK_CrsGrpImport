@@ -10,41 +10,14 @@ use ilDateTimeException;
 
 class Course extends BaseObject
 {
-    /**
-     * @param ilObjCourse $course
-     * @return bool
-     */
-    protected function addAdminsToNewCourse(ilObjCourse $course) : bool
-    {
-        $usr_ids = \ilObjUser::_lookupId($this->getData()->getValidatedAdmins());
-        if (is_array($usr_ids) && count($usr_ids) > 0) {
-            foreach ($usr_ids as $usr_id) {
-                $success = $course->getMembersObject()->add($usr_id, IL_CRS_ADMIN);
-                if($success === false) {
-                    //Todo: add error to log and csv log
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-
     public function ignore()
     {
         // TODO: Implement ignore() method.
     }
 
-    public function update()
-    {
-        // TODO: Implement update() method.
-        if($this->getData()->getRefId() !== null && $this->getData()->getRefId() !== 0) {
-
-        }
-    }
-
     public function insert() : int
     {
-        if($this->getData() !== null && $this->ensureDataIsValidAndComplete() ) {
+        if ($this->getData() !== null && $this->ensureDataIsValidAndComplete()) {
             $course = $this->createCourse();
             $ref_id = $this->writeCourseAdvancedData($course);
             $this->writeCourseAvailability($ref_id);
@@ -57,7 +30,7 @@ class Course extends BaseObject
     public function ensureDataIsValidAndComplete() : bool
     {
         $valid_data = parent::ensureDataIsValidAndComplete();
-        if($valid_data) {
+        if ($valid_data) {
             return true;
         }
         return false;
@@ -100,6 +73,14 @@ class Course extends BaseObject
         return $ref_id;
     }
 
+    public function update()
+    {
+        // TODO: Implement update() method.
+        if ($this->getData()->getRefId() !== null && $this->getData()->getRefId() !== 0) {
+
+        }
+    }
+
     /**
      * @param int $ref_id
      * @return void
@@ -114,5 +95,24 @@ class Course extends BaseObject
         $activation->setTimingStart($availability_start->getUnixTime());
         $activation->setTimingEnd($availability_end->getUnixTime());
         $activation->update($ref_id);
+    }
+
+    /**
+     * @param ilObjCourse $course
+     * @return bool
+     */
+    protected function addAdminsToNewCourse(ilObjCourse $course) : bool
+    {
+        $usr_ids = \ilObjUser::_lookupId($this->getData()->getValidatedAdmins());
+        if (is_array($usr_ids) && count($usr_ids) > 0) {
+            foreach ($usr_ids as $usr_id) {
+                $success = $course->getMembersObject()->add($usr_id, IL_CRS_ADMIN);
+                if ($success === false) {
+                    //Todo: add error to log and csv log
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }

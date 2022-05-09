@@ -1,4 +1,5 @@
 <?php
+
 namespace ILIAS\Plugin\CrsGrpImport\Creator;
 
 use ilDateTime;
@@ -9,36 +10,9 @@ use ilDateTimeException;
 
 class Group extends BaseObject
 {
-    /**
-     * @param ilObjGroup $group
-     * @return bool
-     */
-    protected function addAdminsToNewGroup(ilObjGroup $group) : bool
-    {
-        $usr_ids = \ilObjUser::_lookupId($this->getData()->getValidatedAdmins());
-        if (is_array($usr_ids) && count($usr_ids) > 0) {
-            foreach ($usr_ids as $usr_id) {
-                $success = $group->getMembersObject()->add($usr_id, IL_GRP_ADMIN);
-                if($success === false) {
-                    //Todo: add error to log and csv log
-                }
-            }
-            return true;
-        }
-        return false;
-    }
-
     public function ignore()
     {
         // TODO: Implement ignore() method.
-    }
-
-    public function update()
-    {
-        // TODO: Implement update() method.
-        if($this->getData()->getRefId() !== null && $this->getData()->getRefId() !== 0) {
-
-        }
     }
 
     /**
@@ -46,7 +20,7 @@ class Group extends BaseObject
      */
     public function insert() : int
     {
-        if($this->getData() !== null && $this->ensureDataIsValidAndComplete() ) {
+        if ($this->getData() !== null && $this->ensureDataIsValidAndComplete()) {
 
             $group = $this->createGroup();
             $ref_id = $this->writeGroupAdvancedData($group);
@@ -60,8 +34,8 @@ class Group extends BaseObject
     public function ensureDataIsValidAndComplete() : bool
     {
         $valid_data = parent::ensureDataIsValidAndComplete();
-        if($valid_data) {
-           return true;
+        if ($valid_data) {
+            return true;
         }
         return false;
     }
@@ -107,6 +81,14 @@ class Group extends BaseObject
         return $ref_id;
     }
 
+    public function update()
+    {
+        // TODO: Implement update() method.
+        if ($this->getData()->getRefId() !== null && $this->getData()->getRefId() !== 0) {
+
+        }
+    }
+
     /**
      * @param int $ref_id
      * @return void
@@ -121,5 +103,24 @@ class Group extends BaseObject
         $activation->setTimingStart($availability_start->getUnixTime());
         $activation->setTimingEnd($availability_end->getUnixTime());
         $activation->update($ref_id);
+    }
+
+    /**
+     * @param ilObjGroup $group
+     * @return bool
+     */
+    protected function addAdminsToNewGroup(ilObjGroup $group) : bool
+    {
+        $usr_ids = \ilObjUser::_lookupId($this->getData()->getValidatedAdmins());
+        if (is_array($usr_ids) && count($usr_ids) > 0) {
+            foreach ($usr_ids as $usr_id) {
+                $success = $group->getMembersObject()->add($usr_id, IL_GRP_ADMIN);
+                if ($success === false) {
+                    //Todo: add error to log and csv log
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }

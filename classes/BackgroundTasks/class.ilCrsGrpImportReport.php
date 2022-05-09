@@ -20,7 +20,6 @@ class ilCrsGrpImportReport extends AbstractUserInteraction
 
     /**
      * @param Value[] $input The input value of this task.
-     *
      * @return Option[] Options are buttons the user can press on this interaction.
      */
     public function getOptions(array $input)

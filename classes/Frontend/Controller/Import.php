@@ -3,56 +3,47 @@
 
 namespace ILIAS\Plugin\CrsGrpImport\Frontend\Controller;
 
-
 use ILIAS\FileUpload\DTO\UploadResult;
 use ILIAS\FileUpload\DTO\ProcessingStatus;
-use ZipStream\Exception\FileNotReadableException;
 use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
 use ILIAS\Plugin\CrsGrpImport\Data\Conversions;
-use ILIAS\Plugin\CrsGrpImport\Creator\Course;
-use ILIAS\Plugin\CrsGrpImport\Creator\Group;
-use ILIAS\Plugin\CrsGrpImport\Creator\BaseObject;
 use ILIAS\BackgroundTasks\Implementation\Bucket\BasicBucket;
 use ILIAS\Plugin\CrsGrpImport\BackgroundTasks\ilCrsGrpImportJob;
-use ILIAS\BackgroundTasks\Implementation\TaskManager\MockObserver;
-use ILIAS\BackgroundTasks\Implementation\TaskManager\BasicTaskManager;
-use ILIAS\BackgroundTasks\Implementation\TaskManager\AsyncTaskManager;
-use ILIAS\BackgroundTasks\Implementation\TaskManager\SyncTaskManager;
 use ILIAS\Plugin\CrsGrpImport\BackgroundTasks\ilCrsGrpImportReport;
 
 /**
  * Class Index
  * @package ILIAS\Plugin\CrsGrpImport\Frontend\Controller
- * @author Michael Jansen <mjansen@databay.de>
+ * @author  Michael Jansen <mjansen@databay.de>
  */
 class Import extends Base
 {
 
-	/**
-	 * @inheritdoc
-	 */
-	protected function init()
-	{
-		parent::init();
-	}
+    /**
+     * @inheritdoc
+     */
+    protected function init()
+    {
+        parent::init();
+    }
 
-	/**
-	 * @inheritdoc
-	 */
-	public function getDefaultCommand()
-	{
-		return 'import';
-	}
+    /**
+     * @inheritdoc
+     */
+    public function getDefaultCommand()
+    {
+        return 'import';
+    }
 
-	/**
-	 * @return string
-	 */
-	public function import()
-	{
+    /**
+     * @return string
+     */
+    public function import()
+    {
         global $DIC;
 
-        $request_body =  $DIC->http()->request()->getParsedBody();
-        if( ! array_key_exists('parent_ref_id', $request_body)) {
+        $request_body = $DIC->http()->request()->getParsedBody();
+        if (!array_key_exists('parent_ref_id', $request_body)) {
 
         }
         $parent_ref_id = $request_body['parent_ref_id'];
@@ -78,19 +69,20 @@ class Import extends Base
         $bucket = new BasicBucket();
         $bucket->setUserId($this->dic->user()->getId());
         $csvExport = $this->dic->backgroundTasks()->taskFactory()->createTask(ilCrsGrpImportJob::class, [
-           serialize($csv_array)
+            serialize($csv_array)
         ]);
 
         $task = $this->dic->backgroundTasks()->taskFactory()->createTask(ilCrsGrpImportReport::class, [
-            $csvExport, 'test.csv'
+            $csvExport,
+            'test.csv'
         ]);
         $bucket->setTask($task);
         $bucket->setTitle('Course and Group CSV import task... ' . time());
         $bucket->setDescription('Course and Group CSV import task');
         $this->dic->backgroundTasks()->taskManager()->run($bucket);
 
-        return '<pre>' . $parent_ref_id . print_r($csv_array,true) . '</pre>';
-	}
+        return '<pre>' . $parent_ref_id . print_r($csv_array, true) . '</pre>';
+    }
 
     /**
      * @param string $importFile
@@ -103,7 +95,7 @@ class Import extends Base
         $csv_array = [];
         if (($handle = fopen($importFile, "r")) !== false) {
             while (($data = fgetcsv($handle, 1000, ";")) !== false) {
-                if(count($data) > 1) {
+                if (count($data) > 1) {
                     $row++;
                     if ($row === 1) {
                         continue;
@@ -116,10 +108,10 @@ class Import extends Base
                     $description = $conversion->ensureStringType($data[5]);
                     $event_start = $conversion->ensureStringType($data[6]);
                     $event_end = $conversion->ensureStringType($data[7]);
-                    $online =  $conversion->ensureIntType($data[8]);
+                    $online = $conversion->ensureIntType($data[8]);
                     $availability_start = $conversion->ensureStringType($data[9]);
                     $availability_end = $conversion->ensureStringType($data[10]);
-                    $registration =  $conversion->ensureIntType($data[11]);
+                    $registration = $conversion->ensureIntType($data[11]);
                     $registration_pass = $conversion->ensureStringType($data[12]);
                     $admission_link = $conversion->ensureStringType($data[13]);
                     $registration_start = $conversion->ensureStringType($data[14]);
@@ -127,7 +119,10 @@ class Import extends Base
                     $unsubscribe_end = $conversion->ensureStringType($data[16]);
                     $admins = $conversion->ensureStringType($data[17]);
 
-                    $import_row = new ImportCsvObject($action,$type,$ref_id,$grp_type,$title,$description,$event_start,$event_end,$online,$availability_start,$availability_end,$registration,$registration_pass,$admission_link,$registration_start,$registration_end,$unsubscribe_end,$admins, $parent_ref_id);
+                    $import_row = new ImportCsvObject($action, $type, $ref_id, $grp_type, $title, $description,
+                        $event_start, $event_end, $online, $availability_start, $availability_end, $registration,
+                        $registration_pass, $admission_link, $registration_start, $registration_end, $unsubscribe_end,
+                        $admins, $parent_ref_id);
                     $csv_array[] = $import_row;
                 } else {
                     // Todo: error csv format not correct!

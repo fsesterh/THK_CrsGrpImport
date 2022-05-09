@@ -17,10 +17,6 @@ class BaseObject implements ObjectImporter
         $this->data = $data;
     }
 
-    public function getData() : ImportCsvObject {
-        return $this->data;
-    }
-
     public function ignore()
     {
     }
@@ -35,10 +31,15 @@ class BaseObject implements ObjectImporter
 
     public function ensureDataIsValidAndComplete() : bool
     {
-        if($this->getData()->getTitle() === '') {
+        if ($this->getData()->getTitle() === '') {
             return false;
         }
         return true;
+    }
+
+    public function getData() : ImportCsvObject
+    {
+        return $this->data;
     }
 
 }

@@ -13,30 +13,32 @@ require_once 'Services/Component/classes/class.ilPluginConfigGUI.php';
  */
 class ilCrsGrpImportConfigGUI extends \ilPluginConfigGUI
 {
-	/**
-	 * @var \ilCrsGrpImportPlugin
-	 */
-	public $pluginObj = null;
-
-	/**
-	 * @var \ILIAS\DI\Container
-	 */
-	protected $dic;
-
     /**
-     * @param $cmd
+     * @var \ILIAS\DI\Container
      */
-    public function performCommand($cmd)
+    protected $dic;
+    /**
+     * @var \ilCrsGrpImportPlugin
+     */
+    public $pluginObj = null;
+
+    private function saveConfigurationForm()
     {
-        global $DIC;
+        try {
+            global $DIC;
 
-        $this->dic = $DIC;
-        $this->pluginObj = ilCrsGrpImportPlugin::getInstance();
+            $role_ids_post = $DIC->http()->request()->getParsedBody()['default_role_ids'];
+            if ($role_ids_post === null) {
+                $this->dic->settings()->delete('crs_grp_import_default_role_ids');
+            } else {
+                $role_ids = implode(';', $role_ids_post);
+                $this->dic->settings()->set('crs_grp_import_default_role_ids', $role_ids);
+            }
 
-        switch ($cmd) {
-            default:
-                $this->$cmd();
-                break;
+            ilUtil::sendSuccess($this->dic->language()->txt('saved_successfully'), true);
+            $this->dic->ctrl()->redirect($this, 'configure');
+        } catch (ilException $e) {
+            ilUtil::sendFailure($this->dic->language()->txt('form_input_not_valid'));
         }
     }
 
@@ -58,7 +60,7 @@ class ilCrsGrpImportConfigGUI extends \ilPluginConfigGUI
         $this->dic->ui()->mainTemplate()->setContent($form->getHTML());
     }
 
-    protected function prepareRoleSelection(): array
+    protected function prepareRoleSelection() : array
     {
         global $DIC;
 
@@ -77,23 +79,20 @@ class ilCrsGrpImportConfigGUI extends \ilPluginConfigGUI
         return $select;
     }
 
-    private function saveConfigurationForm()
+    /**
+     * @param $cmd
+     */
+    public function performCommand($cmd)
     {
-        try {
-            global $DIC;
+        global $DIC;
 
-            $role_ids_post = $DIC->http()->request()->getParsedBody()['default_role_ids'];
-            if ($role_ids_post === null) {
-                $this->dic->settings()->delete('crs_grp_import_default_role_ids');
-            } else {
-                $role_ids = implode(';', $role_ids_post);
-                $this->dic->settings()->set('crs_grp_import_default_role_ids', $role_ids);
-            }
+        $this->dic = $DIC;
+        $this->pluginObj = ilCrsGrpImportPlugin::getInstance();
 
-            ilUtil::sendSuccess($this->dic->language()->txt('saved_successfully'), true);
-            $this->dic->ctrl()->redirect($this, 'configure');
-        } catch (ilException $e) {
-            ilUtil::sendFailure($this->dic->language()->txt('form_input_not_valid'));
+        switch ($cmd) {
+            default:
+                $this->$cmd();
+                break;
         }
     }
 } 

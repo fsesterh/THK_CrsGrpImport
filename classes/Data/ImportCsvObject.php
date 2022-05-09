@@ -1,5 +1,7 @@
 <?php
+
 namespace ILIAS\Plugin\CrsGrpImport\Data;
+
 class ImportCsvObject
 {
     private string $action = '';
@@ -222,24 +224,24 @@ class ImportCsvObject
     }
 
     /**
-     * @return string
-     */
-    public function getAdmins() : string
-    {
-        return $this->admins;
-    }
-
-    /**
      * @return array
      */
     public function getValidatedAdmins() : array
     {
-        if(strlen($this->getAdmins()) > 0) {
+        if (strlen($this->getAdmins()) > 0) {
             $logins = explode(',', $this->admins);
             $logins = array_map('trim', $logins);
             return $logins;
         }
         return [];
+    }
+
+    /**
+     * @return string
+     */
+    public function getAdmins() : string
+    {
+        return $this->admins;
     }
 
     /**
