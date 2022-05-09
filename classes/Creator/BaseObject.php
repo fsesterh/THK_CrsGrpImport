@@ -3,6 +3,9 @@
 namespace ILIAS\Plugin\CrsGrpImport\Creator;
 
 use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
+use ilDateTimeException;
+use ilDateTime;
+use ilObjectActivation;
 
 class BaseObject implements ObjectImporter
 {
@@ -41,6 +44,20 @@ class BaseObject implements ObjectImporter
     public function getData() : ImportCsvObject
     {
         return $this->data;
+    }
+
+    /**
+     * @throws ilDateTimeException
+     */
+    protected function writeAvailability(int $ref_id) : void
+    {
+        $availability_start = new ilDateTime($this->getData()->getAvailabilityStart(), 2);
+        $availability_end = new ilDateTime($this->getData()->getAvailabilityEnd(), 2);
+        $activation = new ilObjectActivation();
+        $activation->setTimingType(1);
+        $activation->setTimingStart($availability_start->getUnixTime());
+        $activation->setTimingEnd($availability_end->getUnixTime());
+        $activation->update($ref_id);
     }
 
 }

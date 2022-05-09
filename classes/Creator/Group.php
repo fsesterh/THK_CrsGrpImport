@@ -5,7 +5,6 @@ namespace ILIAS\Plugin\CrsGrpImport\Creator;
 use ilDateTime;
 use ilObjGroup;
 use ilDate;
-use ilObjectActivation;
 use ilDateTimeException;
 use ilObject;
 
@@ -38,7 +37,7 @@ class Group extends BaseObject
 
             $group = $this->createGroup();
             $ref_id = $this->writeGroupAdvancedData($group);
-            $this->writeGroupAvailability($ref_id);
+            $this->writeAvailability($ref_id);
             $this->addAdminsToGroup($group);
 
             return (int) $ref_id;
@@ -103,29 +102,13 @@ class Group extends BaseObject
             if( ! ilObject::_isInTrash($this->getData()->getRefId())) {
                 $obj = new ilObjGroup($this->getData()->getRefId(), true);
                 $this->writeGroupAdvancedData($obj);
-                $this->writeGroupAvailability($this->getData()->getRefId());
+                $this->writeAvailability($this->getData()->getRefId());
                 $this->addAdminsToGroup($obj);
             } else {
                 // Todo: is in trash ignore
             }
 
         }
-    }
-
-    /**
-     * @param int $ref_id
-     * @return void
-     * @throws ilDateTimeException
-     */
-    protected function writeGroupAvailability(int $ref_id) : void
-    {
-        $availability_start = new ilDateTime($this->getData()->getAvailabilityStart(), 2);
-        $availability_end = new ilDateTime($this->getData()->getAvailabilityEnd(), 2);
-        $activation = new ilObjectActivation();
-        $activation->setTimingType(1);
-        $activation->setTimingStart($availability_start->getUnixTime());
-        $activation->setTimingEnd($availability_end->getUnixTime());
-        $activation->update($ref_id);
     }
 
     /**

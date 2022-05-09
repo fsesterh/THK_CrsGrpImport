@@ -5,7 +5,6 @@ namespace ILIAS\Plugin\CrsGrpImport\Creator;
 use ilObjCourse;
 use ilDateTime;
 use ilDate;
-use ilObjectActivation;
 use ilDateTimeException;
 use ilObject;
 
@@ -29,12 +28,15 @@ class Course extends BaseObject
         // TODO: Implement ignore() method.
     }
 
+    /**
+     * @throws ilDateTimeException
+     */
     public function insert() : int
     {
         if ($this->getData() !== null && $this->ensureDataIsValidAndComplete()) {
             $course = $this->createCourse();
             $ref_id = $this->writeCourseAdvancedData($course);
-            $this->writeCourseAvailability($ref_id);
+            $this->writeAvailability($ref_id);
             $this->addAdminsToCourse($course);
 
             return (int) $ref_id;
@@ -95,28 +97,12 @@ class Course extends BaseObject
             if( ! ilObject::_isInTrash($this->getData()->getRefId())) {
                 $obj = new ilObjCourse($this->getData()->getRefId(), true);
                 $this->writeCourseAdvancedData($obj);
-                $this->writeCourseAvailability($this->getData()->getRefId());
+                $this->writeAvailability($this->getData()->getRefId());
                 $this->addAdminsToCourse($obj);
             } else {
                 // Todo: is in trash ignore
             }
         }
-    }
-
-    /**
-     * @param int $ref_id
-     * @return void
-     * @throws ilDateTimeException
-     */
-    protected function writeCourseAvailability(int $ref_id) : void
-    {
-        $availability_start = new ilDateTime($this->getData()->getAvailabilityStart(), 2);
-        $availability_end = new ilDateTime($this->getData()->getAvailabilityEnd(), 2);
-        $activation = new ilObjectActivation();
-        $activation->setTimingType(1);
-        $activation->setTimingStart($availability_start->getUnixTime());
-        $activation->setTimingEnd($availability_end->getUnixTime());
-        $activation->update($ref_id);
     }
 
     /**
