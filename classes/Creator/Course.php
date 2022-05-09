@@ -23,11 +23,6 @@ class Course extends BaseObject
         return $ref_id;
     }
 
-    public function ignore()
-    {
-        // TODO: Implement ignore() method.
-    }
-
     /**
      * @throws ilDateTimeException
      */
@@ -37,7 +32,9 @@ class Course extends BaseObject
             $course = $this->createCourse();
             $ref_id = $this->writeCourseAdvancedData($course);
             $this->writeAvailability($ref_id);
-            $this->addAdminsToCourse($course);
+            if($this->addAdminsToCourse($course) === true) {
+                $this->getData()->setImportResult('Object created successfully.');
+            }
 
             return (int) $ref_id;
         }
@@ -116,7 +113,7 @@ class Course extends BaseObject
             foreach ($usr_ids as $usr_id) {
                 $success = $course->getMembersObject()->add($usr_id, IL_CRS_ADMIN);
                 if ($success === false) {
-                    //Todo: add error to log and csv log
+                    $this->getData()->setImportResult('One or all of the user accounts for admins not found. Data not processed.');
                 }
             }
             return true;

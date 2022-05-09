@@ -11,18 +11,24 @@ use ilLogger;
 use ILIAS\Plugin\CrsGrpImport\Creator\BaseObject;
 use ILIAS\Plugin\CrsGrpImport\Creator\Course;
 use ILIAS\Plugin\CrsGrpImport\Creator\Group;
+use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
 
 /**
  *
  */
 class ilCrsGrpImportJob extends AbstractJob
 {
+    const COURSE = 'crs';
+    const GROUP = 'grp';
+
     private ?ilLogger $logger = null;
+    private CSVLog $csv_log;
 
     public function __construct()
     {
         global $DIC;
         $this->logger = $DIC->logger()->root();
+        $this->csv_log = new CSVLog();
     }
 
     /**
@@ -53,8 +59,11 @@ class ilCrsGrpImportJob extends AbstractJob
     }
 
     /**
-     * @inheritDoc
+     * @param array    $input
+     * @param Observer $observer
+     * @return StringValue
      * @throws \ILIAS\BackgroundTasks\Exceptions\InvalidArgumentException
+     * @throws \ilDateTimeException
      */
     public function run(array $input, Observer $observer)
     {
@@ -63,39 +72,72 @@ class ilCrsGrpImportJob extends AbstractJob
         $csv_serialized = $input[0]->getValue();
         $csv_deserialized = unserialize($csv_serialized);
         foreach ($csv_deserialized as $key => $data) {
-            if ($data->getType() === 'crs') {
+            if ($data->getType() === self::COURSE) {
+                $new_course = new Course($data, $this->csv_log);
                 if ($data->getAction() === BaseObject::INSERT) {
-                    $new_course = new Course($data);
                     $new_course->insert();
+                    $this->csv_log->addEntryToLog(BaseObject::OK,
+                        $new_course->getData()->getRefId(),
+                        $new_course->getData()->getTitle(),
+                        $new_course->getData()->getValidatedAdmins(),
+                        $new_course->getData()->getImportResult()
+                    );
                 } elseif ($data->getAction() === BaseObject::UPDATE) {
-                    $new_course = new Course($data);
                     $new_course->update();
+                    $this->csv_log->addEntryToLog(BaseObject::OK,
+                        $new_course->getData()->getRefId(),
+                        $new_course->getData()->getTitle(),
+                        $new_course->getData()->getValidatedAdmins(),
+                        $new_course->getData()->getImportResult()
+                    );
                 } elseif ($data->getAction() === BaseObject::IGNORE) {
-
+                    $new_course->getData()->setImportResult('Entry has ignore action set, ignoring entry.');
+                    $this->csv_log->addEntryToLog(BaseObject::IGNORE,
+                        $new_course->getData()->getRefId(),
+                        $new_course->getData()->getTitle(),
+                        $new_course->getData()->getValidatedAdmins(),
+                        $new_course->getData()->getImportResult()
+                    );
                 } else {
-                    //Todo: error
+                    $new_course->getData()->setImportResult('No valid action found, ignoring entry.');
                 }
 
-            } else {
-                if ($data->getType() === 'grp') {
+            } elseif ($data->getType() === self::GROUP) {
+                    $new_group = new Group($data, $this->csv_log);
                     if ($data->getAction() === BaseObject::INSERT) {
-                        $new_group = new Group($data);
                         $new_group->insert();
+                        $this->csv_log->addEntryToLog(BaseObject::OK,
+                            $new_group->getData()->getRefId(),
+                            $new_group->getData()->getTitle(),
+                            $new_group->getData()->getValidatedAdmins(),
+                            $new_group->getData()->getImportResult()
+                        );
                     } elseif ($data->getAction() === BaseObject::UPDATE) {
-                        $new_group = new Group($data);
                         $new_group->update();
+                        $this->csv_log->addEntryToLog(BaseObject::OK,
+                            $new_group->getData()->getRefId(),
+                            $new_group->getData()->getTitle(),
+                            $new_group->getData()->getValidatedAdmins(),
+                            $new_group->getData()->getImportResult()
+                        );
                     } elseif ($data->getAction() === BaseObject::IGNORE) {
-
+                        $new_group->getData()->setImportResult('Entry has ignore action set, ignoring entry.');
+                        $this->csv_log->addEntryToLog(BaseObject::IGNORE,
+                            $new_group->getData()->getRefId(),
+                            $new_group->getData()->getTitle(),
+                            $new_group->getData()->getValidatedAdmins(),
+                            $new_group->getData()->getImportResult()
+                        );
                     } else {
-                        //Todo: error
+                        $new_group->getData()->setImportResult('No valid action found, ignoring entry.');
                     }
 
-                } else {
-                    //Todo: Error
+                }
+            else {
+                    //Todo: unknown object type error to log
                 }
             }
-        }
-        $output->setValue('Reporting CSV Import.csv');
+        $output->setValue($this->csv_log->getCSVLog());
         return $output;
     }
 

@@ -6,18 +6,22 @@ use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
 use ilDateTimeException;
 use ilDateTime;
 use ilObjectActivation;
+use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
 
 class BaseObject implements ObjectImporter
 {
     const INSERT = 'insert';
     const UPDATE = 'update';
     const IGNORE = 'ignore';
+    const OK = 'OK';
 
     private ?ImportCsvObject $data;
+    private CSVLog $csv_log;
 
-    public function __construct(ImportCsvObject $data)
+    public function __construct(ImportCsvObject $data, CSVLog $csv_log)
     {
         $this->data = $data;
+        $this->csv_log = $csv_log;
     }
 
     public function ignore()

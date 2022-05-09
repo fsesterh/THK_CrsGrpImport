@@ -23,28 +23,8 @@ class ImportCsvObject
     private ?string $unsubscribe_end = null;
     private string $admins = '';
     private ?int $parent_ref_id = null;
+    private ?string $import_result;
 
-    /**
-     * @param string      $action
-     * @param string      $type
-     * @param int         $ref_id
-     * @param int         $grp_type
-     * @param string      $title
-     * @param string      $description
-     * @param string|null $event_start
-     * @param string|null $event_end
-     * @param int         $online
-     * @param string|null $availability_start
-     * @param string|null $availability_end
-     * @param int         $registration
-     * @param string      $registration_pass
-     * @param int         $admission_link
-     * @param string|null $registration_start
-     * @param string|null $registration_end
-     * @param string|null $unsubscribe_end
-     * @param string      $admins
-     * @param int|null    $parent_ref_id
-     */
     public function __construct(
         string $action,
         string $type,
@@ -85,6 +65,7 @@ class ImportCsvObject
         $this->unsubscribe_end = $unsubscribe_end;
         $this->admins = $admins;
         $this->parent_ref_id = $parent_ref_id;
+        $this->import_result = '';
     }
 
     /**
@@ -100,7 +81,7 @@ class ImportCsvObject
      */
     public function getType() : string
     {
-        return $this->type;
+        return strtolower($this->type);
     }
 
     /**
@@ -251,5 +232,22 @@ class ImportCsvObject
     {
         return $this->parent_ref_id;
     }
+
+    /**
+     * @return string|null
+     */
+    public function getImportResult() : ?string
+    {
+        return $this->import_result;
+    }
+
+    /**
+     * @param string|null $import_result
+     */
+    public function setImportResult(?string $import_result) : void
+    {
+        $this->import_result = $import_result;
+    }
+
 
 }

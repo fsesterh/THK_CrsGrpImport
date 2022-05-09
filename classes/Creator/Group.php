@@ -23,11 +23,6 @@ class Group extends BaseObject
         return $ref_id;
     }
 
-    public function ignore()
-    {
-        // TODO: Implement ignore() method.
-    }
-
     /**
      * @throws ilDateTimeException
      */
@@ -38,7 +33,9 @@ class Group extends BaseObject
             $group = $this->createGroup();
             $ref_id = $this->writeGroupAdvancedData($group);
             $this->writeAvailability($ref_id);
-            $this->addAdminsToGroup($group);
+            if($this->addAdminsToGroup($group) === true) {
+                $this->getData()->setImportResult('Object created successfully.');
+            }
 
             return (int) $ref_id;
         }
@@ -122,7 +119,7 @@ class Group extends BaseObject
             foreach ($usr_ids as $usr_id) {
                 $success = $group->getMembersObject()->add($usr_id, IL_GRP_ADMIN);
                 if ($success === false) {
-                    //Todo: add error to log and csv log
+                    $this->getData()->setImportResult('One or all of the user accounts for admins not found. Data not processed.');
                 }
             }
             return true;
