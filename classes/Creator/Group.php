@@ -39,7 +39,7 @@ class Group extends BaseObject
             $group = $this->createGroup();
             $ref_id = $this->writeGroupAdvancedData($group);
             $this->writeGroupAvailability($ref_id);
-            $this->addAdminsToNewGroup($group);
+            $this->addAdminsToGroup($group);
 
             return (int) $ref_id;
         }
@@ -104,6 +104,7 @@ class Group extends BaseObject
                 $obj = new ilObjGroup($this->getData()->getRefId(), true);
                 $this->writeGroupAdvancedData($obj);
                 $this->writeGroupAvailability($this->getData()->getRefId());
+                $this->addAdminsToGroup($obj);
             } else {
                 // Todo: is in trash ignore
             }
@@ -131,7 +132,7 @@ class Group extends BaseObject
      * @param ilObjGroup $group
      * @return bool
      */
-    protected function addAdminsToNewGroup(ilObjGroup $group) : bool
+    protected function addAdminsToGroup(ilObjGroup $group) : bool
     {
         $usr_ids = \ilObjUser::_lookupId($this->getData()->getValidatedAdmins());
         if (is_array($usr_ids) && count($usr_ids) > 0) {

@@ -35,7 +35,7 @@ class Course extends BaseObject
             $course = $this->createCourse();
             $ref_id = $this->writeCourseAdvancedData($course);
             $this->writeCourseAvailability($ref_id);
-            $this->addAdminsToNewCourse($course);
+            $this->addAdminsToCourse($course);
 
             return (int) $ref_id;
         }
@@ -96,6 +96,7 @@ class Course extends BaseObject
                 $obj = new ilObjCourse($this->getData()->getRefId(), true);
                 $this->writeCourseAdvancedData($obj);
                 $this->writeCourseAvailability($this->getData()->getRefId());
+                $this->addAdminsToCourse($obj);
             } else {
                 // Todo: is in trash ignore
             }
@@ -122,7 +123,7 @@ class Course extends BaseObject
      * @param ilObjCourse $course
      * @return bool
      */
-    protected function addAdminsToNewCourse(ilObjCourse $course) : bool
+    protected function addAdminsToCourse(ilObjCourse $course) : bool
     {
         $usr_ids = \ilObjUser::_lookupId($this->getData()->getValidatedAdmins());
         if (is_array($usr_ids) && count($usr_ids) > 0) {
