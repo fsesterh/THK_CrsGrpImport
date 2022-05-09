@@ -7,9 +7,23 @@ use ilDateTime;
 use ilDate;
 use ilObjectActivation;
 use ilDateTimeException;
+use ilObject;
 
 class Course extends BaseObject
 {
+    /**
+     * @param ilObjCourse $course
+     * @return int
+     */
+    protected function putCourseInTree(ilObjCourse $course) : int
+    {
+        $ref_id = $course->createReference();
+        $course->putInTree($this->getData()->getParentRefId());
+        $course->setPermissions($this->getData()->getParentRefId());
+        $course->update();
+        return $ref_id;
+    }
+
     public function ignore()
     {
         // TODO: Implement ignore() method.
@@ -43,6 +57,7 @@ class Course extends BaseObject
         $course->setTitle($this->getData()->getTitle());
         $course->setDescription($this->getData()->getDescription());
         $course->create();
+        $ref_id = $this->putCourseInTree($course);
         return $course;
     }
 
@@ -53,9 +68,6 @@ class Course extends BaseObject
      */
     protected function writeCourseAdvancedData(ilObjCourse $course) : int
     {
-        $ref_id = $course->createReference();
-        $course->putInTree($this->getData()->getParentRefId());
-        $course->setPermissions($this->getData()->getParentRefId());
         $start = new ilDateTime($this->getData()->getEventStart(), 2);
         $end = new ilDateTime($this->getData()->getEventEnd(), 2);
         $course->setCoursePeriod($start, $end);
@@ -70,14 +82,23 @@ class Course extends BaseObject
         $unsubscribe_end = new ilDate($this->getData()->getUnsubscribeEnd(), 2);
         $course->setCancellationEnd($unsubscribe_end);
         $course->update();
-        return $ref_id;
+        return $course->getRefId();
     }
 
-    public function update()
+    /**
+     * @return void
+     * @throws ilDateTimeException
+     */
+    public function update() : void
     {
-        // TODO: Implement update() method.
-        if ($this->getData()->getRefId() !== null && $this->getData()->getRefId() !== 0) {
-
+        if ($this->getData()->getRefId() !== null && $this->getData()->getRefId() >= 0) {
+            if( ! ilObject::_isInTrash($this->getData()->getRefId())) {
+                $obj = new ilObjCourse($this->getData()->getRefId(), true);
+                $this->writeCourseAdvancedData($obj);
+                $this->writeCourseAvailability($this->getData()->getRefId());
+            } else {
+                // Todo: is in trash ignore
+            }
         }
     }
 

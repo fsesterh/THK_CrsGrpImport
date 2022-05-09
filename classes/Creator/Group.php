@@ -7,9 +7,23 @@ use ilObjGroup;
 use ilDate;
 use ilObjectActivation;
 use ilDateTimeException;
+use ilObject;
 
 class Group extends BaseObject
 {
+    /**
+     * @param ilObjGroup $group
+     * @return int
+     */
+    protected function putGroupInTree(ilObjGroup $group) : int
+    {
+        $ref_id = $group->createReference();
+        $group->putInTree($this->getData()->getParentRefId());
+        $group->setPermissions($this->getData()->getParentRefId());
+        $group->update();
+        return $ref_id;
+    }
+
     public function ignore()
     {
         // TODO: Implement ignore() method.
@@ -46,6 +60,7 @@ class Group extends BaseObject
         $group->setTitle($this->getData()->getTitle());
         $group->setDescription($this->getData()->getDescription());
         $group->create();
+        $ref_id = $this->putGroupInTree($group);
         return $group;
     }
 
@@ -56,9 +71,6 @@ class Group extends BaseObject
      */
     protected function writeGroupAdvancedData(ilObjGroup $group) : int
     {
-        $ref_id = $group->createReference();
-        $group->putInTree($this->getData()->getParentRefId());
-        $group->setPermissions($this->getData()->getParentRefId());
         $group->updateGroupType($this->getData()->getGrpType());
         $start = new ilDateTime($this->getData()->getEventStart());
         $end = new ilDateTime($this->getData()->getEventEnd());
@@ -78,13 +90,23 @@ class Group extends BaseObject
         $unsubscribe_end = new ilDate($this->getData()->getUnsubscribeEnd(), 2);
         $group->setCancellationEnd($unsubscribe_end);
         $group->update();
-        return $ref_id;
+        return $group->getRefId();
     }
 
-    public function update()
+    /**
+     * @return void
+     * @throws ilDateTimeException
+     */
+    public function update() : void
     {
-        // TODO: Implement update() method.
-        if ($this->getData()->getRefId() !== null && $this->getData()->getRefId() !== 0) {
+        if ($this->getData()->getRefId() !== null && $this->getData()->getRefId() >= 0) {
+            if( ! ilObject::_isInTrash($this->getData()->getRefId())) {
+                $obj = new ilObjGroup($this->getData()->getRefId(), true);
+                $this->writeGroupAdvancedData($obj);
+                $this->writeGroupAvailability($this->getData()->getRefId());
+            } else {
+                // Todo: is in trash ignore
+            }
 
         }
     }
