@@ -65,6 +65,7 @@ class Course extends BaseObject
 
     protected function createCourse() : ilObjCourse
     {
+        //Todo: validate no course in course!
         $course = new ilObjCourse();
         $course->setTitle($this->getData()->getTitle());
         $course->setDescription($this->getData()->getDescription());
@@ -80,7 +81,6 @@ class Course extends BaseObject
     protected function writeCourseAdvancedData(ilObjCourse $course) : int
     {
         $ref_id = $course->createReference();
-        //Todo: validate no course in course!
         $course->putInTree($this->getData()->getParentRefId());
         $course->setPermissions($this->getData()->getParentRefId());
         $start = new ilDateTime($this->getData()->getEventStart(), 2);
