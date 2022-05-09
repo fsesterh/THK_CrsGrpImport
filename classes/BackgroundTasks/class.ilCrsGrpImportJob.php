@@ -34,6 +34,63 @@ class ilCrsGrpImportJob extends AbstractJob
     }
 
     /**
+     * @param        $data
+     * @param string $base_status
+     * @return string
+     * @throws ilDateTimeException
+     */
+    protected function buildGroupObject($data, string $base_status) : string
+    {
+        $new_group = new Group($data, $this->csv_log);
+        return $this->buildObject($new_group, $data, $base_status);
+    }
+
+    /**
+     * @param        $data
+     * @param string $base_status
+     * @return string
+     * @throws ilDateTimeException
+     */
+    protected function buildCourseObject($data, string $base_status) : string
+    {
+        $new_course = new Course($data, $this->csv_log);
+        return $this->buildObject($new_course, $data, $base_status);
+    }
+
+    /**
+     * @param Course|Group $new_object
+     * @param        $data
+     * @param string $base_status
+     * @return string
+     * @throws ilDateTimeException
+     */
+    protected function buildObject($new_object, $data, string $base_status) : string
+    {
+        $import_data = $new_object->getData();
+
+        if ($data->getAction() === BaseObject::INSERT) {
+            $ref_id = $new_object->insert();
+            $import_data->setRefId($ref_id);
+        } elseif ($data->getAction() === BaseObject::UPDATE) {
+            $base_status = $new_object->update();
+        } elseif ($data->getAction() === BaseObject::IGNORE) {
+            $import_data->setImportResult(BaseObject::RESULT_IGNORE);
+            $base_status = BaseObject::STATUS_IGNORED;
+        } else {
+            $import_data->setImportResult(BaseObject::RESULT_NO_VALID_ACTION);
+            $base_status = BaseObject::STATUS_IGNORED;
+        }
+        $this->csv_log->addEntryToLog(
+            $base_status,
+            $import_data->getRefId(),
+            $import_data->getTitle(),
+            $import_data->getValidatedAdmins(),
+            $import_data->getImportResult()
+        );
+        return $base_status;
+    }
+
+    /**
      * @return SingleType[]
      */
     public function getInputTypes()
@@ -78,7 +135,7 @@ class ilCrsGrpImportJob extends AbstractJob
             if ($data->getType() === self::COURSE) {
                $base_status = $this->buildCourseObject($data, $base_status);
             } elseif ($data->getType() === self::GROUP) {
-                $base_status = $this->createGroupObject($data, $base_status);
+                $base_status = $this->buildGroupObject($data, $base_status);
             } else {
                     //Todo: unknown object type error to log
                 }
@@ -93,70 +150,5 @@ class ilCrsGrpImportJob extends AbstractJob
     public function getExpectedTimeOfTaskInSeconds()
     {
         return 600;
-    }
-
-    /**
-     * @param        $data
-     * @param string $base_status
-     * @return string
-     * @throws ilDateTimeException
-     */
-    protected function createGroupObject($data, string $base_status) : string
-    {
-        $new_group = new Group($data, $this->csv_log);
-        $import_data = $new_group->getData();
-        if ($data->getAction() === BaseObject::INSERT) {
-            $ref_id = $new_group->insert();
-            $import_data->setRefId($ref_id);
-        } elseif ($data->getAction() === BaseObject::UPDATE) {
-            $new_group->update();
-        } elseif ($data->getAction() === BaseObject::IGNORE) {
-            $import_data->setImportResult(BaseObject::RESULT_IGNORE);
-            $base_status = BaseObject::STATUS_IGNORED;
-        } else {
-            $import_data->setImportResult(BaseObject::RESULT_NO_VALID_ACTION);
-            $base_status = BaseObject::STATUS_IGNORED;
-        }
-        $this->csv_log->addEntryToLog(
-            $base_status,
-            $import_data->getRefId(),
-            $import_data->getTitle(),
-            $import_data->getValidatedAdmins(),
-            $import_data->getImportResult()
-        );
-        return $base_status;
-    }
-
-    /**
-     * @param        $data
-     * @param string $base_status
-     * @return string
-     * @throws ilDateTimeException
-     */
-    protected function buildCourseObject($data, string $base_status) : string
-    {
-        $new_course = new Course($data, $this->csv_log);
-        $import_data = $new_course->getData();
-
-        if ($data->getAction() === BaseObject::INSERT) {
-            $ref_id = $new_course->insert();
-            $import_data->setRefId($ref_id);
-        } elseif ($data->getAction() === BaseObject::UPDATE) {
-            $new_course->update();
-        } elseif ($data->getAction() === BaseObject::IGNORE) {
-            $import_data->setImportResult(BaseObject::RESULT_IGNORE);
-            $base_status = BaseObject::STATUS_IGNORED;
-        } else {
-            $import_data->setImportResult(BaseObject::RESULT_NO_VALID_ACTION);
-            $base_status = BaseObject::STATUS_IGNORED;
-        }
-        $this->csv_log->addEntryToLog(
-            $base_status,
-            $import_data->getRefId(),
-            $import_data->getTitle(),
-            $import_data->getValidatedAdmins(),
-            $import_data->getImportResult()
-        );
-        return $base_status;
     }
 }

@@ -7,6 +7,7 @@ use ilDateTimeException;
 use ilDateTime;
 use ilObjectActivation;
 use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
+use ILIAS\DI\Exceptions\Exception;
 
 class BaseObject implements ObjectImporter
 {
@@ -28,6 +29,8 @@ class BaseObject implements ObjectImporter
     const RESULT_NO_PASSWORD_GIVEN_FOR_TYPE_TWO = 'No registration password specified. Data not processed.';
     const RESULT_UNUSABLE_ADMIN_FOUND = 'One or all of the user accounts for admins not found. Data not processed.';
     const RESULT_DATASET_INCOMPLETE = 'Dataset incomplete. Data not processed.';
+    const RESULT_OBJECT_IN_TRASH_IGNORE = 'Object is in trash, ignoring.';
+    const RESULT_AVAILABILITY = 'Setting Availability not successful.';
 
 
     private ?ImportCsvObject $data;
@@ -43,7 +46,7 @@ class BaseObject implements ObjectImporter
     {
     }
 
-    public function update()
+    public function update() : string
     {
     }
 
@@ -68,15 +71,22 @@ class BaseObject implements ObjectImporter
     /**
      * @throws ilDateTimeException
      */
-    protected function writeAvailability(int $ref_id) : void
+    protected function writeAvailability(int $ref_id) : bool
     {
-        $availability_start = new ilDateTime($this->getData()->getAvailabilityStart(), 2);
-        $availability_end = new ilDateTime($this->getData()->getAvailabilityEnd(), 2);
-        $activation = new ilObjectActivation();
-        $activation->setTimingType(1);
-        $activation->setTimingStart($availability_start->getUnixTime());
-        $activation->setTimingEnd($availability_end->getUnixTime());
-        $activation->update($ref_id);
+        try {
+            $availability_start = new ilDateTime($this->getData()->getAvailabilityStart(), 2);
+            $availability_end = new ilDateTime($this->getData()->getAvailabilityEnd(), 2);
+            $activation = new ilObjectActivation();
+            $activation->setTimingType(1);
+            $activation->setTimingStart($availability_start->getUnixTime());
+            $activation->setTimingEnd($availability_end->getUnixTime());
+            $activation->update($ref_id);
+            return true;
+        } catch (Exception $e) {
+            $this->getData()->setImportResult(self::RESULT_AVAILABILITY . '( ' . $e->getMessage() . ')');
+            return false;
+        }
+
     }
 
 }

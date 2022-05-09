@@ -34,7 +34,7 @@ class Group extends BaseObject
             $ref_id = $this->writeGroupAdvancedData($group);
             $this->writeAvailability($ref_id);
             if($this->addAdminsToGroup($group) === true) {
-                $this->getData()->setImportResult('Object created successfully.');
+                $this->getData()->setImportResult(BaseObject::RESULT_CREATED_SUCCESSFULLY);
             }
 
             return (int) $ref_id;
@@ -93,18 +93,27 @@ class Group extends BaseObject
      * @return void
      * @throws ilDateTimeException
      */
-    public function update() : void
+    public function update() : string
     {
-        if ($this->getData()->getRefId() !== null && $this->getData()->getRefId() >= 0) {
-            if( ! ilObject::_isInTrash($this->getData()->getRefId())) {
-                $obj = new ilObjGroup($this->getData()->getRefId(), true);
+        $ref_id = $this->getData()->getRefId();
+        if ($ref_id > 0) {
+            if( ! ilObject::_isInTrash($ref_id)) {
+                $obj = new ilObjGroup($ref_id, true);
                 $this->writeGroupAdvancedData($obj);
-                $this->writeAvailability($this->getData()->getRefId());
-                $this->addAdminsToGroup($obj);
+                if($this->writeAvailability($ref_id) === false) {
+                    return BaseObject::STATUS_FAILED;
+                }
+                if($this->addAdminsToGroup($obj) === true) {
+                    $this->getData()->setImportResult(BaseObject::RESULT_UPDATED_SUCCESSFULLY);
+                    return BaseObject::STATUS_OK;
+                }
             } else {
-                // Todo: is in trash ignore
+                $this->getData()->setImportResult(BaseObject::RESULT_OBJECT_IN_TRASH_IGNORE);
+                return BaseObject::STATUS_FAILED;
             }
-
+        } else {
+            $this->getData()->setImportResult(BaseObject::RESULT_NO_REF_ID_GIVEN_FOR_UPDATE);
+            return BaseObject::STATUS_FAILED;
         }
     }
 

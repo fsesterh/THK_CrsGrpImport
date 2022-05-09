@@ -33,7 +33,7 @@ class Course extends BaseObject
             $ref_id = $this->writeCourseAdvancedData($course);
             $this->writeAvailability($ref_id);
             if($this->addAdminsToCourse($course) === true) {
-                $this->getData()->setImportResult('Object created successfully.');
+                $this->getData()->setImportResult(BaseObject::RESULT_CREATED_SUCCESSFULLY);
             }
 
             return (int) $ref_id;
@@ -88,17 +88,27 @@ class Course extends BaseObject
      * @return void
      * @throws ilDateTimeException
      */
-    public function update() : void
+    public function update() : string
     {
-        if ($this->getData()->getRefId() !== null && $this->getData()->getRefId() >= 0) {
-            if( ! ilObject::_isInTrash($this->getData()->getRefId())) {
-                $obj = new ilObjCourse($this->getData()->getRefId(), true);
+        $ref_id = $this->getData()->getRefId();
+        if ($ref_id > 0) {
+            if( ! ilObject::_isInTrash($ref_id)) {
+                $obj = new ilObjCourse($ref_id, true);
                 $this->writeCourseAdvancedData($obj);
-                $this->writeAvailability($this->getData()->getRefId());
-                $this->addAdminsToCourse($obj);
+                if($this->writeAvailability($ref_id) === false) {
+                    return BaseObject::STATUS_FAILED;
+                }
+                if($this->addAdminsToCourse($obj) === true) {
+                    $this->getData()->setImportResult(BaseObject::RESULT_UPDATED_SUCCESSFULLY);
+                    return BaseObject::STATUS_OK;
+                }
             } else {
-                // Todo: is in trash ignore
+                $this->getData()->setImportResult(BaseObject::RESULT_OBJECT_IN_TRASH_IGNORE);
+                return BaseObject::STATUS_FAILED;
             }
+        } else {
+            $this->getData()->setImportResult(BaseObject::RESULT_NO_REF_ID_GIVEN_FOR_UPDATE);
+            return BaseObject::STATUS_FAILED;
         }
     }
 
