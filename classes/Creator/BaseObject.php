@@ -13,6 +13,7 @@ class BaseObject implements ObjectImporter
     const INSERT = 'insert';
     const UPDATE = 'update';
     const IGNORE = 'ignore';
+    const IGNORED = 'Ignored';
     const OK = 'OK';
 
     private ?ImportCsvObject $data;
