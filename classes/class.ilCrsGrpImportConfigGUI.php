@@ -57,7 +57,7 @@ class ilCrsGrpImportConfigGUI extends \ilPluginConfigGUI
         $form->addCommandButton('saveConfigurationForm', $this->dic->language()->txt('save'));
         $this->dic->ui()->mainTemplate()->setContent($form->getHTML());
     }
-    
+
     protected function prepareRoleSelection(): array
     {
         global $DIC;
