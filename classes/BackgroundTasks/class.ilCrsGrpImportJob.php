@@ -13,6 +13,7 @@ use ILIAS\Plugin\CrsGrpImport\Creator\Course;
 use ILIAS\Plugin\CrsGrpImport\Creator\Group;
 use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
 use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
+use ilDateTimeException;
 
 /**
  *
@@ -64,7 +65,7 @@ class ilCrsGrpImportJob extends AbstractJob
      * @param Observer $observer
      * @return StringValue
      * @throws \ILIAS\BackgroundTasks\Exceptions\InvalidArgumentException
-     * @throws \ilDateTimeException
+     * @throws ilDateTimeException
      */
     public function run(array $input, Observer $observer)
     {
@@ -72,55 +73,13 @@ class ilCrsGrpImportJob extends AbstractJob
         $this->logger->info('ilCrsGrpImportJob started...');
         $csv_serialized = $input[0]->getValue();
         $csv_deserialized = unserialize($csv_serialized);
-        $base_status = BaseObject::OK;
+        $base_status = BaseObject::STATUS_OK;
         foreach ($csv_deserialized as $key => $data) {
             if ($data->getType() === self::COURSE) {
-                $new_course = new Course($data, $this->csv_log);
-                $import_data = $new_course->getData();
-
-                if ($data->getAction() === BaseObject::INSERT) {
-                    $ref_id = $new_course->insert();
-                    $import_data->setRefId($ref_id);
-                } elseif ($data->getAction() === BaseObject::UPDATE) {
-                    $new_course->update();
-                } elseif ($data->getAction() === BaseObject::IGNORE) {
-                        $import_data->setImportResult('Entry has ignore action set, ignoring entry.');
-                        $base_status = BaseObject::IGNORED;
-                } else {
-                    $import_data->setImportResult('No valid action found, ignoring entry.');
-                    $base_status = BaseObject::IGNORED;
-                }
-                $this->csv_log->addEntryToLog(
-                    $base_status,
-                    $import_data->getRefId(),
-                    $import_data->getTitle(),
-                    $import_data->getValidatedAdmins(),
-                    $import_data->getImportResult()
-                );
+               $base_status = $this->buildCourseObject($data, $base_status);
             } elseif ($data->getType() === self::GROUP) {
-                    $new_group = new Group($data, $this->csv_log);
-                    $import_data = $new_group->getData();
-                    if ($data->getAction() === BaseObject::INSERT) {
-                        $ref_id = $new_group->insert();
-                        $import_data->setRefId($ref_id);
-                    } elseif ($data->getAction() === BaseObject::UPDATE) {
-                        $new_group->update();
-                    } elseif ($data->getAction() === BaseObject::IGNORE) {
-                        $import_data->setImportResult('Entry has ignore action set, ignoring entry.');
-                        $base_status = BaseObject::IGNORED;
-                    } else {
-                        $import_data->setImportResult('No valid action found, ignoring entry.');
-                        $base_status = BaseObject::IGNORED;
-                    }
-                    $this->csv_log->addEntryToLog(
-                        $base_status,
-                        $import_data->getRefId(),
-                        $import_data->getTitle(),
-                        $import_data->getValidatedAdmins(),
-                        $import_data->getImportResult()
-                    );
-                }
-            else {
+                $base_status = $this->createGroupObject($data, $base_status);
+            } else {
                     //Todo: unknown object type error to log
                 }
         }
@@ -134,5 +93,70 @@ class ilCrsGrpImportJob extends AbstractJob
     public function getExpectedTimeOfTaskInSeconds()
     {
         return 600;
+    }
+
+    /**
+     * @param        $data
+     * @param string $base_status
+     * @return string
+     * @throws ilDateTimeException
+     */
+    protected function createGroupObject($data, string $base_status) : string
+    {
+        $new_group = new Group($data, $this->csv_log);
+        $import_data = $new_group->getData();
+        if ($data->getAction() === BaseObject::INSERT) {
+            $ref_id = $new_group->insert();
+            $import_data->setRefId($ref_id);
+        } elseif ($data->getAction() === BaseObject::UPDATE) {
+            $new_group->update();
+        } elseif ($data->getAction() === BaseObject::IGNORE) {
+            $import_data->setImportResult(BaseObject::RESULT_IGNORE);
+            $base_status = BaseObject::STATUS_IGNORED;
+        } else {
+            $import_data->setImportResult(BaseObject::RESULT_NO_VALID_ACTION);
+            $base_status = BaseObject::STATUS_IGNORED;
+        }
+        $this->csv_log->addEntryToLog(
+            $base_status,
+            $import_data->getRefId(),
+            $import_data->getTitle(),
+            $import_data->getValidatedAdmins(),
+            $import_data->getImportResult()
+        );
+        return $base_status;
+    }
+
+    /**
+     * @param        $data
+     * @param string $base_status
+     * @return string
+     * @throws ilDateTimeException
+     */
+    protected function buildCourseObject($data, string $base_status) : string
+    {
+        $new_course = new Course($data, $this->csv_log);
+        $import_data = $new_course->getData();
+
+        if ($data->getAction() === BaseObject::INSERT) {
+            $ref_id = $new_course->insert();
+            $import_data->setRefId($ref_id);
+        } elseif ($data->getAction() === BaseObject::UPDATE) {
+            $new_course->update();
+        } elseif ($data->getAction() === BaseObject::IGNORE) {
+            $import_data->setImportResult(BaseObject::RESULT_IGNORE);
+            $base_status = BaseObject::STATUS_IGNORED;
+        } else {
+            $import_data->setImportResult(BaseObject::RESULT_NO_VALID_ACTION);
+            $base_status = BaseObject::STATUS_IGNORED;
+        }
+        $this->csv_log->addEntryToLog(
+            $base_status,
+            $import_data->getRefId(),
+            $import_data->getTitle(),
+            $import_data->getValidatedAdmins(),
+            $import_data->getImportResult()
+        );
+        return $base_status;
     }
 }
