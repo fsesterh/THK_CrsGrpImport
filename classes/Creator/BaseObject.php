@@ -57,7 +57,7 @@ class BaseObject implements ObjectImporter
     public function ensureDataIsValidAndComplete() : bool
     {
         if ($this->getData()->getTitle() === '') {
-            //Todo: Add error to csv log if validation is false
+            $this->getData()->setImportResult(self::RESULT_DATASET_INCOMPLETE);
             return false;
         }
         return true;

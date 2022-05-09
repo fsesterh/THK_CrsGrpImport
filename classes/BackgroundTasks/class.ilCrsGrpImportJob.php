@@ -34,43 +34,43 @@ class ilCrsGrpImportJob extends AbstractJob
     }
 
     /**
-     * @param        $data
-     * @param string $base_status
+     * @param        $datas
      * @return string
      * @throws ilDateTimeException
      */
-    protected function buildGroupObject($data, string $base_status) : string
+    protected function buildGroupObject($data) : string
     {
         $new_group = new Group($data, $this->csv_log);
-        return $this->buildObject($new_group, $data, $base_status);
+        return $this->buildObject($new_group, $data);
     }
 
     /**
      * @param        $data
-     * @param string $base_status
      * @return string
      * @throws ilDateTimeException
      */
-    protected function buildCourseObject($data, string $base_status) : string
+    protected function buildCourseObject($data) : string
     {
         $new_course = new Course($data, $this->csv_log);
-        return $this->buildObject($new_course, $data, $base_status);
+        return $this->buildObject($new_course, $data);
     }
 
     /**
      * @param Course|Group $new_object
      * @param        $data
-     * @param string $base_status
      * @return string
      * @throws ilDateTimeException
      */
-    protected function buildObject($new_object, $data, string $base_status) : string
+    protected function buildObject($new_object, $data) : string
     {
+        $base_status = BaseObject::STATUS_OK;
         $import_data = $new_object->getData();
-
         if ($data->getAction() === BaseObject::INSERT) {
             $ref_id = $new_object->insert();
             $import_data->setRefId($ref_id);
+            if($ref_id === 0) {
+                $base_status = BaseObject::STATUS_FAILED;
+            }
         } elseif ($data->getAction() === BaseObject::UPDATE) {
             $base_status = $new_object->update();
         } elseif ($data->getAction() === BaseObject::IGNORE) {
@@ -133,9 +133,9 @@ class ilCrsGrpImportJob extends AbstractJob
         $base_status = BaseObject::STATUS_OK;
         foreach ($csv_deserialized as $key => $data) {
             if ($data->getType() === self::COURSE) {
-               $base_status = $this->buildCourseObject($data, $base_status);
+               $base_status = $this->buildCourseObject($data);
             } elseif ($data->getType() === self::GROUP) {
-                $base_status = $this->buildGroupObject($data, $base_status);
+                $base_status = $this->buildGroupObject($data);
             } else {
                     //Todo: unknown object type error to log
                 }

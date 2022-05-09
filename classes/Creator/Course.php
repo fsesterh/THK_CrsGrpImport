@@ -38,6 +38,7 @@ class Course extends BaseObject
 
             return (int) $ref_id;
         }
+        return 0;
     }
 
     public function ensureDataIsValidAndComplete() : bool
