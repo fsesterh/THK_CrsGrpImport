@@ -13,6 +13,7 @@ use ILIAS\Plugin\CrsGrpImport\BackgroundTasks\ilCrsGrpImportReport;
 use ilLink;
 use ilObject;
 use ilCrsGrpImportPlugin;
+use ilUtil;
 
 /**
  * Class Index
@@ -56,17 +57,20 @@ class Import extends Base
         }
 
         if (false === $DIC->upload()->hasUploads()) {
-            //Todo: Error
+            ilUtil::sendFailure(ilCrsGrpImportPlugin::getInstance()->txt('upload_error'), true);
+            $this->redirectToRefId($parent_ref_id);
         }
 
         $uploadResults = $DIC->upload()->getResults();
         $uploadResult = array_values($uploadResults)[0];
         if (!($uploadResult instanceof UploadResult)) {
-            //Todo: Error
+            ilUtil::sendFailure(ilCrsGrpImportPlugin::getInstance()->txt('upload_error'), true);
+            $this->redirectToRefId($parent_ref_id);
         }
 
         if ($uploadResult->getStatus()->getCode() === ProcessingStatus::REJECTED) {
-            //Todo: Error
+            ilUtil::sendFailure(ilCrsGrpImportPlugin::getInstance()->txt('upload_error'), true);
+            $this->redirectToRefId($parent_ref_id);
         }
 
         $csv_array = $this->convertCSVToArray($uploadResult->getPath(), $parent_ref_id);
@@ -85,11 +89,11 @@ class Import extends Base
         $bucket->setDescription(ilCrsGrpImportPlugin::getInstance()->txt('import_description'));
         $this->dic->backgroundTasks()->taskManager()->run($bucket);
 
-        $url = $this->buildUrl($parent_ref_id);
-        $this->dic->ctrl()->redirectToURL($url);
+        $this->redirectToRefId($parent_ref_id);
+
     }
 
-    protected function buildUrl(int $ref_id) : string {
+    protected function redirectToRefId(int $ref_id) : void {
         $url = '#';
         if($ref_id > 0) {
             $type = ilObject::_lookupType($ref_id, true);
@@ -99,12 +103,13 @@ class Import extends Base
                 true
             );
         }
-        return $url;
+        $this->dic->ctrl()->redirectToURL($url);
     }
 
     /**
-     * @param string $importFile
-     * @return ImportCSVObject[]
+     * @param string   $importFile
+     * @param int|null $parent_ref_id
+     * @return ImportCsvObject[]
      */
     public function convertCSVToArray(string $importFile, ?int $parent_ref_id = null) : array
     {
@@ -142,10 +147,7 @@ class Import extends Base
                         $registration_pass, $admission_link, $registration_start, $registration_end, $unsubscribe_end,
                         $admins, $parent_ref_id);
                     $csv_array[] = $import_row;
-                } else {
-                    // Todo: error csv format not correct!
                 }
-
             }
             fclose($handle);
         }
