@@ -8,6 +8,7 @@ use ilDateTime;
 use ilObjectActivation;
 use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
 use ILIAS\DI\Exceptions\Exception;
+use ilObject;
 
 class BaseObject implements ObjectImporter
 {
@@ -20,8 +21,8 @@ class BaseObject implements ObjectImporter
     const STATUS_OK = 'OK';
     const RESULT_IGNORE = 'Entry has set ignore action, ignoring entry.';
     const RESULT_NO_VALID_ACTION = 'No valid action found, ignoring entry.';
-    const RESULT_CREATED_SUCCESSFULLY= 'Object created successfully.';
-    const RESULT_UPDATED_SUCCESSFULLY= 'Object updated successfully.';
+    const RESULT_CREATED_SUCCESSFULLY = 'Object created successfully.';
+    const RESULT_UPDATED_SUCCESSFULLY = 'Object updated successfully.';
     const RESULT_DATASET_IGNORED = 'Dataset ignored.';
     const RESULT_REF_ID_NOT_FOUND = 'RefId not found. Data not processed.';
     const RESULT_NO_REF_ID_GIVEN_FOR_UPDATE = 'No RefId specified for update. Data not processed.';
@@ -30,9 +31,9 @@ class BaseObject implements ObjectImporter
     const RESULT_UNUSABLE_ADMIN_FOUND = 'One or all of the user accounts for admins not found. Data not processed.';
     const RESULT_UNKNOWN_OBJECT_TYPE = 'Object type is not known, Data not processed.';
     const RESULT_DATASET_INCOMPLETE = 'Dataset incomplete. Data not processed.';
+    const RESULT_DATASET_INVALID = 'Dataset invalid. Data not processed.';
     const RESULT_OBJECT_IN_TRASH_IGNORE = 'Object is in trash, ignoring.';
     const RESULT_AVAILABILITY = 'Setting Availability not successful.';
-
 
     private ?ImportCsvObject $data;
     private CSVLog $csv_log;
@@ -55,7 +56,7 @@ class BaseObject implements ObjectImporter
     {
     }
 
-    public function ensureDataIsValidAndComplete() : bool
+    public function checkPrerequisitesForInsert() : bool
     {
         if ($this->getData()->getTitle() === '') {
             $this->getData()->setImportResult(self::RESULT_DATASET_INCOMPLETE);
@@ -87,7 +88,44 @@ class BaseObject implements ObjectImporter
             $this->getData()->setImportResult(self::RESULT_AVAILABILITY . '( ' . $e->getMessage() . ')');
             return false;
         }
+    }
 
+    public function checkPrerequisitesForUpdate(int $ref_id, ImportCsvObject $data) : bool
+    {
+        if ($ref_id > 0) {
+            if (!$this->isInTrash($ref_id)) {
+                if ($this->objectExists($ref_id)) {
+                    if($this->isCorrectObjectType($ref_id, $data->getType())) {
+                        return true;
+                    } else {
+                        $data->setImportResult(self::RESULT_REF_ID_AND_TYPE_DO_NOT_MATCH);
+                    }
+                } else {
+                    $data->setImportResult(BaseObject::RESULT_REF_ID_NOT_FOUND);
+                }
+            } else {
+                $data->setImportResult(BaseObject::RESULT_OBJECT_IN_TRASH_IGNORE);
+            }
+        } else {
+            $data->setImportResult(BaseObject::RESULT_NO_REF_ID_GIVEN_FOR_UPDATE);
+        }
+        return false;
+    }
+
+    protected function isInTrash(int $ref_id) : bool
+    {
+        return ilObject::_isInTrash($ref_id);
+    }
+
+    protected function objectExists(int $ref_id) : bool
+    {
+        return ilObject::_exists($ref_id, true);
+    }
+
+    protected function isCorrectObjectType(int $ref_id, string $type) : bool
+    {
+        $obj_type = ilObject::_lookupType($ref_id, true);
+        return $obj_type === $type;
     }
 
 }

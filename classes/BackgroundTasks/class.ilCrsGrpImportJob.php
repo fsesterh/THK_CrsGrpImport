@@ -64,20 +64,19 @@ class ilCrsGrpImportJob extends AbstractJob
     protected function buildObject($new_object, $data) : string
     {
         $base_status = BaseObject::STATUS_OK;
-        $import_data = $new_object->getData();
         if ($data->getAction() === BaseObject::INSERT) {
             $ref_id = $new_object->insert();
-            $import_data->setRefId($ref_id);
+            $data->setRefId($ref_id);
             if($ref_id === 0) {
                 $base_status = BaseObject::STATUS_FAILED;
             }
         } elseif ($data->getAction() === BaseObject::UPDATE) {
             $base_status = $new_object->update();
         } elseif ($data->getAction() === BaseObject::IGNORE) {
-            $import_data->setImportResult(BaseObject::RESULT_IGNORE);
+            $data->setImportResult(BaseObject::RESULT_IGNORE);
             $base_status = BaseObject::STATUS_IGNORED;
         } else {
-            $import_data->setImportResult(BaseObject::RESULT_NO_VALID_ACTION);
+            $data->setImportResult(BaseObject::RESULT_NO_VALID_ACTION);
             $base_status = BaseObject::STATUS_IGNORED;
         }
 

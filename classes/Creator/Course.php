@@ -28,7 +28,7 @@ class Course extends BaseObject
      */
     public function insert() : int
     {
-        if ($this->getData() !== null && $this->ensureDataIsValidAndComplete()) {
+        if ($this->getData() !== null && $this->checkPrerequisitesForInsert()) {
             $course = $this->createCourse();
             $ref_id = $this->writeCourseAdvancedData($course);
             $this->writeAvailability($ref_id);
@@ -41,9 +41,9 @@ class Course extends BaseObject
         return 0;
     }
 
-    public function ensureDataIsValidAndComplete() : bool
+    public function checkPrerequisitesForInsert() : bool
     {
-        $valid_data = parent::ensureDataIsValidAndComplete();
+        $valid_data = parent::checkPrerequisitesForInsert();
         if ($valid_data) {
             return true;
         }
@@ -92,23 +92,18 @@ class Course extends BaseObject
     public function update() : string
     {
         $ref_id = $this->getData()->getRefId();
-        if ($ref_id > 0) {
-            if( ! ilObject::_isInTrash($ref_id)) {
-                $obj = new ilObjCourse($ref_id, true);
-                $this->writeCourseAdvancedData($obj);
-                if($this->writeAvailability($ref_id) === false) {
-                    return BaseObject::STATUS_FAILED;
-                }
-                if($this->addAdminsToCourse($obj) === true) {
-                    $this->getData()->setImportResult(BaseObject::RESULT_UPDATED_SUCCESSFULLY);
-                    return BaseObject::STATUS_OK;
-                }
-            } else {
-                $this->getData()->setImportResult(BaseObject::RESULT_OBJECT_IN_TRASH_IGNORE);
+        if($this->checkPrerequisitesForUpdate($ref_id, $this->getData())) {
+            $obj = new ilObjCourse($ref_id, true);
+            $this->writeCourseAdvancedData($obj);
+            if($this->writeAvailability($ref_id) === false) {
                 return BaseObject::STATUS_FAILED;
             }
+            if($this->addAdminsToCourse($obj) === true) {
+                $this->getData()->setImportResult(BaseObject::RESULT_UPDATED_SUCCESSFULLY);
+                return BaseObject::STATUS_UPDATED;
+            }
         } else {
-            $this->getData()->setImportResult(BaseObject::RESULT_NO_REF_ID_GIVEN_FOR_UPDATE);
+            $this->getData()->setImportResult(BaseObject::RESULT_DATASET_INVALID);
             return BaseObject::STATUS_FAILED;
         }
     }

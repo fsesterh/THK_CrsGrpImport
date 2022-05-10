@@ -28,7 +28,7 @@ class Group extends BaseObject
      */
     public function insert() : int
     {
-        if ($this->getData() !== null && $this->ensureDataIsValidAndComplete()) {
+        if ($this->getData() !== null && $this->checkPrerequisitesForInsert()) {
 
             $group = $this->createGroup();
             $ref_id = $this->writeGroupAdvancedData($group);
@@ -42,9 +42,9 @@ class Group extends BaseObject
         return 0;
     }
 
-    public function ensureDataIsValidAndComplete() : bool
+    public function checkPrerequisitesForInsert() : bool
     {
-        $valid_data = parent::ensureDataIsValidAndComplete();
+        $valid_data = parent::checkPrerequisitesForInsert();
         if ($valid_data) {
             return true;
         }
@@ -97,23 +97,18 @@ class Group extends BaseObject
     public function update() : string
     {
         $ref_id = $this->getData()->getRefId();
-        if ($ref_id > 0) {
-            if( ! ilObject::_isInTrash($ref_id)) {
-                $obj = new ilObjGroup($ref_id, true);
-                $this->writeGroupAdvancedData($obj);
-                if($this->writeAvailability($ref_id) === false) {
-                    return BaseObject::STATUS_FAILED;
-                }
-                if($this->addAdminsToGroup($obj) === true) {
-                    $this->getData()->setImportResult(BaseObject::RESULT_UPDATED_SUCCESSFULLY);
-                    return BaseObject::STATUS_OK;
-                }
-            } else {
-                $this->getData()->setImportResult(BaseObject::RESULT_OBJECT_IN_TRASH_IGNORE);
+        if($this->checkPrerequisitesForUpdate($ref_id, $this->getData())) {
+            $obj = new ilObjGroup($ref_id, true);
+            $this->writeGroupAdvancedData($obj);
+            if($this->writeAvailability($ref_id) === false) {
                 return BaseObject::STATUS_FAILED;
             }
+            if($this->addAdminsToGroup($obj) === true) {
+                $this->getData()->setImportResult(BaseObject::RESULT_UPDATED_SUCCESSFULLY);
+                return BaseObject::STATUS_UPDATED;
+            }
         } else {
-            $this->getData()->setImportResult(BaseObject::RESULT_NO_REF_ID_GIVEN_FOR_UPDATE);
+            $this->getData()->setImportResult(BaseObject::RESULT_DATASET_INVALID);
             return BaseObject::STATUS_FAILED;
         }
     }

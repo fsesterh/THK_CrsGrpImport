@@ -10,5 +10,5 @@ interface ObjectImporter
 
     public function insert() : int;
 
-    public function ensureDataIsValidAndComplete() : bool;
+    public function checkPrerequisitesForInsert() : bool;
 }
