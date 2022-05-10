@@ -28,6 +28,7 @@ class BaseObject implements ObjectImporter
     const RESULT_REF_ID_AND_TYPE_DO_NOT_MATCH = 'RefId does not match object-type. Data not processed.';
     const RESULT_NO_PASSWORD_GIVEN_FOR_TYPE_TWO = 'No registration password specified. Data not processed.';
     const RESULT_UNUSABLE_ADMIN_FOUND = 'One or all of the user accounts for admins not found. Data not processed.';
+    const RESULT_UNKNOWN_OBJECT_TYPE = 'Object type is not known, Data not processed.';
     const RESULT_DATASET_INCOMPLETE = 'Dataset incomplete. Data not processed.';
     const RESULT_OBJECT_IN_TRASH_IGNORE = 'Object is in trash, ignoring.';
     const RESULT_AVAILABILITY = 'Setting Availability not successful.';

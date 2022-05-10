@@ -80,13 +80,7 @@ class ilCrsGrpImportJob extends AbstractJob
             $import_data->setImportResult(BaseObject::RESULT_NO_VALID_ACTION);
             $base_status = BaseObject::STATUS_IGNORED;
         }
-        $this->csv_log->addEntryToLog(
-            $base_status,
-            $import_data->getRefId(),
-            $import_data->getTitle(),
-            $import_data->getValidatedAdmins(),
-            $import_data->getImportResult()
-        );
+
         return $base_status;
     }
 
@@ -133,13 +127,23 @@ class ilCrsGrpImportJob extends AbstractJob
         $base_status = BaseObject::STATUS_OK;
         foreach ($csv_deserialized as $key => $data) {
             if ($data->getType() === self::COURSE) {
-               $base_status = $this->buildCourseObject($data);
+                $base_status = $this->buildCourseObject($data);
             } elseif ($data->getType() === self::GROUP) {
                 $base_status = $this->buildGroupObject($data);
             } else {
-                    //Todo: unknown object type error to log
-                }
+                $base_status = BaseObject::STATUS_FAILED;
+                $data->setImportResult(BaseObject::RESULT_UNKNOWN_OBJECT_TYPE);
+            }
+            $this->csv_log->addEntryToLog(
+                $base_status,
+                $data->getRefId(),
+                $data->getTitle(),
+                $data->getValidatedAdmins(),
+                $data->getImportResult()
+            );
         }
+
+
         $output->setValue($this->csv_log->getCSVLog());
         return $output;
     }

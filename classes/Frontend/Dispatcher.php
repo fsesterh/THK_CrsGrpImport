@@ -4,12 +4,8 @@
 namespace ILIAS\Plugin\CrsGrpImport\Frontend;
 
 use ILIAS\DI\Container;
+use ilCrsGrpImportUIHookGUI;
 
-/**
- * Class Dispatcher
- * @package ILIAS\Plugin\CrsGrpImport\Frontend
- * @author  Michael Jansen <mjansen@databay.de>
- */
 class Dispatcher
 {
     /**
@@ -18,7 +14,7 @@ class Dispatcher
     private static $instance = null;
 
     /**
-     * @var \ilCrsGrpImportUIHookGUI
+     * @var ilCrsGrpImportUIHookGUI
      */
     protected $coreController;
 
@@ -34,20 +30,20 @@ class Dispatcher
 
     /**
      * Dispatcher constructor.
-     * @param \ilCrsGrpImportUIHookGUI $baseController
+     * @param ilCrsGrpImportUIHookGUI $baseController
      * @param string                   $defaultController
      */
-    private function __construct(\ilCrsGrpImportUIHookGUI $baseController, $defaultController = '')
+    private function __construct(ilCrsGrpImportUIHookGUI $baseController, $defaultController = '')
     {
         $this->coreController = $baseController;
         $this->defaultController = $defaultController;
     }
 
     /**
-     * @param \ilCrsGrpImportUIHookGUI $base_controller
+     * @param ilCrsGrpImportUIHookGUI $base_controller
      * @return self
      */
-    public static function getInstance(\ilCrsGrpImportUIHookGUI $base_controller)
+    public static function getInstance(ilCrsGrpImportUIHookGUI $base_controller)
     {
         if (self::$instance === null) {
             self::$instance = new self($base_controller);
@@ -153,7 +149,7 @@ class Dispatcher
     }
 
     /**
-     * @return \ilCrsGrpImportUIHookGUI
+     * @return ilCrsGrpImportUIHookGUI
      */
     public function getCoreController()
     {
@@ -161,9 +157,9 @@ class Dispatcher
     }
 
     /**
-     * @param \ilCrsGrpImportUIHookGUI $coreController
+     * @param ilCrsGrpImportUIHookGUI $coreController
      */
-    public function setCoreController(\ilCrsGrpImportUIHookGUI $coreController)
+    public function setCoreController(ilCrsGrpImportUIHookGUI $coreController)
     {
         $this->coreController = $coreController;
     }
