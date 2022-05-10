@@ -56,7 +56,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
     {
         $queryParams = $this->dic->http()->request()->getQueryParams();
 
-        if (array_key_exists('cmd', $queryParams) && $queryParams['cmd'] === 'create' &&
+        if ($this->isAllowedUser() && array_key_exists('cmd', $queryParams) && $queryParams['cmd'] === 'create' &&
             (
                 array_key_exists('new_type', $queryParams) && $queryParams['new_type'] === 'grp' ||
                 array_key_exists('new_type', $queryParams) && $queryParams['new_type'] === 'crs'
@@ -82,6 +82,20 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
             }
         }
         return array('mode' => ilUIHookPluginGUI::KEEP);
+    }
+
+    /**
+     * @return bool
+     */
+    private function isAllowedUser(): bool
+    {
+        $selected_role = explode(';', $this->dic->settings()->get('crs_grp_import_default_role_ids'));
+        $user_roles = $this->dic->rbac()->review()->assignedGlobalRoles($this->dic->user()->id);
+
+        if (count(array_intersect($user_roles, $selected_role)) > 0) {
+            return true;
+        }
+        return $this->dic->rbac()->review()->isAssigned($this->dic->user()->getId(), SYSTEM_ROLE_ID);
     }
 
 } 
