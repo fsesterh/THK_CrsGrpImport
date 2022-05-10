@@ -3,3 +3,6 @@ ref_id#:#RefId
 title#:#Titel
 admins#:#Admins
 result#:#Ergebnis
+grp_add#:#CSV hochladen
+crs_add#:#CSV hochladen
+select_file#:#Datei auswählen
