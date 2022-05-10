@@ -10,6 +10,8 @@ use ILIAS\Plugin\CrsGrpImport\Data\Conversions;
 use ILIAS\BackgroundTasks\Implementation\Bucket\BasicBucket;
 use ILIAS\Plugin\CrsGrpImport\BackgroundTasks\ilCrsGrpImportJob;
 use ILIAS\Plugin\CrsGrpImport\BackgroundTasks\ilCrsGrpImportReport;
+use ilLink;
+use ilObject;
 
 /**
  * Class Index
@@ -36,7 +38,8 @@ class Import extends Base
     }
 
     /**
-     * @return string
+     * @return void
+     * @throws \ILIAS\FileUpload\Exception\IllegalStateException
      */
     public function import()
     {
@@ -81,7 +84,21 @@ class Import extends Base
         $bucket->setDescription('Course and Group CSV import task');
         $this->dic->backgroundTasks()->taskManager()->run($bucket);
 
-        return '<pre>' . $parent_ref_id . print_r($csv_array, true) . '</pre>';
+        $url = $this->buildUrl($parent_ref_id);
+        $this->dic->ctrl()->redirectToURL($url);
+    }
+
+    protected function buildUrl(int $ref_id) : string {
+        $url = '#';
+        if($ref_id > 0) {
+            $type = ilObject::_lookupType($ref_id, true);
+            $url = ilLink::_getStaticLink(
+                $ref_id,
+                $type,
+                true
+            );
+        }
+        return $url;
     }
 
     /**

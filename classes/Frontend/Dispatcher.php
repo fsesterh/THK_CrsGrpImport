@@ -31,7 +31,7 @@ class Dispatcher
     /**
      * Dispatcher constructor.
      * @param ilCrsGrpImportUIHookGUI $baseController
-     * @param string                   $defaultController
+     * @param string                  $defaultController
      */
     private function __construct(ilCrsGrpImportUIHookGUI $baseController, $defaultController = '')
     {
@@ -82,6 +82,22 @@ class Dispatcher
             DIRECTORY_SEPARATOR;
 
         return $path;
+    }
+
+    /**
+     * @return ilCrsGrpImportUIHookGUI
+     */
+    public function getCoreController()
+    {
+        return $this->coreController;
+    }
+
+    /**
+     * @param ilCrsGrpImportUIHookGUI $coreController
+     */
+    public function setCoreController(ilCrsGrpImportUIHookGUI $coreController)
+    {
+        $this->coreController = $coreController;
     }
 
     /**
@@ -146,21 +162,5 @@ class Dispatcher
         $class = "ILIAS\\Plugin\\CrsGrpImport\\Frontend\\Controller\\$controller";
 
         return new $class($this->getCoreController(), $this->dic);
-    }
-
-    /**
-     * @return ilCrsGrpImportUIHookGUI
-     */
-    public function getCoreController()
-    {
-        return $this->coreController;
-    }
-
-    /**
-     * @param ilCrsGrpImportUIHookGUI $coreController
-     */
-    public function setCoreController(ilCrsGrpImportUIHookGUI $coreController)
-    {
-        $this->coreController = $coreController;
     }
 }

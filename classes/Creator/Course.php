@@ -6,23 +6,9 @@ use ilObjCourse;
 use ilDateTime;
 use ilDate;
 use ilDateTimeException;
-use ilObject;
 
 class Course extends BaseObject
 {
-    /**
-     * @param ilObjCourse $course
-     * @return int
-     */
-    protected function putCourseInTree(ilObjCourse $course) : int
-    {
-        $ref_id = $course->createReference();
-        $course->putInTree($this->getData()->getParentRefId());
-        $course->setPermissions($this->getData()->getParentRefId());
-        $course->update();
-        return $ref_id;
-    }
-
     /**
      * @throws ilDateTimeException
      */
@@ -32,7 +18,7 @@ class Course extends BaseObject
             $course = $this->createCourse();
             $ref_id = $this->writeCourseAdvancedData($course);
             $this->writeAvailability($ref_id);
-            if($this->addAdminsToCourse($course) === true) {
+            if ($this->addAdminsToCourse($course) === true) {
                 $this->getData()->setImportResult(BaseObject::RESULT_CREATED_SUCCESSFULLY);
             }
 
@@ -64,7 +50,43 @@ class Course extends BaseObject
     /**
      * @param ilObjCourse $course
      * @return int
-     * @throws \ilDateTimeException
+     */
+    protected function putCourseInTree(ilObjCourse $course) : int
+    {
+        $ref_id = $course->createReference();
+        $course->putInTree($this->getData()->getParentRefId());
+        $course->setPermissions($this->getData()->getParentRefId());
+        $course->update();
+        return $ref_id;
+    }
+
+    /**
+     * @return void
+     * @throws ilDateTimeException
+     */
+    public function update() : string
+    {
+        $ref_id = $this->getData()->getRefId();
+        if ($this->checkPrerequisitesForUpdate($ref_id, $this->getData())) {
+            $obj = new ilObjCourse($ref_id, true);
+            $this->writeCourseAdvancedData($obj);
+            if ($this->writeAvailability($ref_id) === false) {
+                return BaseObject::STATUS_FAILED;
+            }
+            if ($this->addAdminsToCourse($obj) === true) {
+                $this->getData()->setImportResult(BaseObject::RESULT_UPDATED_SUCCESSFULLY);
+                return BaseObject::STATUS_UPDATED;
+            }
+        } else {
+            $this->getData()->setImportResult(BaseObject::RESULT_DATASET_INVALID);
+            return BaseObject::STATUS_FAILED;
+        }
+    }
+
+    /**
+     * @param ilObjCourse $course
+     * @return int
+     * @throws ilDateTimeException
      */
     protected function writeCourseAdvancedData(ilObjCourse $course) : int
     {
@@ -83,29 +105,6 @@ class Course extends BaseObject
         $course->setCancellationEnd($unsubscribe_end);
         $course->update();
         return $course->getRefId();
-    }
-
-    /**
-     * @return void
-     * @throws ilDateTimeException
-     */
-    public function update() : string
-    {
-        $ref_id = $this->getData()->getRefId();
-        if($this->checkPrerequisitesForUpdate($ref_id, $this->getData())) {
-            $obj = new ilObjCourse($ref_id, true);
-            $this->writeCourseAdvancedData($obj);
-            if($this->writeAvailability($ref_id) === false) {
-                return BaseObject::STATUS_FAILED;
-            }
-            if($this->addAdminsToCourse($obj) === true) {
-                $this->getData()->setImportResult(BaseObject::RESULT_UPDATED_SUCCESSFULLY);
-                return BaseObject::STATUS_UPDATED;
-            }
-        } else {
-            $this->getData()->setImportResult(BaseObject::RESULT_DATASET_INVALID);
-            return BaseObject::STATUS_FAILED;
-        }
     }
 
     /**

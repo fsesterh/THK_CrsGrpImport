@@ -68,7 +68,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
                 $url = $this->dic->ctrl()->getLinkTargetByClass(['ilUIPluginRouterGUI', 'ilCrsGrpImportUIHookGUI'],
                     'Import.showCmd');
                 $form->setFormAction($url);
-                $file = new ilFileInputGUI( $this->plugin_object->txt('select_file'), 'csv_file');
+                $file = new ilFileInputGUI($this->plugin_object->txt('select_file'), 'csv_file');
                 $file->setRequired(true);
                 $form->addItem($file);
                 $parent_ref_id = new ilHiddenInputGUI('parent_ref_id');
@@ -87,7 +87,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
     /**
      * @return bool
      */
-    private function isAllowedUser(): bool
+    private function isAllowedUser() : bool
     {
         $selected_role = explode(';', $this->dic->settings()->get('crs_grp_import_default_role_ids'));
         $user_roles = $this->dic->rbac()->review()->assignedGlobalRoles($this->dic->user()->id);

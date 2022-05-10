@@ -93,6 +93,14 @@ class ImportCsvObject
     }
 
     /**
+     * @param int $ref_id
+     */
+    public function setRefId(int $ref_id) : void
+    {
+        $this->ref_id = $ref_id;
+    }
+
+    /**
      * @return int
      */
     public function getGrpType() : int
@@ -248,16 +256,5 @@ class ImportCsvObject
     {
         $this->import_result = $import_result;
     }
-
-    /**
-     * @param int $ref_id
-     */
-    public function setRefId(int $ref_id) : void
-    {
-        $this->ref_id = $ref_id;
-    }
-
-
-
 
 }

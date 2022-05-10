@@ -44,11 +44,31 @@ class BaseObject implements ObjectImporter
         $this->csv_log = $csv_log;
     }
 
-    public function ignore()
+    /**
+     * @throws ilDateTimeException
+     */
+    protected function writeAvailability(int $ref_id) : bool
     {
+        try {
+            $availability_start = new ilDateTime($this->getData()->getAvailabilityStart(), 2);
+            $availability_end = new ilDateTime($this->getData()->getAvailabilityEnd(), 2);
+            $activation = new ilObjectActivation();
+            $activation->setTimingType(1);
+            $activation->setTimingStart($availability_start->getUnixTime());
+            $activation->setTimingEnd($availability_end->getUnixTime());
+            $activation->update($ref_id);
+            return true;
+        } catch (Exception $e) {
+            $this->getData()->setImportResult(self::RESULT_AVAILABILITY . '( ' . $e->getMessage() . ')');
+            return false;
+        }
     }
 
     public function update() : string
+    {
+    }
+
+    public function ignore()
     {
     }
 
@@ -70,32 +90,12 @@ class BaseObject implements ObjectImporter
         return $this->data;
     }
 
-    /**
-     * @throws ilDateTimeException
-     */
-    protected function writeAvailability(int $ref_id) : bool
-    {
-        try {
-            $availability_start = new ilDateTime($this->getData()->getAvailabilityStart(), 2);
-            $availability_end = new ilDateTime($this->getData()->getAvailabilityEnd(), 2);
-            $activation = new ilObjectActivation();
-            $activation->setTimingType(1);
-            $activation->setTimingStart($availability_start->getUnixTime());
-            $activation->setTimingEnd($availability_end->getUnixTime());
-            $activation->update($ref_id);
-            return true;
-        } catch (Exception $e) {
-            $this->getData()->setImportResult(self::RESULT_AVAILABILITY . '( ' . $e->getMessage() . ')');
-            return false;
-        }
-    }
-
     public function checkPrerequisitesForUpdate(int $ref_id, ImportCsvObject $data) : bool
     {
         if ($ref_id > 0) {
             if (!$this->isInTrash($ref_id)) {
                 if ($this->objectExists($ref_id)) {
-                    if($this->isCorrectObjectType($ref_id, $data->getType())) {
+                    if ($this->isCorrectObjectType($ref_id, $data->getType())) {
                         return true;
                     } else {
                         $data->setImportResult(self::RESULT_REF_ID_AND_TYPE_DO_NOT_MATCH);

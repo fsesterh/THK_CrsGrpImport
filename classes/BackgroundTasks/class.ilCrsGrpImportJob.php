@@ -12,7 +12,6 @@ use ILIAS\Plugin\CrsGrpImport\Creator\BaseObject;
 use ILIAS\Plugin\CrsGrpImport\Creator\Course;
 use ILIAS\Plugin\CrsGrpImport\Creator\Group;
 use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
-use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
 use ilDateTimeException;
 
 /**
@@ -31,56 +30,6 @@ class ilCrsGrpImportJob extends AbstractJob
         global $DIC;
         $this->logger = $DIC->logger()->root();
         $this->csv_log = new CSVLog();
-    }
-
-    /**
-     * @param        $datas
-     * @return string
-     * @throws ilDateTimeException
-     */
-    protected function buildGroupObject($data) : string
-    {
-        $new_group = new Group($data, $this->csv_log);
-        return $this->buildObject($new_group, $data);
-    }
-
-    /**
-     * @param        $data
-     * @return string
-     * @throws ilDateTimeException
-     */
-    protected function buildCourseObject($data) : string
-    {
-        $new_course = new Course($data, $this->csv_log);
-        return $this->buildObject($new_course, $data);
-    }
-
-    /**
-     * @param Course|Group $new_object
-     * @param        $data
-     * @return string
-     * @throws ilDateTimeException
-     */
-    protected function buildObject($new_object, $data) : string
-    {
-        $base_status = BaseObject::STATUS_OK;
-        if ($data->getAction() === BaseObject::INSERT) {
-            $ref_id = $new_object->insert();
-            $data->setRefId($ref_id);
-            if($ref_id === 0) {
-                $base_status = BaseObject::STATUS_FAILED;
-            }
-        } elseif ($data->getAction() === BaseObject::UPDATE) {
-            $base_status = $new_object->update();
-        } elseif ($data->getAction() === BaseObject::IGNORE) {
-            $data->setImportResult(BaseObject::RESULT_IGNORE);
-            $base_status = BaseObject::STATUS_IGNORED;
-        } else {
-            $data->setImportResult(BaseObject::RESULT_NO_VALID_ACTION);
-            $base_status = BaseObject::STATUS_IGNORED;
-        }
-
-        return $base_status;
     }
 
     /**
@@ -142,9 +91,58 @@ class ilCrsGrpImportJob extends AbstractJob
             );
         }
 
-
         $output->setValue($this->csv_log->getCSVLog());
         return $output;
+    }
+
+    /**
+     * @param        $data
+     * @return string
+     * @throws ilDateTimeException
+     */
+    protected function buildCourseObject($data) : string
+    {
+        $new_course = new Course($data, $this->csv_log);
+        return $this->buildObject($new_course, $data);
+    }
+
+    /**
+     * @param Course|Group $new_object
+     * @param              $data
+     * @return string
+     * @throws ilDateTimeException
+     */
+    protected function buildObject($new_object, $data) : string
+    {
+        $base_status = BaseObject::STATUS_OK;
+        if ($data->getAction() === BaseObject::INSERT) {
+            $ref_id = $new_object->insert();
+            $data->setRefId($ref_id);
+            if ($ref_id === 0) {
+                $base_status = BaseObject::STATUS_FAILED;
+            }
+        } elseif ($data->getAction() === BaseObject::UPDATE) {
+            $base_status = $new_object->update();
+        } elseif ($data->getAction() === BaseObject::IGNORE) {
+            $data->setImportResult(BaseObject::RESULT_IGNORE);
+            $base_status = BaseObject::STATUS_IGNORED;
+        } else {
+            $data->setImportResult(BaseObject::RESULT_NO_VALID_ACTION);
+            $base_status = BaseObject::STATUS_IGNORED;
+        }
+
+        return $base_status;
+    }
+
+    /**
+     * @param        $datas
+     * @return string
+     * @throws ilDateTimeException
+     */
+    protected function buildGroupObject($data) : string
+    {
+        $new_group = new Group($data, $this->csv_log);
+        return $this->buildObject($new_group, $data);
     }
 
     /**

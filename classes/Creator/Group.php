@@ -6,23 +6,9 @@ use ilDateTime;
 use ilObjGroup;
 use ilDate;
 use ilDateTimeException;
-use ilObject;
 
 class Group extends BaseObject
 {
-    /**
-     * @param ilObjGroup $group
-     * @return int
-     */
-    protected function putGroupInTree(ilObjGroup $group) : int
-    {
-        $ref_id = $group->createReference();
-        $group->putInTree($this->getData()->getParentRefId());
-        $group->setPermissions($this->getData()->getParentRefId());
-        $group->update();
-        return $ref_id;
-    }
-
     /**
      * @throws ilDateTimeException
      */
@@ -33,7 +19,7 @@ class Group extends BaseObject
             $group = $this->createGroup();
             $ref_id = $this->writeGroupAdvancedData($group);
             $this->writeAvailability($ref_id);
-            if($this->addAdminsToGroup($group) === true) {
+            if ($this->addAdminsToGroup($group) === true) {
                 $this->getData()->setImportResult(BaseObject::RESULT_CREATED_SUCCESSFULLY);
             }
 
@@ -64,6 +50,42 @@ class Group extends BaseObject
     /**
      * @param ilObjGroup $group
      * @return int
+     */
+    protected function putGroupInTree(ilObjGroup $group) : int
+    {
+        $ref_id = $group->createReference();
+        $group->putInTree($this->getData()->getParentRefId());
+        $group->setPermissions($this->getData()->getParentRefId());
+        $group->update();
+        return $ref_id;
+    }
+
+    /**
+     * @return void
+     * @throws ilDateTimeException
+     */
+    public function update() : string
+    {
+        $ref_id = $this->getData()->getRefId();
+        if ($this->checkPrerequisitesForUpdate($ref_id, $this->getData())) {
+            $obj = new ilObjGroup($ref_id, true);
+            $this->writeGroupAdvancedData($obj);
+            if ($this->writeAvailability($ref_id) === false) {
+                return BaseObject::STATUS_FAILED;
+            }
+            if ($this->addAdminsToGroup($obj) === true) {
+                $this->getData()->setImportResult(BaseObject::RESULT_UPDATED_SUCCESSFULLY);
+                return BaseObject::STATUS_UPDATED;
+            }
+        } else {
+            $this->getData()->setImportResult(BaseObject::RESULT_DATASET_INVALID);
+            return BaseObject::STATUS_FAILED;
+        }
+    }
+
+    /**
+     * @param ilObjGroup $group
+     * @return int
      * @throws ilDateTimeException
      */
     protected function writeGroupAdvancedData(ilObjGroup $group) : int
@@ -88,29 +110,6 @@ class Group extends BaseObject
         $group->setCancellationEnd($unsubscribe_end);
         $group->update();
         return $group->getRefId();
-    }
-
-    /**
-     * @return void
-     * @throws ilDateTimeException
-     */
-    public function update() : string
-    {
-        $ref_id = $this->getData()->getRefId();
-        if($this->checkPrerequisitesForUpdate($ref_id, $this->getData())) {
-            $obj = new ilObjGroup($ref_id, true);
-            $this->writeGroupAdvancedData($obj);
-            if($this->writeAvailability($ref_id) === false) {
-                return BaseObject::STATUS_FAILED;
-            }
-            if($this->addAdminsToGroup($obj) === true) {
-                $this->getData()->setImportResult(BaseObject::RESULT_UPDATED_SUCCESSFULLY);
-                return BaseObject::STATUS_UPDATED;
-            }
-        } else {
-            $this->getData()->setImportResult(BaseObject::RESULT_DATASET_INVALID);
-            return BaseObject::STATUS_FAILED;
-        }
     }
 
     /**
