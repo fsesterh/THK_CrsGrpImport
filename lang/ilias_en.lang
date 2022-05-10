@@ -6,3 +6,5 @@ result#:#result
 grp_add#:#Upload CSV
 crs_add#:#Upload CSV
 select_file#:#Select file
+import_title#:#Course and Group CSV import task...
+import_description#:#Course and Group CSV import task

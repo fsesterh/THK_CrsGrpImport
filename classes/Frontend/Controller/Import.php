@@ -12,6 +12,7 @@ use ILIAS\Plugin\CrsGrpImport\BackgroundTasks\ilCrsGrpImportJob;
 use ILIAS\Plugin\CrsGrpImport\BackgroundTasks\ilCrsGrpImportReport;
 use ilLink;
 use ilObject;
+use ilCrsGrpImportPlugin;
 
 /**
  * Class Index
@@ -77,11 +78,11 @@ class Import extends Base
 
         $task = $this->dic->backgroundTasks()->taskFactory()->createTask(ilCrsGrpImportReport::class, [
             $csvExport,
-            'test.csv'
+            'import_log.csv'
         ]);
         $bucket->setTask($task);
-        $bucket->setTitle('Course and Group CSV import task... ' . time());
-        $bucket->setDescription('Course and Group CSV import task');
+        $bucket->setTitle(ilCrsGrpImportPlugin::getInstance()->txt('import_title') . time());
+        $bucket->setDescription(ilCrsGrpImportPlugin::getInstance()->txt('import_description'));
         $this->dic->backgroundTasks()->taskManager()->run($bucket);
 
         $url = $this->buildUrl($parent_ref_id);
