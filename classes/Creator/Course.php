@@ -16,13 +16,17 @@ class Course extends BaseObject
     {
         if ($this->getData() !== null && $this->checkPrerequisitesForInsert()) {
             $course = $this->createCourse();
-            $ref_id = $this->writeCourseAdvancedData($course);
-            $this->writeAvailability($ref_id);
-            if ($this->addAdminsToCourse($course) === true) {
-                $this->getData()->setImportResult(BaseObject::RESULT_CREATED_SUCCESSFULLY);
-            }
+            if($course !== null) {
+                $ref_id = $this->writeCourseAdvancedData($course);
+                $this->writeAvailability($ref_id);
+                if ($this->addAdminsToCourse($course) === true) {
+                    $this->getData()->setImportResult(BaseObject::RESULT_CREATED_SUCCESSFULLY);
+                }
 
-            return (int) $ref_id;
+                return (int) $ref_id;
+            } else {
+                $this->getData()->setImportResult(BaseObject::RESULT_NO_COURSE_IN_COURSE);
+            }
         }
         return 0;
     }
@@ -36,15 +40,21 @@ class Course extends BaseObject
         return false;
     }
 
-    protected function createCourse() : ilObjCourse
+    /**
+     * @return ilObjCourse|null
+     */
+    protected function createCourse()
     {
-        //Todo: validate no course in course!
-        $course = new ilObjCourse();
-        $course->setTitle($this->getData()->getTitle());
-        $course->setDescription($this->getData()->getDescription());
-        $course->create();
-        $ref_id = $this->putCourseInTree($course);
-        return $course;
+        $course_found_in_parent_tree = $this->dic->tree->checkForParentType($this->getData()->getParentRefId(), 'crs');
+        if($course_found_in_parent_tree === false || $course_found_in_parent_tree === 0) {
+            $course = new ilObjCourse();
+            $course->setTitle($this->getData()->getTitle());
+            $course->setDescription($this->getData()->getDescription());
+            $course->create();
+            $ref_id = $this->putCourseInTree($course);
+            return $course;
+        }
+        return null;
     }
 
     /**

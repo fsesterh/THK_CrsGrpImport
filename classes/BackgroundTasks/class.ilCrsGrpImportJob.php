@@ -24,11 +24,13 @@ class ilCrsGrpImportJob extends AbstractJob
 
     private ?ilLogger $logger = null;
     private CSVLog $csv_log;
+    private $dic;
 
     public function __construct()
     {
         global $DIC;
         $this->logger = $DIC->logger()->root();
+        $this->dic = $DIC;
         $this->csv_log = new CSVLog();
     }
 
@@ -102,7 +104,7 @@ class ilCrsGrpImportJob extends AbstractJob
      */
     protected function buildCourseObject($data) : string
     {
-        $new_course = new Course($data, $this->csv_log);
+        $new_course = new Course($data, $this->csv_log, $this->dic);
         return $this->buildObject($new_course, $data);
     }
 
@@ -141,7 +143,7 @@ class ilCrsGrpImportJob extends AbstractJob
      */
     protected function buildGroupObject($data) : string
     {
-        $new_group = new Group($data, $this->csv_log);
+        $new_group = new Group($data, $this->csv_log, $this->dic);
         return $this->buildObject($new_group, $data);
     }
 
