@@ -1,4 +1,5 @@
 <?php
+
 /* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 require_once 'Services/Component/classes/class.ilPluginConfigGUI.php';
@@ -90,4 +91,4 @@ class ilCrsGrpImportConfigGUI extends \ilPluginConfigGUI
                 break;
         }
     }
-} 
+}

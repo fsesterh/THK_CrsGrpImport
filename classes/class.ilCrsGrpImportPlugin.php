@@ -1,4 +1,5 @@
 <?php
+
 /* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 require_once 'Services/UIComponent/classes/class.ilUserInterfaceHookPlugin.php';
@@ -8,31 +9,30 @@ require_once 'Services/UIComponent/classes/class.ilUserInterfaceHookPlugin.php';
  */
 class ilCrsGrpImportPlugin extends \ilUserInterfaceHookPlugin
 {
+    /**
+     * @var string
+     */
+    public const PLUGIN_CMD_DETECTION_PARAMETER = 'isCrsGrpImport';
 
     /**
      * @var string
      */
-    const PLUGIN_CMD_DETECTION_PARAMETER = 'isCrsGrpImport';
+    public const CTYPE = 'Services';
 
     /**
      * @var string
      */
-    const CTYPE = 'Services';
+    public const CNAME = 'UIComponent';
 
     /**
      * @var string
      */
-    const CNAME = 'UIComponent';
+    public const SLOT_ID = 'uihk';
 
     /**
      * @var string
      */
-    const SLOT_ID = 'uihk';
-
-    /**
-     * @var string
-     */
-    const PNAME = 'CrsGrpImport';
+    public const PNAME = 'CrsGrpImport';
 
     /**
      * @var self|\ilPlugin|\ilUserInterfaceHookPlugin
@@ -72,7 +72,7 @@ class ilCrsGrpImportPlugin extends \ilUserInterfaceHookPlugin
         return self::PNAME;
     }
 
-    public function getLinkTarget($cmd, $parameters = array(), $prevent_xhtml_style = false)
+    public function getLinkTarget($cmd, $parameters = [], $prevent_xhtml_style = false)
     {
         /** @var $ilCtrl ilCtrl */
         global $ilCtrl;
@@ -82,8 +82,13 @@ class ilCrsGrpImportPlugin extends \ilUserInterfaceHookPlugin
         }
         $ilCtrl->setParameterByClass('ilCrsGrpImportUIHookGUI', self::PLUGIN_CMD_DETECTION_PARAMETER, 1);
 
-        $url = $ilCtrl->getLinkTargetByClass(array('ilUIPluginRouterGUI', 'ilCrsGrpImportUIHookGUI'), $cmd, '', false,
-            $prevent_xhtml_style);
+        $url = $ilCtrl->getLinkTargetByClass(
+            ['ilUIPluginRouterGUI', 'ilCrsGrpImportUIHookGUI'],
+            $cmd,
+            '',
+            false,
+            $prevent_xhtml_style
+        );
 
         foreach ($parameters as $key => $val) {
             $ilCtrl->setParameterByClass('ilCrsGrpImportUIHookGUI', $key, '');
@@ -92,5 +97,4 @@ class ilCrsGrpImportPlugin extends \ilUserInterfaceHookPlugin
 
         return $url;
     }
-
-} 
+}

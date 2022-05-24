@@ -1,4 +1,5 @@
 <?php
+
 /* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 use ILIAS\Plugin\CrsGrpImport\Frontend;
@@ -53,7 +54,6 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
 
         $this->dic->ui()->mainTemplate()->setContent($response);
         $this->dic->ui()->mainTemplate()->printToStdOut();
-
     }
 
     public function getHTML($a_comp, $a_part, $a_par = [])
@@ -168,7 +168,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
                         $accordion_header->nodeValue = preg_replace_callback(
                             '/' . $header . '/',
                             static function (array $matches) : string {
-                                return $matches[1] . ' ' . ((string) (((int) $matches[2]) + 1) ) . ': ';
+                                return $matches[1] . ' ' . ((string) (((int) $matches[2]) + 1)) . ': ';
                             },
                             $accordion_header->nodeValue
                         );
@@ -186,46 +186,46 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
 
                 return ['mode' => ilUIHookPluginGUI::REPLACE, 'html' => $processed_html];
             }
-        }
 
-        if (self::$handled === false && self::$has_accordion === false && is_array($a_par) && $a_par['tpl_id'] === 'Services/Form/tpl.form.html' && $a_part === 'template_get') {
-            self::$handled = true;
+            if (self::$handled === false && self::$has_accordion === false && is_array($a_par) && $a_par['tpl_id'] === 'Services/Form/tpl.form.html' && $a_part === 'template_get') {
+                self::$handled = true;
 
-            $core_doc = new DOMDocument("1.0", "utf-8");
-            if (!@$core_doc->loadHTML('<?xml encoding="utf-8" ?><html><body>' . $a_par['html'] . '</body></html>')) {
-                return ['mode' => ilUIHookPluginGUI::KEEP, 'html' => ''];
+                $core_doc = new DOMDocument("1.0", "utf-8");
+                if (!@$core_doc->loadHTML('<?xml encoding="utf-8" ?><html><body>' . $a_par['html'] . '</body></html>')) {
+                    return ['mode' => ilUIHookPluginGUI::KEEP, 'html' => ''];
+                }
+                $core_doc->encoding = 'UTF-8';
+
+                $xp = new DOMXPath($core_doc);
+                $form_header = $xp->query(
+                    "//div[contains(concat(' ', normalize-space(@class), ' '), ' ilFormHeader ')]"
+                );
+                $header_text = trim($form_header->item(0)->nodeValue);
+                $form_header->item(0)->parentNode->removeChild($form_header->item(0));
+
+                $acc = new ilAccordionGUI();
+                $acc->setBehaviour(ilAccordionGUI::FIRST_OPEN);
+
+                $htpl = new ilTemplate('tpl.creation_acc_head.html', true, true, 'Services/Object');
+                $htpl->setVariable(
+                    'TITLE',
+                    $this->dic->language()->txt('option') . ' 1: ' . $header_text
+                );
+
+                $acc->addItem($htpl->get(), $core_doc->saveHTML($core_doc->getElementsByTagName('body')->item(0)));
+
+                $htpl = new ilTemplate('tpl.creation_acc_head.html', true, true, 'Services/Object');
+                $htpl->setVariable(
+                    'TITLE',
+                    $this->dic->language()->txt('option') . ' 2: ' . $this->plugin_object->txt('creation_accordion_header')
+                );
+                $acc->addItem(
+                    $htpl->get(),
+                    $this->getImportForm($queryParams['ref_id'])->getHTML()
+                );
+
+                return ['mode' => ilUIHookPluginGUI::REPLACE, 'html' => $acc->getHTML()];
             }
-            $core_doc->encoding = 'UTF-8';
-
-            $xp = new DOMXPath($core_doc);
-            $form_header = $xp->query(
-                "//div[contains(concat(' ', normalize-space(@class), ' '), ' ilFormHeader ')]"
-            );
-            $header_text = trim($form_header->item(0)->nodeValue);
-            $form_header->item(0)->parentNode->removeChild($form_header->item(0));
-
-            $acc = new ilAccordionGUI();
-            $acc->setBehaviour(ilAccordionGUI::FIRST_OPEN);
-
-            $htpl = new ilTemplate('tpl.creation_acc_head.html', true, true, 'Services/Object');
-            $htpl->setVariable(
-                'TITLE',
-                $this->dic->language()->txt('option') . ' 1: ' . $header_text
-            );
-
-            $acc->addItem($htpl->get(), $core_doc->saveHTML($core_doc->getElementsByTagName('body')->item(0)));
-
-            $htpl = new ilTemplate('tpl.creation_acc_head.html', true, true, 'Services/Object');
-            $htpl->setVariable(
-                'TITLE',
-                $this->dic->language()->txt('option') . ' 2: ' . $this->plugin_object->txt('creation_accordion_header')
-            );
-            $acc->addItem(
-                $htpl->get(),
-                $this->getImportForm($queryParams['ref_id'])->getHTML()
-            );
-
-            return ['mode' => ilUIHookPluginGUI::REPLACE, 'html' => $acc->getHTML()];
         }
 
         return ['mode' => ilUIHookPluginGUI::KEEP];
@@ -267,5 +267,4 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
         $form->addCommandButton('cancel', $this->dic->language()->txt('cancel'));
         return $form;
     }
-
-} 
+}

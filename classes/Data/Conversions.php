@@ -4,7 +4,6 @@ namespace ILIAS\Plugin\CrsGrpImport\Data;
 
 class Conversions
 {
-
     /**
      * @param mixed $value
      * @return string

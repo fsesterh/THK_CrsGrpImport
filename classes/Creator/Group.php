@@ -15,7 +15,6 @@ class Group extends BaseObject
     public function insert() : int
     {
         if ($this->getData() !== null && $this->checkPrerequisitesForInsert()) {
-
             $group = $this->createGroup();
             $ref_id = $this->writeGroupAdvancedData($group);
             $this->writeAvailability($ref_id);

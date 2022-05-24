@@ -1,4 +1,6 @@
-<?php declare(strict_types=1);
+<?php
+
+declare(strict_types=1);
 /* Copyright (c) 1998-2019 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 namespace ILIAS\Plugin\CrsGrpImport\BackgroundTasks;
@@ -15,8 +17,8 @@ use ILIAS\BackgroundTasks\Implementation\Tasks\AbstractUserInteraction;
 
 class ilCrsGrpImportReport extends AbstractUserInteraction
 {
-    const OPTION_DOWNLOAD = 'download';
-    const OPTION_REMOVE = 'remove';
+    public const OPTION_DOWNLOAD = 'download';
+    public const OPTION_REMOVE = 'remove';
 
     /**
      * @param Value[] $input The input value of this task.

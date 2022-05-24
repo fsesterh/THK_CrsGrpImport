@@ -256,5 +256,4 @@ class ImportCsvObject
     {
         $this->import_result = $import_result;
     }
-
 }

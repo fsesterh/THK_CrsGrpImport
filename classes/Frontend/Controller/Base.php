@@ -1,4 +1,5 @@
 <?php
+
 /* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 namespace ILIAS\Plugin\CrsGrpImport\Frontend\Controller;
@@ -10,9 +11,9 @@ use ILIAS\DI\Container;
  */
 abstract class Base
 {
-    const CTX_IS_BASE_CLASS = 'baseClass';
-    const CTX_IS_COMMAND_CLASS = 'cmdClass';
-    const CTX_IS_COMMAND = 'cmd';
+    public const CTX_IS_BASE_CLASS = 'baseClass';
+    public const CTX_IS_COMMAND_CLASS = 'cmdClass';
+    public const CTX_IS_COMMAND = 'cmd';
     /**
      * @var Container
      */
@@ -20,7 +21,7 @@ abstract class Base
     /**
      * @var array
      */
-    protected $parameters = array();
+    protected $parameters = [];
     /**
      * The main controller of the Plugin
      * @var \ilCrsGrpImportUIHookGUI
@@ -54,7 +55,7 @@ abstract class Base
      */
     final public function __call($name, $arguments)
     {
-        return \call_user_func_array(array($this, $this->getDefaultCommand()), []);
+        return \call_user_func_array([$this, $this->getDefaultCommand()], []);
     }
 
     /**
@@ -82,8 +83,10 @@ abstract class Base
             case self::CTX_IS_BASE_CLASS:
             case self::CTX_IS_COMMAND_CLASS:
                 $class = isset($_GET[$a_context]) ? $_GET[$a_context] : '';
-                return \strlen($class) > 0 && \in_array(strtolower($class),
-                        \array_map('strtolower', (array) $a_value_a));
+                return \strlen($class) > 0 && \in_array(
+                    strtolower($class),
+                    \array_map('strtolower', (array) $a_value_a)
+                );
 
             case self::CTX_IS_COMMAND:
                 $cmd = isset($_GET[$a_context]) ? $_GET[$a_context] : '';

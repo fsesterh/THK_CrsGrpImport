@@ -1,4 +1,5 @@
 <?php
+
 // alphanumerical ID of the plugin; never change this
 $id = 'crsgrpimport';
 

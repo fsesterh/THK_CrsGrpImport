@@ -23,6 +23,9 @@
     "php": ">=7.4"
   },
   "config": {
-    "classmap-authoritative": true
+    "classmap-authoritative": true,
+    "allow-plugins": {
+      "captainhook/plugin-composer": true
+    }
   }
 }

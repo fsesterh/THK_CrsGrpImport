@@ -1,4 +1,5 @@
 <?php
+
 /* Copyright (c) 1998-2010 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 namespace ILIAS\Plugin\CrsGrpImport\BackgroundTasks;
@@ -20,8 +21,8 @@ use ILIAS\DI\Container;
  */
 class ilCrsGrpImportJob extends AbstractJob
 {
-    const COURSE = 'crs';
-    const GROUP = 'grp';
+    public const COURSE = 'crs';
+    public const GROUP = 'grp';
 
     private ?ilLogger $logger = null;
     private CSVLog $csv_log;

@@ -1,4 +1,5 @@
 <?php
+
 /* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 namespace ILIAS\Plugin\CrsGrpImport\Frontend\Controller;
@@ -22,7 +23,6 @@ use ilUtil;
  */
 class Import extends Base
 {
-
     /**
      * @inheritdoc
      */
@@ -49,7 +49,6 @@ class Import extends Base
 
         $request_body = $DIC->http()->request()->getParsedBody();
         if (!array_key_exists('parent_ref_id', $request_body)) {
-
         }
         $parent_ref_id = $request_body['parent_ref_id'];
         if (false === $DIC->upload()->hasBeenProcessed()) {
@@ -90,12 +89,12 @@ class Import extends Base
         $this->dic->backgroundTasks()->taskManager()->run($bucket);
 
         $this->redirectToRefId($parent_ref_id);
-
     }
 
-    protected function redirectToRefId(int $ref_id) : void {
+    protected function redirectToRefId(int $ref_id) : void
+    {
         $url = '#';
-        if($ref_id > 0) {
+        if ($ref_id > 0) {
             $type = ilObject::_lookupType($ref_id, true);
             $url = ilLink::_getStaticLink(
                 $ref_id,
@@ -142,10 +141,27 @@ class Import extends Base
                     $unsubscribe_end = $conversion->ensureStringType($data[16]);
                     $admins = $conversion->ensureStringType($data[17]);
 
-                    $import_row = new ImportCsvObject($action, $type, $ref_id, $grp_type, $title, $description,
-                        $event_start, $event_end, $online, $availability_start, $availability_end, $registration,
-                        $registration_pass, $admission_link, $registration_start, $registration_end, $unsubscribe_end,
-                        $admins, $parent_ref_id);
+                    $import_row = new ImportCsvObject(
+                        $action,
+                        $type,
+                        $ref_id,
+                        $grp_type,
+                        $title,
+                        $description,
+                        $event_start,
+                        $event_end,
+                        $online,
+                        $availability_start,
+                        $availability_end,
+                        $registration,
+                        $registration_pass,
+                        $admission_link,
+                        $registration_start,
+                        $registration_end,
+                        $unsubscribe_end,
+                        $admins,
+                        $parent_ref_id
+                    );
                     $csv_array[] = $import_row;
                 }
             }
@@ -153,5 +169,4 @@ class Import extends Base
         }
         return $csv_array;
     }
-
 }

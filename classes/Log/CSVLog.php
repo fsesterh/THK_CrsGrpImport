@@ -20,7 +20,6 @@ class CSVLog
         $this->csv->addColumn($this->plugin->txt('admins'));
         $this->csv->addColumn($this->plugin->txt('result'));
         $this->csv->addRow();
-
     }
 
     protected function addLineToLog(array $entry) : void
@@ -35,7 +34,6 @@ class CSVLog
 
     public function addEntryToLog(string $status, ?int $ref_id, ?string $title, array $admins, string $result) : void
     {
-
         if (count($admins) > 1) {
             $admins = implode(',', $admins);
         }
