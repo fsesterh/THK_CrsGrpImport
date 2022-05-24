@@ -1,11 +1,6 @@
 <?php
 /* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-use ILIAS\Plugin\CrsGrpImport\UI\Table;
-
-require_once \dirname(__FILE__) . '/class.ilCrsGrpImportPlugin.php';
-\ilCrsGrpImportPlugin::getInstance()->registerAutoloader();
-
 require_once 'Services/Component/classes/class.ilPluginConfigGUI.php';
 
 /**

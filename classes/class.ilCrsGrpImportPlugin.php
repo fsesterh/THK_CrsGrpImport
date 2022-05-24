@@ -62,15 +62,6 @@ class ilCrsGrpImportPlugin extends \ilUserInterfaceHookPlugin
     protected function init()
     {
         parent::init();
-        $this->registerAutoloader();
-    }
-
-    /**
-     * Register the plugin autoloader
-     */
-    public function registerAutoloader()
-    {
-        require_once realpath(dirname(__FILE__) . '/../autoload.php');
     }
 
     /**
