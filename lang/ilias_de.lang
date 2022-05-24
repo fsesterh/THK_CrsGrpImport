@@ -10,3 +10,4 @@ import_title#:#Course and Group CSV import task...
 import_description#:#Course and Group CSV import task
 upload_error#:#Etwas beim hochladen der Datei hat nicht funktioniert
 role_select#:#Wählen sie die Rollen aus, denen der Import Dialog angezeigt werden soll.
+creation_accordion_header#:#Kurs-/Gruppen-Liste importieren
