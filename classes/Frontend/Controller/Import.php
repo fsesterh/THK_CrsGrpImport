@@ -93,10 +93,9 @@ class Import extends Base
 
     }
 
-    protected function redirectToRefId(int $ref_id) : void
-    {
+    protected function redirectToRefId(int $ref_id) : void {
         $url = '#';
-        if ($ref_id > 0) {
+        if($ref_id > 0) {
             $type = ilObject::_lookupType($ref_id, true);
             $url = ilLink::_getStaticLink(
                 $ref_id,
