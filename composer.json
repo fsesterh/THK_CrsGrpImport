@@ -1,0 +1,28 @@
+{
+  "name": "databay/crsgrp-import",
+  "description": "An ILIAS plugin that adds an import dialog to the creation screens of groups an courses.",
+  "type": "project",
+  "license": "GPL",
+  "authors": [
+    {
+      "name": "Guido Vollbach",
+      "email": "gvollbach@databay.de"
+    }
+  ],
+  "require-dev": {
+    "captainhook/plugin-composer": "^5.1",
+    "friendsofphp/php-cs-fixer": "^2.16"
+  },
+  "autoload": {
+    "psr-4": {
+      "ILIAS\\Plugin\\CrsGrpImport\\": "classes/"
+    },
+    "classmap": ["./classes"]
+  },
+  "require": {
+    "php": ">=7.4"
+  },
+  "config": {
+    "classmap-authoritative": true
+  }
+}
