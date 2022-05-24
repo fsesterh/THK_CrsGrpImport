@@ -68,6 +68,11 @@ class BaseObject implements ObjectImporter
         }
     }
 
+    public function getData() : ImportCsvObject
+    {
+        return $this->data;
+    }
+
     public function update() : string
     {
     }
@@ -87,11 +92,6 @@ class BaseObject implements ObjectImporter
             return false;
         }
         return true;
-    }
-
-    public function getData() : ImportCsvObject
-    {
-        return $this->data;
     }
 
     public function checkPrerequisitesForUpdate(int $ref_id, ImportCsvObject $data) : bool

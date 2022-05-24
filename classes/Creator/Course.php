@@ -16,7 +16,7 @@ class Course extends BaseObject
     {
         if ($this->getData() !== null && $this->checkPrerequisitesForInsert()) {
             $course = $this->createCourse();
-            if($course !== null) {
+            if ($course !== null) {
                 $ref_id = $this->writeCourseAdvancedData($course);
                 $this->writeAvailability($ref_id);
                 if ($this->addAdminsToCourse($course) === true) {
@@ -45,8 +45,9 @@ class Course extends BaseObject
      */
     protected function createCourse()
     {
-        $course_found_in_parent_tree = $this->dic->repositoryTree()->checkForParentType($this->getData()->getParentRefId(), 'crs');
-        if($course_found_in_parent_tree === false || $course_found_in_parent_tree === 0) {
+        $course_found_in_parent_tree = $this->dic->repositoryTree()->checkForParentType($this->getData()->getParentRefId(),
+            'crs');
+        if ($course_found_in_parent_tree === false || $course_found_in_parent_tree === 0) {
             $course = new ilObjCourse();
             $course->setTitle($this->getData()->getTitle());
             $course->setDescription($this->getData()->getDescription());
