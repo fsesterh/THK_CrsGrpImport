@@ -9,3 +9,4 @@ select_file#:#Select file
 import_title#:#Course and Group CSV import task...
 import_description#:#Course and Group CSV import task
 upload_error#:#File upload error
+role_select#:#Select the roles, to show the import dialog
