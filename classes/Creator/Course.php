@@ -45,7 +45,7 @@ class Course extends BaseObject
      */
     protected function createCourse()
     {
-        $course_found_in_parent_tree = $this->dic->tree->checkForParentType($this->getData()->getParentRefId(), 'crs');
+        $course_found_in_parent_tree = $this->dic->repositoryTree()->checkForParentType($this->getData()->getParentRefId(), 'crs');
         if($course_found_in_parent_tree === false || $course_found_in_parent_tree === 0) {
             $course = new ilObjCourse();
             $course->setTitle($this->getData()->getTitle());

@@ -13,6 +13,7 @@ use ILIAS\Plugin\CrsGrpImport\Creator\Course;
 use ILIAS\Plugin\CrsGrpImport\Creator\Group;
 use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
 use ilDateTimeException;
+use ILIAS\DI\Container;
 
 /**
  *
@@ -24,7 +25,7 @@ class ilCrsGrpImportJob extends AbstractJob
 
     private ?ilLogger $logger = null;
     private CSVLog $csv_log;
-    private $dic;
+    private Container $dic;
 
     public function __construct()
     {

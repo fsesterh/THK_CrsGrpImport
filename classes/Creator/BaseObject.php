@@ -9,6 +9,7 @@ use ilObjectActivation;
 use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
 use ILIAS\DI\Exceptions\Exception;
 use ilObject;
+use ILIAS\DI\Container;
 
 class BaseObject implements ObjectImporter
 {
@@ -38,9 +39,9 @@ class BaseObject implements ObjectImporter
 
     private ?ImportCsvObject $data;
     private CSVLog $csv_log;
-    public $dic;
+    public Container $dic;
 
-    public function __construct(ImportCsvObject $data, CSVLog $csv_log, $dic)
+    public function __construct(ImportCsvObject $data, CSVLog $csv_log, Container $dic)
     {
         $this->data = $data;
         $this->csv_log = $csv_log;
