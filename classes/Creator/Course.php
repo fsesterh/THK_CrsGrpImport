@@ -79,6 +79,9 @@ class Course extends BaseObject
         $ref_id = $this->getData()->getRefId();
         if ($this->checkPrerequisitesForUpdate($ref_id, $this->getData())) {
             $obj = new ilObjCourse($ref_id, true);
+            $obj->setTitle($this->getData()->getTitle());
+            $obj->setDescription($this->getData()->getDescription());
+            $obj->update();
             $this->writeCourseAdvancedData($obj);
             if ($this->writeAvailability($ref_id) === false) {
                 return BaseObject::STATUS_FAILED;
