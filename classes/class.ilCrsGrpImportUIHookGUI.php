@@ -187,6 +187,10 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
                 return ['mode' => ilUIHookPluginGUI::REPLACE, 'html' => $processed_html];
             }
 
+            if (self::$handled === false && self::$has_accordion === false && is_array($a_par) && $a_par['tpl_id'] === 'Services/Object/tpl.creation_acc_head.html' && $a_part === 'template_load') {
+                self::$has_accordion = true;
+            }
+
             if (self::$handled === false && self::$has_accordion === false && is_array($a_par) && $a_par['tpl_id'] === 'Services/Form/tpl.form.html' && $a_part === 'template_get') {
                 self::$handled = true;
 
