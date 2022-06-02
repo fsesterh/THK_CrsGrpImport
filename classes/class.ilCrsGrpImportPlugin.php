@@ -3,7 +3,7 @@
 /* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
 
 require_once 'Services/UIComponent/classes/class.ilUserInterfaceHookPlugin.php';
-
+require_once 'Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/CrsGrpImport/vendor/autoload.php';
 /**
  * Class ilCrsGrpImportPlugin
  */
