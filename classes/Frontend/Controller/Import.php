@@ -135,7 +135,7 @@ class Import extends Base
                     $availability_end = $conversion->ensureStringType($data[10]);
                     $registration = $conversion->ensureIntType($data[11]);
                     $registration_pass = $conversion->ensureStringType($data[12]);
-                    $admission_link = $conversion->ensureStringType($data[13]);
+                    $admission_link = $conversion->ensureIntType($data[13]);
                     $registration_start = $conversion->ensureStringType($data[14]);
                     $registration_end = $conversion->ensureStringType($data[15]);
                     $unsubscribe_end = $conversion->ensureStringType($data[16]);
