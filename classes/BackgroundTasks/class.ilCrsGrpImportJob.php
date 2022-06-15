@@ -24,9 +24,9 @@ class ilCrsGrpImportJob extends AbstractJob
     public const COURSE = 'crs';
     public const GROUP = 'grp';
 
-    private ?ilLogger $logger = null;
-    private CSVLog $csv_log;
-    private Container $dic;
+    private $logger = null;
+    private $csv_log;
+    private $dic;
 
     public function __construct()
     {

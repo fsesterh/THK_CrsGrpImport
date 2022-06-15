@@ -4,26 +4,26 @@ namespace ILIAS\Plugin\CrsGrpImport\Data;
 
 class ImportCsvObject
 {
-    private string $action = '';
-    private string $type = '';
-    private int $ref_id = 0;
-    private int $grp_type = 0;
-    private string $title = '';
-    private string $description = '';
-    private ?string $event_start = null;
-    private ?string $event_end = null;
-    private int $online = 0;
-    private ?string $availability_start = null;
-    private ?string $availability_end = null;
-    private int $registration = 0;
-    private string $registration_pass = '';
-    private int $admission_link = 0;
-    private ?string $registration_start = null;
-    private ?string $registration_end = null;
-    private ?string $unsubscribe_end = null;
-    private string $admins = '';
-    private ?int $parent_ref_id = null;
-    private ?string $import_result;
+    private $action = '';
+    private $type = '';
+    private $ref_id = 0;
+    private $grp_type = 0;
+    private $title = '';
+    private $description = '';
+    private $event_start = null;
+    private $event_end = null;
+    private $online = 0;
+    private $availability_start = null;
+    private $availability_end = null;
+    private $registration = 0;
+    private $registration_pass = '';
+    private $admission_link = 0;
+    private $registration_start = null;
+    private $registration_end = null;
+    private $unsubscribe_end = null;
+    private $admins = '';
+    private $parent_ref_id = null;
+    private $import_result;
 
     public function __construct(
         string $action,

@@ -7,8 +7,8 @@ use ilCrsGrpImportPlugin;
 
 class CSVLog
 {
-    protected ilCSVWriter $csv;
-    protected ilCrsGrpImportPlugin $plugin;
+    protected $csv;
+    protected $plugin;
 
     public function __construct()
     {

@@ -37,9 +37,9 @@ class BaseObject implements ObjectImporter
     public const RESULT_OBJECT_IN_TRASH_IGNORE = 'Object is in trash, ignoring.';
     public const RESULT_AVAILABILITY = 'Setting Availability not successful.';
 
-    private ?ImportCsvObject $data;
-    private CSVLog $csv_log;
-    public Container $dic;
+    private $data;
+    private $csv_log;
+    public $dic;
 
     public function __construct(ImportCsvObject $data, CSVLog $csv_log, Container $dic)
     {
