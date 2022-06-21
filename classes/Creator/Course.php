@@ -6,6 +6,7 @@ use ilObjCourse;
 use ilDateTime;
 use ilDate;
 use ilDateTimeException;
+use ilObjectActivation;
 
 class Course extends BaseObject
 {
@@ -108,6 +109,9 @@ class Course extends BaseObject
         $course->setCoursePeriod($start, $end);
         $course->setOfflineStatus(!(bool) $this->getData()->getOnline());
         $course->setSubscriptionType($this->getData()->getRegistration());
+        if((int)$this->getData()->getRegistration() !== 0) {
+            $course->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_UNLIMITED);
+        }
         $course->setSubscriptionPassword($this->getData()->getRegistrationPass());
         $course->enableRegistrationAccessCode($this->getData()->getAdmissionLink());
         $subscription_start = new ilDateTime($this->getData()->getRegistrationStart(), 2);
