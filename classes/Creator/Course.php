@@ -114,6 +114,13 @@ class Course extends BaseObject
         }
         $course->setSubscriptionPassword($this->getData()->getRegistrationPass());
         $course->enableRegistrationAccessCode($this->getData()->getAdmissionLink());
+        if($this->getData()->getRegistrationStart() !== "" &&
+            $this->getData()->getRegistrationEnd() !== "") {
+            $subscription_start = new ilDateTime($this->getData()->getRegistrationStart(), 2);
+            $subscription_end = new ilDateTime($this->getData()->getRegistrationEnd(), 2);
+            $course->setSubscriptionStart($subscription_start);
+            $course->setSubscriptionEnd($subscription_end);
+        }
         $subscription_start = new ilDateTime($this->getData()->getRegistrationStart(), 2);
         $subscription_end = new ilDateTime($this->getData()->getRegistrationEnd(), 2);
         $course->setSubscriptionStart($subscription_start);

@@ -104,10 +104,14 @@ class Group extends BaseObject
         $group->setRegistrationType($this->getData()->getRegistration());
         $group->setPassword($this->getData()->getRegistrationPass());
         $group->enableRegistrationAccessCode($this->getData()->getAdmissionLink());
-        $subscription_start = new ilDateTime($this->getData()->getRegistrationStart(), 2);
-        $subscription_end = new ilDateTime($this->getData()->getRegistrationEnd(), 2);
-        $group->setRegistrationStart($subscription_start);
-        $group->setRegistrationEnd($subscription_end);
+
+        if($this->getData()->getRegistrationStart() !== "" &&
+            $this->getData()->getRegistrationEnd() !== "") {
+            $subscription_start = new ilDateTime($this->getData()->getRegistrationStart(), 2);
+            $subscription_end = new ilDateTime($this->getData()->getRegistrationEnd(), 2);
+            $group->setRegistrationStart($subscription_start);
+            $group->setRegistrationEnd($subscription_end);
+        }
         $unsubscribe_end = new ilDate($this->getData()->getUnsubscribeEnd(), 2);
         $group->setCancellationEnd($unsubscribe_end);
         $group->update();
