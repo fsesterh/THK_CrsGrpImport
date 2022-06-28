@@ -100,12 +100,27 @@ class ImportCsvObject
         $this->ref_id = $ref_id;
     }
 
+    public function getGrpTypeNative() : int
+    {
+        return $this->grp_type;
+    }
+
     /**
      * @return int
      */
     public function getGrpType() : int
     {
-        return $this->grp_type;
+        if($this->grp_type === 0) {
+            return GRP_REGISTRATION_DEACTIVATED;
+        } elseif ($this->grp_type === 1) {
+            return GRP_REGISTRATION_DIRECT;
+        } elseif ($this->grp_type === 2) {
+            return GRP_REGISTRATION_PASSWORD;
+        } elseif ($this->grp_type === 3) {
+            return GRP_REGISTRATION_REQUEST;
+        } else {
+            return GRP_REGISTRATION_DEACTIVATED;
+        }
     }
 
     /**
@@ -167,9 +182,28 @@ class ImportCsvObject
     /**
      * @return int
      */
-    public function getRegistration() : int
+    public function getRegistrationNative() : int
     {
         return $this->registration;
+    }
+
+
+    /**
+     * @return int
+     */
+    public function getRegistration() : int
+    {
+        if($this->registration === 0) {
+            return IL_CRS_SUBSCRIPTION_DEACTIVATED;
+        } elseif ($this->registration === 1) {
+            return IL_CRS_SUBSCRIPTION_DIRECT;
+        } elseif ($this->registration === 2) {
+            return IL_CRS_SUBSCRIPTION_PASSWORD;
+        } elseif ($this->registration === 3) {
+            return IL_CRS_SUBSCRIPTION_CONFIRMATION;
+        } else {
+            return IL_CRS_SUBSCRIPTION_DEACTIVATED;
+        }
     }
 
     /**

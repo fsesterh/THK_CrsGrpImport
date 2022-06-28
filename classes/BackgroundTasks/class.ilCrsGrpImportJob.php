@@ -15,6 +15,7 @@ use ILIAS\Plugin\CrsGrpImport\Creator\Group;
 use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
 use ilDateTimeException;
 use ILIAS\DI\Container;
+use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
 
 /**
  *
@@ -23,6 +24,7 @@ class ilCrsGrpImportJob extends AbstractJob
 {
     public const COURSE = 'crs';
     public const GROUP = 'grp';
+    protected const VALID_TYPE = [0,1,2,3];
 
     private $logger = null;
     private $csv_log;
@@ -119,23 +121,60 @@ class ilCrsGrpImportJob extends AbstractJob
     protected function buildObject($new_object, $data) : string
     {
         $base_status = BaseObject::STATUS_OK;
-        if ($data->getAction() === BaseObject::INSERT) {
-            $ref_id = $new_object->insert();
-            $data->setRefId($ref_id);
-            if ($ref_id === 0) {
-                $base_status = BaseObject::STATUS_FAILED;
+        if($this->ensureDataIsValid($data)) {
+            if ($data->getAction() === BaseObject::INSERT) {
+                $ref_id = $new_object->insert();
+                $data->setRefId($ref_id);
+                if ($ref_id === 0) {
+                    $base_status = BaseObject::STATUS_FAILED;
+                }
+            } elseif ($data->getAction() === BaseObject::UPDATE) {
+                $base_status = $new_object->update();
+            } elseif ($data->getAction() === BaseObject::IGNORE) {
+                $data->setImportResult(BaseObject::RESULT_IGNORE);
+                $base_status = BaseObject::STATUS_IGNORED;
+            } else {
+                $data->setImportResult(BaseObject::RESULT_NO_VALID_ACTION);
+                $base_status = BaseObject::STATUS_IGNORED;
             }
-        } elseif ($data->getAction() === BaseObject::UPDATE) {
-            $base_status = $new_object->update();
-        } elseif ($data->getAction() === BaseObject::IGNORE) {
-            $data->setImportResult(BaseObject::RESULT_IGNORE);
-            $base_status = BaseObject::STATUS_IGNORED;
         } else {
-            $data->setImportResult(BaseObject::RESULT_NO_VALID_ACTION);
-            $base_status = BaseObject::STATUS_IGNORED;
+            $base_status = BaseObject::STATUS_FAILED;
+            $data->setImportResult(BaseObject::RESULT_DATASET_INVALID);
         }
 
         return $base_status;
+    }
+
+
+    protected function ensureDataIsValid(ImportCsvObject $data) : bool
+    {
+        if( ! in_array(strtolower($data->getAction()), [BaseObject::INSERT, BaseObject::UPDATE, BaseObject::IGNORE])) {
+            return false;
+        }
+        if($data->getTitle() === '') {
+            return false;
+        }
+        if(! in_array($data->getType(),  [self::COURSE, self::GROUP])) {
+            return false;
+        }
+        if(! in_array($data->getRegistrationNative(), self::VALID_TYPE)) {
+            return false;
+        }
+        if(! in_array($data->getGrpTypeNative(), self::VALID_TYPE)) {
+            return false;
+        }
+        if($data->getAdmins() === '') {
+            return false;
+        } else {
+            $usr_ids = \ilObjUser::_lookupId($data->getValidatedAdmins());
+            if( count($usr_ids) === 0 ) {
+                return false;
+            }
+        }
+        if( ! in_array($data->getAdmissionLink(), [0,1])) {
+            return false;
+        }
+        return true;
     }
 
     /**
