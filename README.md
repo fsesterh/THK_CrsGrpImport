@@ -13,6 +13,7 @@ in this document are to be interpreted as described in
     * [Composer](#composer)
 * [Configuration](#configuration)
 * [Specifications](#specifications)
+* [Validation](#validation)
 * [Other information](#other-information)
     * [Correlations](#correlations)
     * [Bugs](#bugs)
@@ -47,6 +48,33 @@ You SHOULD configure the roles in the configuration of the plugin.
 
 An ILIAS plugin that applies defaults to news settings of new objects and provides
 a user interface for news setting migrations.
+
+## Validation
+There are some values which must be set in a specific way, to create courses an groups, these values are as following:
+* Action
+  * Values: insert, update, ignore
+* Title
+  * Value: Must be set
+* Type
+  * Values: crs, grp
+* Registration
+  * Values: 0,1,2,3
+    * 0: Deactivated
+    * 1: Direct registration
+    * 2: Password registration
+    * 3: Request confirmation
+    * anything else: deactivated
+* Grp_type
+  * Values: 0,1,2,3
+    * 0: Deactivated
+    * 1: Direct registration
+    * 2: Password registration
+    * 3: Request registration
+    * anything else: deactivated
+* Admins
+  * Value: Must be set
+* AdmissionLink
+  * Values: 0,1
 
 ## Other Information
 
