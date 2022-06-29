@@ -78,10 +78,10 @@ There are some values which must be set in a specific way, to create courses an 
   * Values: 0,1
 
 ## Example CSV file
-Action;Type;RefId;GrpType;Title;Description;EventStart;EventEnd;Online;AvailabilityStart;AvailabilityEnd;Registration;RegistrationPass;AdmissionLink;RegistrationStart;RegistrationEnd;UnsubscribeEnd;Admins; 
+```Action;Type;RefId;GrpType;Title;Description;EventStart;EventEnd;Online;AvailabilityStart;AvailabilityEnd;Registration;RegistrationPass;AdmissionLink;RegistrationStart;RegistrationEnd;UnsubscribeEnd;Admins; 
 Insert;crs;;;My Course;Lorem Ipsum;10.03.2022 12:00;31.12.2022 23:55;1;15.03.2022 12:00;15.03.2023 12:00;1;geheim;0;15.03.2023 12:00;15.03.2023 12:00;15.03.2023 12:00;root;
 Insert;grp;;0;My Group;Lorem Ipsum;10.03.2022 12:00;31.12.2022 23:55;0;15.03.2022 12:00;15.03.2023 12:00;0;geheim;1;15.03.2023 12:01;15.03.2023 12:01;15.03.2023 12:01;root;
-
+```
 ## Other Information
 
 ### Correlations
