@@ -14,7 +14,7 @@ in this document are to be interpreted as described in
 * [Configuration](#configuration)
 * [Specifications](#specifications)
 * [Validation](#validation)
-* [Example](#example_csv_file)
+* [Example](#example-csv-file)
 * [Other information](#other-information)
     * [Correlations](#correlations)
     * [Bugs](#bugs)
