@@ -77,6 +77,9 @@ class Course extends BaseObject
      */
     public function update() : string
     {
+        //$this->getData()->getParentRefId();
+         //Todo check if ref_id is in parent subtree
+
         $ref_id = $this->getData()->getRefId();
         if ($this->checkPrerequisitesForUpdate($ref_id, $this->getData())) {
             $obj = new ilObjCourse($ref_id, true);
@@ -115,16 +118,13 @@ class Course extends BaseObject
         $course->setSubscriptionPassword($this->getData()->getRegistrationPass());
         $course->enableRegistrationAccessCode($this->getData()->getAdmissionLink());
         if($this->getData()->getRegistrationStart() !== "" &&
-            $this->getData()->getRegistrationEnd() !== "") {
+            $this->getData()->getRegistrationEnd() !== "" &&
+            $this->getData()->getRegistration() !== 0) {
             $subscription_start = new ilDateTime($this->getData()->getRegistrationStart(), 2);
             $subscription_end = new ilDateTime($this->getData()->getRegistrationEnd(), 2);
-            $course->setSubscriptionStart($subscription_start);
-            $course->setSubscriptionEnd($subscription_end);
+            $course->setSubscriptionStart($subscription_start->getUnixTime());
+            $course->setSubscriptionEnd($subscription_end->getUnixTime());
         }
-        $subscription_start = new ilDateTime($this->getData()->getRegistrationStart(), 2);
-        $subscription_end = new ilDateTime($this->getData()->getRegistrationEnd(), 2);
-        $course->setSubscriptionStart($subscription_start);
-        $course->setSubscriptionEnd($subscription_end);
         $unsubscribe_end = new ilDate($this->getData()->getUnsubscribeEnd(), 2);
         $course->setCancellationEnd($unsubscribe_end);
         $course->update();

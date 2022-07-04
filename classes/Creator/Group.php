@@ -65,6 +65,8 @@ class Group extends BaseObject
      */
     public function update() : string
     {
+       // $this->getData()->getParentRefId();
+        //Todo check if ref_id is in parent subtree
         $ref_id = $this->getData()->getRefId();
         if ($this->checkPrerequisitesForUpdate($ref_id, $this->getData())) {
             $obj = new ilObjGroup($ref_id, true);
