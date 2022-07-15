@@ -107,8 +107,8 @@ class Course extends BaseObject
      */
     protected function writeCourseAdvancedData(ilObjCourse $course) : int
     {
-        $start = new ilDateTime($this->getData()->getEventStart(), 2);
-        $end = new ilDateTime($this->getData()->getEventEnd(), 2);
+        $start = new ilDateTime($this->getData()->getEventStart(), IL_CAL_DATETIME);
+        $end = new ilDateTime($this->getData()->getEventEnd(), IL_CAL_DATETIME);
         $course->setCoursePeriod($start, $end);
         $course->setOfflineStatus(!(bool) $this->getData()->getOnline());
         $course->setSubscriptionType($this->getData()->getRegistration());
@@ -120,12 +120,12 @@ class Course extends BaseObject
         if($this->getData()->getRegistrationStart() !== "" &&
             $this->getData()->getRegistrationEnd() !== "" &&
             $this->getData()->getRegistration() !== 0) {
-            $subscription_start = new ilDateTime($this->getData()->getRegistrationStart(), 2);
-            $subscription_end = new ilDateTime($this->getData()->getRegistrationEnd(), 2);
+            $subscription_start = new ilDateTime($this->getData()->getRegistrationStart(), IL_CAL_DATETIME);
+            $subscription_end = new ilDateTime($this->getData()->getRegistrationEnd(), IL_CAL_DATETIME);
             $course->setSubscriptionStart($subscription_start->getUnixTime());
             $course->setSubscriptionEnd($subscription_end->getUnixTime());
         }
-        $unsubscribe_end = new ilDate($this->getData()->getUnsubscribeEnd(), 2);
+        $unsubscribe_end = new ilDate($this->getData()->getUnsubscribeEnd(), IL_CAL_DATE);
         $course->setCancellationEnd($unsubscribe_end);
         $course->update();
         return $course->getRefId();

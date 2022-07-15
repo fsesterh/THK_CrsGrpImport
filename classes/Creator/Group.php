@@ -99,8 +99,8 @@ class Group extends BaseObject
         $end = new ilDateTime($this->getData()->getEventEnd());
         $group->setPeriod($start, $end);
         $group->setOfflineStatus((bool) $this->getData()->getOnline());
-        $start = new ilDateTime($this->getData()->getEventStart(), 2);
-        $end = new ilDateTime($this->getData()->getEventEnd(), 2);
+        $start = new ilDateTime($this->getData()->getEventStart(), IL_CAL_DATETIME);
+        $end = new ilDateTime($this->getData()->getEventEnd(), IL_CAL_DATETIME);
         $group->setPeriod($start, $end);
         $group->setOfflineStatus(!(bool) $this->getData()->getOnline());
         $group->setRegistrationType($this->getData()->getRegistration());
@@ -109,12 +109,12 @@ class Group extends BaseObject
 
         if($this->getData()->getRegistrationStart() !== "" &&
             $this->getData()->getRegistrationEnd() !== "") {
-            $subscription_start = new ilDateTime($this->getData()->getRegistrationStart(), 2);
-            $subscription_end = new ilDateTime($this->getData()->getRegistrationEnd(), 2);
+            $subscription_start = new ilDateTime($this->getData()->getRegistrationStart(), IL_CAL_DATETIME);
+            $subscription_end = new ilDateTime($this->getData()->getRegistrationEnd(), IL_CAL_DATETIME);
             $group->setRegistrationStart($subscription_start);
             $group->setRegistrationEnd($subscription_end);
         }
-        $unsubscribe_end = new ilDate($this->getData()->getUnsubscribeEnd(), 2);
+        $unsubscribe_end = new ilDate($this->getData()->getUnsubscribeEnd(), IL_CAL_DATE);
         $group->setCancellationEnd($unsubscribe_end);
         $group->update();
         return $group->getRefId();
