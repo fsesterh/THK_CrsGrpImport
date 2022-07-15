@@ -13,6 +13,10 @@ use ILIAS\DI\Container;
 
 class BaseObject implements ObjectImporter
 {
+    public const IL_CSV_IMPORT_DATE_TIME = IL_CAL_DATE;
+    public const IL_CSV_IMPORT_DATE = IL_CAL_DATE;
+
+
     public const INSERT = 'insert';
     public const UPDATE = 'update';
     public const IGNORE = 'ignore';
@@ -34,18 +38,23 @@ class BaseObject implements ObjectImporter
     public const RESULT_UNKNOWN_OBJECT_TYPE = 'Object type is not known, Data not processed.';
     public const RESULT_DATASET_INCOMPLETE = 'Dataset incomplete. Data not processed.';
     public const RESULT_DATASET_INVALID = 'Dataset invalid. Data not processed.';
+    public const RESULT_UPDATE_OBJECT_NOT_IN_SUBTREE = 'Dataset invalid. Object for update is not in sub tree.';
+    public const RESULT_UPDATE_OBJECT_HAS_DIFFERENT_TYPE = 'Dataset invalid. Object for update has not the right object type.';
     public const RESULT_OBJECT_IN_TRASH_IGNORE = 'Object is in trash, ignoring.';
     public const RESULT_AVAILABILITY = 'Setting Availability not successful.';
 
     private $data;
     private $csv_log;
     public $dic;
+    public $dataCache;
 
     public function __construct(ImportCsvObject $data, CSVLog $csv_log, Container $dic)
     {
+        global $ilObjDataCache;
         $this->data = $data;
         $this->csv_log = $csv_log;
         $this->dic = $dic;
+        $this->dataCache = $ilObjDataCache;
     }
 
     /**
