@@ -121,7 +121,7 @@ class ilCrsGrpImportJob extends AbstractJob
     protected function buildObject($new_object, $data) : string
     {
         $base_status = BaseObject::STATUS_OK;
-        if($this->ensureDataIsValid($data)) {
+        if ($this->ensureDataIsValid($data)) {
             if ($data->getAction() === BaseObject::INSERT) {
                 $ref_id = $new_object->insert();
                 $data->setRefId($ref_id);
@@ -148,30 +148,30 @@ class ilCrsGrpImportJob extends AbstractJob
 
     protected function ensureDataIsValid(ImportCsvObject $data) : bool
     {
-        if( ! in_array(strtolower($data->getAction()), [BaseObject::INSERT, BaseObject::UPDATE, BaseObject::IGNORE])) {
+        if (! in_array(strtolower($data->getAction()), [BaseObject::INSERT, BaseObject::UPDATE, BaseObject::IGNORE])) {
             return false;
         }
-        if($data->getTitle() === '') {
+        if ($data->getTitle() === '') {
             return false;
         }
-        if(! in_array($data->getType(),  [self::COURSE, self::GROUP])) {
+        if (! in_array($data->getType(), [self::COURSE, self::GROUP])) {
             return false;
         }
-        if(! in_array($data->getRegistrationNative(), self::VALID_TYPE)) {
+        if (! in_array($data->getRegistrationNative(), self::VALID_TYPE)) {
             return false;
         }
-        if(! in_array($data->getGrpTypeNative(), self::VALID_TYPE)) {
+        if (! in_array($data->getGrpTypeNative(), self::VALID_TYPE)) {
             return false;
         }
-        if($data->getAdmins() === '') {
+        if ($data->getAdmins() === '') {
             return false;
         } else {
             $usr_ids = \ilObjUser::_lookupId($data->getValidatedAdmins());
-            if( count($usr_ids) === 0 ) {
+            if (count($usr_ids) === 0) {
                 return false;
             }
         }
-        if( ! in_array($data->getAdmissionLink(), [0,1])) {
+        if (! in_array($data->getAdmissionLink(), [0,1])) {
             return false;
         }
         return true;
