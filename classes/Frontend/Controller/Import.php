@@ -160,7 +160,8 @@ class Import extends Base
                         $registration_end,
                         $unsubscribe_end,
                         $admins,
-                        $parent_ref_id
+                        $parent_ref_id,
+                        $this->dic->user()->getTimeZone()
                     );
                     $csv_array[] = $import_row;
                 }
