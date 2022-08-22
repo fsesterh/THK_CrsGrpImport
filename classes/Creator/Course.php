@@ -6,7 +6,6 @@ use ilObjCourse;
 use ilDateTime;
 use ilDate;
 use ilDateTimeException;
-use ilObjectActivation;
 
 class Course extends BaseObject
 {
@@ -46,7 +45,8 @@ class Course extends BaseObject
      */
     protected function createCourse()
     {
-        $course_found_in_parent_tree = $this->dic->repositoryTree()->checkForParentType($this->getData()->getParentRefId(), 'crs');
+        $course_found_in_parent_tree = $this->dic->repositoryTree()->checkForParentType($this->getData()->getParentRefId(),
+            'crs');
         if ($course_found_in_parent_tree === false || $course_found_in_parent_tree === 0) {
             $course = new ilObjCourse();
             $course->setTitle($this->getData()->getTitle());
@@ -100,7 +100,7 @@ class Course extends BaseObject
                 return BaseObject::STATUS_FAILED;
             }
         } else {
-            if (! $this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id)) {
+            if (!$this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id)) {
                 $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_NOT_IN_SUBTREE);
                 return BaseObject::STATUS_FAILED;
             } elseif ($type != 'crs') {
@@ -117,7 +117,7 @@ class Course extends BaseObject
      */
     protected function writeCourseAdvancedData(ilObjCourse $course) : int
     {
-        if( $this->getData()->getEventStart() !== '0' &&
+        if ($this->getData()->getEventStart() !== '0' &&
             $this->getData()->getEventStart() !== '' &&
             $this->getData()->getEventEnd() !== '0' &&
             $this->getData()->getEventEnd() !== ''

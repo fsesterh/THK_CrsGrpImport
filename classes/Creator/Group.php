@@ -89,7 +89,7 @@ class Group extends BaseObject
                 return BaseObject::STATUS_FAILED;
             }
         } else {
-            if (! $this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id)) {
+            if (!$this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id)) {
                 $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_NOT_IN_SUBTREE);
                 return BaseObject::STATUS_FAILED;
             } elseif ($type != 'grp') {
@@ -108,7 +108,7 @@ class Group extends BaseObject
     {
         $group->updateGroupType($this->getData()->getGrpType());
 
-        if( $this->getData()->getEventStart() !== '0' &&
+        if ($this->getData()->getEventStart() !== '0' &&
             $this->getData()->getEventStart() !== '' &&
             $this->getData()->getEventEnd() !== '0' &&
             $this->getData()->getEventEnd() !== ''
