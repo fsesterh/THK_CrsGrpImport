@@ -69,8 +69,7 @@ class Group extends BaseObject
         $ref_id = $this->getData()->getRefId();
         $obj_id = $this->dataCache->lookupObjId($ref_id);
         $type = $this->dataCache->lookupType($obj_id);
-        if($this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id) && $type === 'grp')
-        {
+        if ($this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id) && $type === 'grp') {
             $ref_id = $this->getData()->getRefId();
             if ($this->checkPrerequisitesForUpdate($ref_id, $this->getData())) {
                 $obj = new ilObjGroup($ref_id, true);
@@ -89,17 +88,15 @@ class Group extends BaseObject
                 $this->getData()->setImportResult(BaseObject::RESULT_DATASET_INVALID);
                 return BaseObject::STATUS_FAILED;
             }
-        } else
-        {
-            if( ! $this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id)) {
+        } else {
+            if (! $this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id)) {
                 $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_NOT_IN_SUBTREE);
                 return BaseObject::STATUS_FAILED;
-            } elseif( $type != 'grp') {
+            } elseif ($type != 'grp') {
                 $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_HAS_DIFFERENT_TYPE);
                 return BaseObject::STATUS_FAILED;
             }
         }
-
     }
 
     /**
@@ -110,27 +107,44 @@ class Group extends BaseObject
     protected function writeGroupAdvancedData(ilObjGroup $group) : int
     {
         $group->updateGroupType($this->getData()->getGrpType());
-        $start = new ilDateTime($this->getData()->getEventStart());
-        $end = new ilDateTime($this->getData()->getEventEnd());
+
+        $start = new ilDateTime((new \DateTimeImmutable(
+            $this->getData()->getEventStart(),
+            new \DateTimeZone($this->getEffectiveActorTimeZone())
+        ))->getTimestamp(), IL_CAL_UNIX);
+        $end = new ilDateTime((new \DateTimeImmutable(
+            $this->getData()->getEventEnd(),
+            new \DateTimeZone($this->getEffectiveActorTimeZone())
+        ))->getTimestamp(), IL_CAL_UNIX);
+
         $group->setPeriod($start, $end);
-        $group->setOfflineStatus((bool) $this->getData()->getOnline());
-        $start = new ilDateTime($this->getData()->getEventStart(), BaseObject::IL_CSV_IMPORT_DATE_TIME);
-        $end = new ilDateTime($this->getData()->getEventEnd(), BaseObject::IL_CSV_IMPORT_DATE_TIME);
-        $group->setPeriod($start, $end);
+
         $group->setOfflineStatus(!(bool) $this->getData()->getOnline());
         $group->setRegistrationType($this->getData()->getRegistration());
         $group->setPassword($this->getData()->getRegistrationPass());
         $group->enableRegistrationAccessCode($this->getData()->getAdmissionLink());
 
-        if($this->getData()->getRegistrationStart() !== "" &&
+        if ($this->getData()->getRegistrationStart() !== "" &&
             $this->getData()->getRegistrationEnd() !== "") {
-            $subscription_start = new ilDateTime($this->getData()->getRegistrationStart(), BaseObject::IL_CSV_IMPORT_DATE_TIME);
-            $subscription_end = new ilDateTime($this->getData()->getRegistrationEnd(), BaseObject::IL_CSV_IMPORT_DATE_TIME);
+            $subscription_start = new ilDateTime((new \DateTimeImmutable(
+                $this->getData()->getRegistrationStart(),
+                new \DateTimeZone($this->getEffectiveActorTimeZone())
+            ))->getTimestamp(), IL_CAL_UNIX);
+            $subscription_end = new ilDateTime((new \DateTimeImmutable(
+                $this->getData()->getRegistrationEnd(),
+                new \DateTimeZone($this->getEffectiveActorTimeZone())
+            ))->getTimestamp(), IL_CAL_UNIX);
+
             $group->setRegistrationStart($subscription_start);
             $group->setRegistrationEnd($subscription_end);
         }
-        $unsubscribe_end = new ilDate($this->getData()->getUnsubscribeEnd(), BaseObject::IL_CSV_IMPORT_DATE);
+
+        $unsubscribe_end = new ilDate((new \DateTimeImmutable(
+            $this->getData()->getUnsubscribeEnd(),
+            new \DateTimeZone($this->getEffectiveActorTimeZone())
+        ))->getTimestamp(), IL_CAL_UNIX);
         $group->setCancellationEnd($unsubscribe_end);
+
         $group->update();
         return $group->getRefId();
     }

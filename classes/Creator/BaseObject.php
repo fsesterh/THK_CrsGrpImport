@@ -13,7 +13,7 @@ use ILIAS\DI\Container;
 
 class BaseObject implements ObjectImporter
 {
-    public const IL_CSV_IMPORT_DATE_TIME = IL_CAL_DATE;
+    public const IL_CSV_IMPORT_DATE_TIME = IL_CAL_DATETIME;
     public const IL_CSV_IMPORT_DATE = IL_CAL_DATE;
 
 
@@ -57,18 +57,35 @@ class BaseObject implements ObjectImporter
         $this->dataCache = $ilObjDataCache;
     }
 
+    protected function getEffectiveActorTimeZone() : string
+    {
+        $time_zone = $this->getData()->getActorTimezone();
+        if (null === $time_zone || '' === $time_zone) {
+            $time_zone = date_default_timezone_get();
+        }
+
+        return $time_zone;
+    }
+
     /**
      * @throws ilDateTimeException
      */
     protected function writeAvailability(int $ref_id) : bool
     {
         try {
-            $availability_start = new ilDateTime($this->getData()->getAvailabilityStart(), 2);
-            $availability_end = new ilDateTime($this->getData()->getAvailabilityEnd(), 2);
+            $availability_start = new \DateTimeImmutable(
+                $this->getData()->getAvailabilityStart(),
+                new \DateTimeZone($this->getEffectiveActorTimeZone())
+            );
+            $availability_end = new \DateTimeImmutable(
+                $this->getData()->getAvailabilityEnd(),
+                new \DateTimeZone($this->getEffectiveActorTimeZone())
+            );
+
             $activation = new ilObjectActivation();
             $activation->setTimingType(1);
-            $activation->setTimingStart($availability_start->getUnixTime());
-            $activation->setTimingEnd($availability_end->getUnixTime());
+            $activation->setTimingStart($availability_start->getTimestamp());
+            $activation->setTimingEnd($availability_end->getTimestamp());
             $activation->update($ref_id);
             return true;
         } catch (Exception $e) {

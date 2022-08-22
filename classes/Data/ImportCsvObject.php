@@ -24,6 +24,7 @@ class ImportCsvObject
     private $admins = '';
     private $parent_ref_id = null;
     private $import_result;
+    private $actor_timezone = null;
 
     public function __construct(
         string $action,
@@ -44,7 +45,8 @@ class ImportCsvObject
         ?string $registration_end,
         ?string $unsubscribe_end,
         string $admins,
-        ?int $parent_ref_id
+        ?int $parent_ref_id,
+        ?string $actor_timezone
     ) {
         $this->action = $action;
         $this->type = $type;
@@ -66,6 +68,12 @@ class ImportCsvObject
         $this->admins = $admins;
         $this->parent_ref_id = $parent_ref_id;
         $this->import_result = '';
+        $this->actor_timezone = $actor_timezone;
+    }
+
+    public function getActorTimezone() : ?string
+    {
+        return $this->actor_timezone;
     }
 
     /**
@@ -110,7 +118,7 @@ class ImportCsvObject
      */
     public function getGrpType() : int
     {
-        if($this->grp_type === 0) {
+        if ($this->grp_type === 0) {
             return GRP_REGISTRATION_DEACTIVATED;
         } elseif ($this->grp_type === 1) {
             return GRP_REGISTRATION_DIRECT;
@@ -193,7 +201,7 @@ class ImportCsvObject
      */
     public function getRegistration() : int
     {
-        if($this->registration === 0) {
+        if ($this->registration === 0) {
             return IL_CRS_SUBSCRIPTION_DEACTIVATED;
         } elseif ($this->registration === 1) {
             return IL_CRS_SUBSCRIPTION_DIRECT;

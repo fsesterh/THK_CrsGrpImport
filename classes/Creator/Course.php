@@ -81,8 +81,7 @@ class Course extends BaseObject
         $ref_id = $this->getData()->getRefId();
         $obj_id = $this->dataCache->lookupObjId($ref_id);
         $type = $this->dataCache->lookupType($obj_id);
-        if($this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id) && $type === 'crs')
-        {
+        if ($this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id) && $type === 'crs') {
             if ($this->checkPrerequisitesForUpdate($ref_id, $this->getData())) {
                 $obj = new ilObjCourse($ref_id, true);
                 $obj->setTitle($this->getData()->getTitle());
@@ -100,17 +99,15 @@ class Course extends BaseObject
                 $this->getData()->setImportResult(BaseObject::RESULT_DATASET_INVALID);
                 return BaseObject::STATUS_FAILED;
             }
-        } else
-        {
-           if( ! $this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id)) {
-               $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_NOT_IN_SUBTREE);
-               return BaseObject::STATUS_FAILED;
-           } elseif( $type != 'crs') {
-               $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_HAS_DIFFERENT_TYPE);
-               return BaseObject::STATUS_FAILED;
-           }
+        } else {
+            if (! $this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id)) {
+                $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_NOT_IN_SUBTREE);
+                return BaseObject::STATUS_FAILED;
+            } elseif ($type != 'crs') {
+                $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_HAS_DIFFERENT_TYPE);
+                return BaseObject::STATUS_FAILED;
+            }
         }
-
     }
 
     /**
@@ -120,26 +117,46 @@ class Course extends BaseObject
      */
     protected function writeCourseAdvancedData(ilObjCourse $course) : int
     {
-        $start = new ilDateTime($this->getData()->getEventStart(), BaseObject::IL_CSV_IMPORT_DATE_TIME);
-        $end = new ilDateTime($this->getData()->getEventEnd(), BaseObject::IL_CSV_IMPORT_DATE_TIME);
+        $start = new ilDateTime((new \DateTimeImmutable(
+            $this->getData()->getEventStart(),
+            new \DateTimeZone($this->getEffectiveActorTimeZone())
+        ))->getTimestamp(), IL_CAL_UNIX);
+        $end = new ilDateTime((new \DateTimeImmutable(
+            $this->getData()->getEventEnd(),
+            new \DateTimeZone($this->getEffectiveActorTimeZone())
+        ))->getTimestamp(), IL_CAL_UNIX);
+
         $course->setCoursePeriod($start, $end);
         $course->setOfflineStatus(!(bool) $this->getData()->getOnline());
         $course->setSubscriptionType($this->getData()->getRegistration());
-        if((int)$this->getData()->getRegistration() !== 0) {
+        if ((int) $this->getData()->getRegistration() !== 0) {
             $course->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_UNLIMITED);
         }
+
         $course->setSubscriptionPassword($this->getData()->getRegistrationPass());
         $course->enableRegistrationAccessCode($this->getData()->getAdmissionLink());
-        if($this->getData()->getRegistrationStart() !== "" &&
+        if ($this->getData()->getRegistrationStart() !== "" &&
             $this->getData()->getRegistrationEnd() !== "" &&
             $this->getData()->getRegistration() !== 0) {
-            $subscription_start = new ilDateTime($this->getData()->getRegistrationStart(), BaseObject::IL_CSV_IMPORT_DATE_TIME);
-            $subscription_end = new ilDateTime($this->getData()->getRegistrationEnd(), BaseObject::IL_CSV_IMPORT_DATE_TIME);
-            $course->setSubscriptionStart($subscription_start->getUnixTime());
-            $course->setSubscriptionEnd($subscription_end->getUnixTime());
+            $subscription_start = new ilDateTime((new \DateTimeImmutable(
+                $this->getData()->getRegistrationStart(),
+                new \DateTimeZone($this->getEffectiveActorTimeZone())
+            ))->getTimestamp(), IL_CAL_UNIX);
+            $subscription_end = new ilDateTime((new \DateTimeImmutable(
+                $this->getData()->getRegistrationEnd(),
+                new \DateTimeZone($this->getEffectiveActorTimeZone())
+            ))->getTimestamp(), IL_CAL_UNIX);
+
+            $course->setSubscriptionStart($subscription_start->get(IL_CAL_UNIX));
+            $course->setSubscriptionEnd($subscription_end->get(IL_CAL_UNIX));
         }
-        $unsubscribe_end = new ilDate($this->getData()->getUnsubscribeEnd(), BaseObject::IL_CSV_IMPORT_DATE);
+
+        $unsubscribe_end = new ilDate((new \DateTimeImmutable(
+            $this->getData()->getUnsubscribeEnd(),
+            new \DateTimeZone($this->getEffectiveActorTimeZone())
+        ))->getTimestamp(), IL_CAL_UNIX);
         $course->setCancellationEnd($unsubscribe_end);
+
         $course->update();
         return $course->getRefId();
     }
