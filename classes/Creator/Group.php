@@ -108,16 +108,21 @@ class Group extends BaseObject
     {
         $group->updateGroupType($this->getData()->getGrpType());
 
-        $start = new ilDateTime((new \DateTimeImmutable(
-            $this->getData()->getEventStart(),
-            new \DateTimeZone($this->getEffectiveActorTimeZone())
-        ))->getTimestamp(), IL_CAL_UNIX);
-        $end = new ilDateTime((new \DateTimeImmutable(
-            $this->getData()->getEventEnd(),
-            new \DateTimeZone($this->getEffectiveActorTimeZone())
-        ))->getTimestamp(), IL_CAL_UNIX);
-
-        $group->setPeriod($start, $end);
+        if( $this->getData()->getEventStart() !== '0' &&
+            $this->getData()->getEventStart() !== '' &&
+            $this->getData()->getEventEnd() !== '0' &&
+            $this->getData()->getEventEnd() !== ''
+        ) {
+            $start = new ilDateTime((new \DateTimeImmutable(
+                $this->getData()->getEventStart(),
+                new \DateTimeZone($this->getEffectiveActorTimeZone())
+            ))->getTimestamp(), IL_CAL_UNIX);
+            $end = new ilDateTime((new \DateTimeImmutable(
+                $this->getData()->getEventEnd(),
+                new \DateTimeZone($this->getEffectiveActorTimeZone())
+            ))->getTimestamp(), IL_CAL_UNIX);
+            $group->setPeriod($start, $end);
+        }
 
         $group->setOfflineStatus(!(bool) $this->getData()->getOnline());
         $group->setRegistrationType($this->getData()->getRegistration());

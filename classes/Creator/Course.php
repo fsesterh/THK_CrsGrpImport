@@ -117,16 +117,22 @@ class Course extends BaseObject
      */
     protected function writeCourseAdvancedData(ilObjCourse $course) : int
     {
-        $start = new ilDateTime((new \DateTimeImmutable(
-            $this->getData()->getEventStart(),
-            new \DateTimeZone($this->getEffectiveActorTimeZone())
-        ))->getTimestamp(), IL_CAL_UNIX);
-        $end = new ilDateTime((new \DateTimeImmutable(
-            $this->getData()->getEventEnd(),
-            new \DateTimeZone($this->getEffectiveActorTimeZone())
-        ))->getTimestamp(), IL_CAL_UNIX);
+        if( $this->getData()->getEventStart() !== '0' &&
+            $this->getData()->getEventStart() !== '' &&
+            $this->getData()->getEventEnd() !== '0' &&
+            $this->getData()->getEventEnd() !== ''
+        ) {
+            $start = new ilDateTime((new \DateTimeImmutable(
+                $this->getData()->getEventStart(),
+                new \DateTimeZone($this->getEffectiveActorTimeZone())
+            ))->getTimestamp(), IL_CAL_UNIX);
+            $end = new ilDateTime((new \DateTimeImmutable(
+                $this->getData()->getEventEnd(),
+                new \DateTimeZone($this->getEffectiveActorTimeZone())
+            ))->getTimestamp(), IL_CAL_UNIX);
+            $course->setCoursePeriod($start, $end);
+        }
 
-        $course->setCoursePeriod($start, $end);
         $course->setOfflineStatus(!(bool) $this->getData()->getOnline());
         $course->setSubscriptionType($this->getData()->getRegistration());
         if ((int) $this->getData()->getRegistration() !== 0) {
