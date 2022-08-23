@@ -81,7 +81,7 @@ class Course extends BaseObject
         $ref_id = $this->getData()->getRefId();
         $obj_id = $this->dataCache->lookupObjId($ref_id);
         $type = $this->dataCache->lookupType($obj_id);
-        if ($this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id) && $type === 'crs') {
+        if ($ref_id !== 0 && $this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id) && $type === 'crs') {
             if ($this->checkPrerequisitesForUpdate($ref_id, $this->getData())) {
                 $obj = new ilObjCourse($ref_id, true);
                 $obj->setTitle($this->getData()->getTitle());
@@ -100,6 +100,10 @@ class Course extends BaseObject
                 return BaseObject::STATUS_FAILED;
             }
         } else {
+            if($ref_id === 0) {
+                $this->getData()->setImportResult(BaseObject::RESULT_NO_REF_ID_GIVEN_FOR_UPDATE);
+                return BaseObject::STATUS_FAILED;
+            }
             if (!$this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id)) {
                 $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_NOT_IN_SUBTREE);
                 return BaseObject::STATUS_FAILED;

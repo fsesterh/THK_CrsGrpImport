@@ -69,7 +69,7 @@ class Group extends BaseObject
         $ref_id = $this->getData()->getRefId();
         $obj_id = $this->dataCache->lookupObjId($ref_id);
         $type = $this->dataCache->lookupType($obj_id);
-        if ($this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id) && $type === 'grp') {
+        if ($ref_id !== 0 && $this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id) && $type === 'grp') {
             $ref_id = $this->getData()->getRefId();
             if ($this->checkPrerequisitesForUpdate($ref_id, $this->getData())) {
                 $obj = new ilObjGroup($ref_id, true);
@@ -89,6 +89,10 @@ class Group extends BaseObject
                 return BaseObject::STATUS_FAILED;
             }
         } else {
+            if($ref_id === 0) {
+                $this->getData()->setImportResult(BaseObject::RESULT_NO_REF_ID_GIVEN_FOR_UPDATE);
+                return BaseObject::STATUS_FAILED;
+            }
             if (!$this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id)) {
                 $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_NOT_IN_SUBTREE);
                 return BaseObject::STATUS_FAILED;
