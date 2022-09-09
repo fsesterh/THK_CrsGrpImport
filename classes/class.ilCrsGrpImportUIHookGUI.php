@@ -242,8 +242,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
     {
         $selected_role = explode(',', $this->dic->settings()->get('crs_grp_import_default_local_role_ids'));
         $user_roles = $this->dic->rbac()->review()->assignedRoles($this->dic->user()->id);
-
-        $a = array_intersect($user_roles, $selected_role);
+        
         if (count(array_intersect($user_roles, $selected_role)) > 0) {
             return true;
         }
