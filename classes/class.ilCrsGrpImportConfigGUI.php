@@ -23,12 +23,12 @@ class ilCrsGrpImportConfigGUI extends \ilPluginConfigGUI
         try {
             global $DIC;
 
-            $role_ids_post = $DIC->http()->request()->getParsedBody()['default_role_ids'];
-            if ($role_ids_post === null) {
-                $this->dic->settings()->delete('crs_grp_import_default_role_ids');
+            $local_role_ids_post = $DIC->http()->request()->getParsedBody()['default_local_role_ids'];
+            $local_role_ids_post = str_replace(' ', '', $local_role_ids_post);
+            if (strlen($local_role_ids_post) === 0) {
+                $this->dic->settings()->delete('crs_grp_import_default_local_role_ids');
             } else {
-                $role_ids = implode(';', $role_ids_post);
-                $this->dic->settings()->set('crs_grp_import_default_role_ids', $role_ids);
+                $this->dic->settings()->set('crs_grp_import_default_local_role_ids', $local_role_ids_post);
             }
 
             ilUtil::sendSuccess($this->dic->language()->txt('saved_successfully'), true);
@@ -43,36 +43,15 @@ class ilCrsGrpImportConfigGUI extends \ilPluginConfigGUI
         $form = new ilPropertyFormGUI();
         $form->setTitle($this->dic->language()->txt('settings'));
         $form->setFormAction($this->dic->ctrl()->getFormAction($this, 'saveConfigurationForm'));
-        $role = new ilMultiSelectInputGUI($this->getPluginObject()->txt('role_select'), 'default_role_ids');
-        $role->setOptions($this->prepareRoleSelection());
-        $selected_role = explode(';', $this->dic->settings()->get('crs_grp_import_default_role_ids'));
-        if ($selected_role !== null && $selected_role !== false) {
-            $role->setValue($selected_role);
-        }
+
+        $role = new ilTextInputGUI($this->getPluginObject()->txt('role_select'), 'default_local_role_ids');
+        $selected_role = $this->dic->settings()->get('crs_grp_import_default_local_role_ids');
+        $role->setValue($selected_role);
+        $role->setInfo($this->getPluginObject()->txt('role_select_info'));
         $role->setRequired(false);
         $form->addItem($role);
-
         $form->addCommandButton('saveConfigurationForm', $this->dic->language()->txt('save'));
         $this->dic->ui()->mainTemplate()->setContent($form->getHTML());
-    }
-
-    protected function prepareRoleSelection() : array
-    {
-        global $DIC;
-
-        $select = [];
-        $global_roles = ilUtil::_sortIds(
-            $DIC->rbac()->review()->getGlobalRoles(),
-            'object_data',
-            'title',
-            'obj_id'
-        );
-
-        foreach ($global_roles as $role_id) {
-            $select[$role_id] = ilObject::_lookupTitle($role_id);
-        }
-
-        return $select;
     }
 
     /**

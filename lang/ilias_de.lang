@@ -9,5 +9,6 @@ select_file#:#Datei auswählen
 import_title#:#Course and Group CSV import task...
 import_description#:#Course and Group CSV import task
 upload_error#:#Etwas beim hochladen der Datei hat nicht funktioniert
-role_select#:#Wählen sie die Rollen aus, denen der Import Dialog angezeigt werden soll.
+role_select#:#Geben sie die Rollen-IDs ein, denen der Import Dialog angezeigt werden soll.
+role_select_info#:#Die Werte müssen Komma-separiert eingebene werden, z.B. '2,3,4,5', Leerzeichen werden während des speicherns entfernt.
 creation_accordion_header#:#Kurs-/Gruppen-Liste importieren
