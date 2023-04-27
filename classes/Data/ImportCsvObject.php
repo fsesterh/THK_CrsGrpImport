@@ -2,6 +2,8 @@
 
 namespace ILIAS\Plugin\CrsGrpImport\Data;
 
+use ilCourseConstants;
+
 class ImportCsvObject
 {
     private $action = '';
@@ -201,6 +203,7 @@ class ImportCsvObject
      */
     public function getRegistration() : int
     {
+        $init_crs_constants = new ilCourseConstants();
         if ($this->registration === 0) {
             return IL_CRS_SUBSCRIPTION_DEACTIVATED;
         } elseif ($this->registration === 1) {
