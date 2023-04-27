@@ -155,7 +155,7 @@ class Import extends Base
                         $availability_end,
                         $registration,
                         $registration_pass,
-                        $admission_link,
+                        $admission_link ?: 0,
                         $registration_start,
                         $registration_end,
                         $unsubscribe_end,
