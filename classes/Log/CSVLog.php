@@ -34,7 +34,7 @@ class CSVLog
 
     public function addEntryToLog(string $status, ?int $ref_id, ?string $title, array $admins, string $result) : void
     {
-        if (count($admins) > 1) {
+        if (count($admins) > 0) {
             $admins = implode(',', $admins);
         }
 
