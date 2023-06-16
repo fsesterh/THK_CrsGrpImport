@@ -10,6 +10,7 @@ use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
 use ILIAS\DI\Exceptions\Exception;
 use ilObject;
 use ILIAS\DI\Container;
+use ILIAS\UI\Implementation\Component\Input\Field\DateTime;
 
 class BaseObject implements ObjectImporter
 {
@@ -70,7 +71,7 @@ class BaseObject implements ObjectImporter
     /**
      * @throws ilDateTimeException
      */
-    protected function writeAvailability(int $ref_id) : bool
+    protected function writeAvailability(int $ref_id, $crs_or_grp_object = null) : bool
     {
         try {
             $availability_start = new \DateTimeImmutable(
@@ -87,6 +88,19 @@ class BaseObject implements ObjectImporter
             $activation->setTimingStart($availability_start->getTimestamp());
             $activation->setTimingEnd($availability_end->getTimestamp());
             $activation->update($ref_id);
+            if($crs_or_grp_object != null) {
+                $event_start = new \DateTimeImmutable(
+                    $this->getData()->getEventStart(),
+                    new \DateTimeZone($this->getEffectiveActorTimeZone())
+                );
+                $event_end = new \DateTimeImmutable(
+                    $this->getData()->getEventEnd(),
+                    new \DateTimeZone($this->getEffectiveActorTimeZone())
+                );
+                $crs_or_grp_object->setActivationStart($event_start->getTimestamp());
+                $crs_or_grp_object->setActivationEnd($event_end->getTimestamp());
+                $crs_or_grp_object->update();
+            }
             return true;
         } catch (Exception $e) {
             $this->getData()->setImportResult(self::RESULT_AVAILABILITY . '( ' . $e->getMessage() . ')');

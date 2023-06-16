@@ -18,7 +18,7 @@ class Course extends BaseObject
             $course = $this->createCourse();
             if ($course !== null) {
                 $ref_id = $this->writeCourseAdvancedData($course);
-                $this->writeAvailability($ref_id);
+                $this->writeAvailability($ref_id, $course);
                 if ($this->addAdminsToCourse($course) === true) {
                     $this->getData()->setImportResult(BaseObject::RESULT_CREATED_SUCCESSFULLY);
                 }
