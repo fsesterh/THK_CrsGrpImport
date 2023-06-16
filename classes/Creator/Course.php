@@ -160,12 +160,14 @@ class Course extends BaseObject
             $course->setSubscriptionStart($subscription_start->get(IL_CAL_UNIX));
             $course->setSubscriptionEnd($subscription_end->get(IL_CAL_UNIX));
         }
-
-        $unsubscribe_end = new ilDate((new \DateTimeImmutable(
-            $this->getData()->getUnsubscribeEnd(),
-            new \DateTimeZone($this->getEffectiveActorTimeZone())
-        ))->getTimestamp(), IL_CAL_UNIX);
-        $course->setCancellationEnd($unsubscribe_end);
+        $unsubscribe_value = $this->getData()->getUnsubscribeEnd();
+        if(strlen($unsubscribe_value) > 0) {
+            $unsubscribe_end = new ilDate((new \DateTimeImmutable(
+                $this->getData()->getUnsubscribeEnd(),
+                new \DateTimeZone($this->getEffectiveActorTimeZone())
+            ))->getTimestamp(), IL_CAL_UNIX);
+            $course->setCancellationEnd($unsubscribe_end);
+        }
 
         $course->update();
         return $course->getRefId();

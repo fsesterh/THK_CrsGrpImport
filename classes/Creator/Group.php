@@ -129,7 +129,16 @@ class Group extends BaseObject
         }
 
         $group->setOfflineStatus(!(bool) $this->getData()->getOnline());
-        $group->setRegistrationType($this->getData()->getRegistration());
+        $registration_number = $this->getData()->getRegistration();
+        if($registration_number === 0) {
+            $group->setRegistrationType(-1);
+        } elseif($registration_number === 1) {
+            $group->setRegistrationType(0);
+        } elseif($registration_number === 2 || $registration_number === 4) {
+            $group->setRegistrationType(2);
+        } else {
+            $group->setRegistrationType($registration_number);
+        }
         $group->setPassword($this->getData()->getRegistrationPass());
         $group->enableRegistrationAccessCode($this->getData()->getAdmissionLink());
 
@@ -148,11 +157,15 @@ class Group extends BaseObject
             $group->setRegistrationEnd($subscription_end);
         }
 
-        $unsubscribe_end = new ilDate((new \DateTimeImmutable(
-            $this->getData()->getUnsubscribeEnd(),
-            new \DateTimeZone($this->getEffectiveActorTimeZone())
-        ))->getTimestamp(), IL_CAL_UNIX);
-        $group->setCancellationEnd($unsubscribe_end);
+        $unsubscribe_value = $this->getData()->getUnsubscribeEnd();
+        if(strlen($unsubscribe_value) > 0) {
+            $unsubscribe_end = new ilDate((new \DateTimeImmutable(
+                $this->getData()->getUnsubscribeEnd(),
+                new \DateTimeZone($this->getEffectiveActorTimeZone())
+            ))->getTimestamp(), IL_CAL_UNIX);
+            $group->setCancellationEnd($unsubscribe_end);
+        }
+
 
         $group->update();
         return $group->getRefId();
