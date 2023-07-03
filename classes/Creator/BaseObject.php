@@ -74,32 +74,36 @@ class BaseObject implements ObjectImporter
     protected function writeAvailability(int $ref_id, $crs_or_grp_object = null) : bool
     {
         try {
-            $availability_start = new \DateTimeImmutable(
-                $this->getData()->getAvailabilityStart(),
-                new \DateTimeZone($this->getEffectiveActorTimeZone())
-            );
-            $availability_end = new \DateTimeImmutable(
-                $this->getData()->getAvailabilityEnd(),
-                new \DateTimeZone($this->getEffectiveActorTimeZone())
-            );
 
-            $activation = new ilObjectActivation();
-            $activation->setTimingType(1);
-            $activation->setTimingStart($availability_start->getTimestamp());
-            $activation->setTimingEnd($availability_end->getTimestamp());
-            $activation->update($ref_id);
-            if($crs_or_grp_object != null) {
-                $event_start = new \DateTimeImmutable(
-                    $this->getData()->getEventStart(),
+            if($this->getData()->getAvailabilityStart() !== '' && $this->getData()->getAvailabilityEnd() !== '')
+            {
+                $availability_start = new \DateTimeImmutable(
+                    $this->getData()->getAvailabilityStart(),
                     new \DateTimeZone($this->getEffectiveActorTimeZone())
                 );
-                $event_end = new \DateTimeImmutable(
-                    $this->getData()->getEventEnd(),
+                $availability_end = new \DateTimeImmutable(
+                    $this->getData()->getAvailabilityEnd(),
                     new \DateTimeZone($this->getEffectiveActorTimeZone())
                 );
-                $crs_or_grp_object->setActivationStart($event_start->getTimestamp());
-                $crs_or_grp_object->setActivationEnd($event_end->getTimestamp());
-                $crs_or_grp_object->update();
+
+                $activation = new ilObjectActivation();
+                $activation->setTimingType(1);
+                $activation->setTimingStart($availability_start->getTimestamp());
+                $activation->setTimingEnd($availability_end->getTimestamp());
+                $activation->update($ref_id);
+                if($crs_or_grp_object != null) {
+                    $event_start = new \DateTimeImmutable(
+                        $this->getData()->getEventStart(),
+                        new \DateTimeZone($this->getEffectiveActorTimeZone())
+                    );
+                    $event_end = new \DateTimeImmutable(
+                        $this->getData()->getEventEnd(),
+                        new \DateTimeZone($this->getEffectiveActorTimeZone())
+                    );
+                    $crs_or_grp_object->setActivationStart($event_start->getTimestamp());
+                    $crs_or_grp_object->setActivationEnd($event_end->getTimestamp());
+                    $crs_or_grp_object->update();
+                }
             }
             return true;
         } catch (Exception $e) {
