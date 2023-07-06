@@ -100,8 +100,15 @@ class BaseObject implements ObjectImporter
                         $this->getData()->getEventEnd(),
                         new \DateTimeZone($this->getEffectiveActorTimeZone())
                     );
-                    $crs_or_grp_object->setActivationStart($event_start->getTimestamp());
-                    $crs_or_grp_object->setActivationEnd($event_end->getTimestamp());
+                    if($event_start !== null && $event_end !== null) {
+                        $period_start = new ilDateTime($event_start->getTimestamp(), IL_CAL_UNIX);
+                        $period_end = new ilDateTime($event_end->getTimestamp(), IL_CAL_UNIX);
+                        $crs_or_grp_object->setCoursePeriod($period_start, $period_end);
+                        $crs_or_grp_object->setActivationStart($availability_start->getTimestamp());
+                        $crs_or_grp_object->setActivationEnd($availability_end->getTimestamp());
+                        $crs_or_grp_object->setActivationVisibility(1);
+                    }
+
                     $crs_or_grp_object->update();
                 }
             }
