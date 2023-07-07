@@ -17,7 +17,7 @@ class Group extends BaseObject
         if ($this->getData() !== null && $this->checkPrerequisitesForInsert()) {
             $group = $this->createGroup();
             $ref_id = $this->writeGroupAdvancedData($group);
-            $this->writeAvailability($ref_id);
+            $this->writeAvailability($ref_id, $group);
             if ($this->addAdminsToGroup($group) === true) {
                 $this->getData()->setImportResult(BaseObject::RESULT_CREATED_SUCCESSFULLY);
             }
@@ -120,21 +120,15 @@ class Group extends BaseObject
             $start = $this->checkAndParseDateStringToObject($this->getData()->getEventStart());
             $end = $this->checkAndParseDateStringToObject($this->getData()->getEventEnd());
             if($start !== '' && $end !== '') {
-                $group->setPeriod(new ilDateTime($start->getTimestamp(), IL_CAL_UNIX), new ilDateTime($end->getTimestamp(), IL_CAL_UNIX));
+                $start_time = new \ilDateTime($start->getTimestamp(), IL_CAL_UNIX, \ilTimeZone::UTC);
+                $end_time = new \ilDateTime($end->getTimestamp(), IL_CAL_UNIX, \ilTimeZone::UTC);
+                $group->setPeriod($start_time, $end_time);
             }
         }
 
         $group->setOfflineStatus(!(bool) $this->getData()->getOnline());
-        $registration_number = $this->getData()->getRegistration();
-        if($registration_number === 0) {
-            $group->setRegistrationType(-1);
-        } elseif($registration_number === 1) {
-            $group->setRegistrationType(0);
-        } elseif($registration_number === 2 || $registration_number === 4) {
-            $group->setRegistrationType(2);
-        } else {
-            $group->setRegistrationType($registration_number);
-        }
+        $group->setRegistrationType($this->getData()->getRegistrationType());
+
         $group->setPassword($this->getData()->getRegistrationPass());
         $group->enableRegistrationAccessCode($this->getData()->getAdmissionLink());
 
@@ -143,8 +137,8 @@ class Group extends BaseObject
             $subscription_start = $this->checkAndParseDateStringToObject($this->getData()->getRegistrationStart());
             $subscription_end = $this->checkAndParseDateStringToObject($this->getData()->getRegistrationEnd());
             if( $subscription_start !== '' && $subscription_end !== '') {
-                $group->setRegistrationStart($subscription_start->getTimestamp());
-                $group->setRegistrationEnd($subscription_end->getTimestamp());
+                $group->setRegistrationStart(new ilDateTime($subscription_start->getTimestamp(), IL_CAL_UNIX));
+                $group->setRegistrationEnd(new ilDateTime($subscription_end->getTimestamp(), IL_CAL_UNIX));
             }
         }
 

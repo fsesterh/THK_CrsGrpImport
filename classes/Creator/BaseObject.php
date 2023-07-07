@@ -98,12 +98,14 @@ class BaseObject implements ObjectImporter
                             $crs_or_grp_object->setCoursePeriod(new ilDateTime($period_start->getTimestamp(), IL_CAL_UNIX), new ilDateTime($period_end->getTimestamp(), IL_CAL_UNIX));
                         }
                     }
-
+                if($crs_or_grp_object->getType() === 'crs') {
                     if($availability_start !== '' && $availability_end !== '') {
                         $crs_or_grp_object->setActivationStart($availability_start->getTimestamp());
                         $crs_or_grp_object->setActivationEnd($availability_end->getTimestamp());
                         $crs_or_grp_object->setActivationVisibility(1);
                     }
+                }
+
                     $crs_or_grp_object->update();
                 }
             }

@@ -135,8 +135,8 @@ class Course extends BaseObject
         }
 
         $course->setOfflineStatus(!(bool) $this->getData()->getOnline());
-        $course->setSubscriptionType($this->getData()->getRegistration());
-        if ((int) $this->getData()->getRegistration() !== 0) {
+        $course->setSubscriptionType($this->getData()->getRegistrationTypeForCourse());
+        if ((int) $this->getData()->getRegistrationTypeForCourse() !== 0) {
             $course->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_UNLIMITED);
         }
 
@@ -144,7 +144,7 @@ class Course extends BaseObject
         $course->enableRegistrationAccessCode($this->getData()->getAdmissionLink());
         if ($this->getData()->getRegistrationStart() !== "" &&
             $this->getData()->getRegistrationEnd() !== "" &&
-            $this->getData()->getRegistration() !== 0) {
+            $this->getData()->getRegistrationTypeForCourse() !== 0) {
             $subscription_start = $this->checkAndParseDateStringToObject($this->getData()->getRegistrationStart());
             $subscription_end = $this->checkAndParseDateStringToObject($this->getData()->getRegistrationEnd());
             if($subscription_start !== '' && $subscription_end !== '') {

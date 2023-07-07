@@ -201,7 +201,7 @@ class ImportCsvObject
     /**
      * @return int
      */
-    public function getRegistration() : int
+    public function getRegistrationTypeForCourse() : int
     {
         $init_crs_constants = new ilCourseConstants();
         if ($this->registration === 0) {
@@ -216,6 +216,12 @@ class ImportCsvObject
             return IL_CRS_SUBSCRIPTION_DEACTIVATED;
         }
     }
+
+    public function getRegistrationType() : int
+    {
+        return $this->registration;
+    }
+
 
     /**
      * @return string
