@@ -184,13 +184,13 @@ class BaseObject implements ObjectImporter
      */
     protected function checkAndParseDateStringToObject(string $date) {
         $date_immutable = '';
-        if (preg_match("/(\d{2}).(\d{2}).(\d{2}) (\d{2}):(\d{2})/", $date, $d_parts) == false) {
+        if (!preg_match("/(\d{2}).(\d{2}).(\d{2}) (\d{2}):(\d{2})/", $date, $d_parts)) {
             $this->dic->logger()->root()->warning('Date for object has not the correct format (d.m.y H:i), tying other parser for: ' . $date);
         } else {
             $date_immutable = DateTimeImmutable::createFromFormat('d.m.y H:i', $date);
             $this->dic->logger()->root()->info('Parsing complete for date: ' . $date);
         }
-        if (preg_match("/(\d{2}).(\d{2}).(\d{4}) (\d{2}):(\d{2})/", $date, $d_parts) == false) {
+        if (!preg_match("/(\d{2}).(\d{2}).(\d{4}) (\d{2}):(\d{2})/", $date, $d_parts)) {
             $this->dic->logger()->root()->warning('Date for object has not the correct format (d.m.Y H:i), ignoring: ' . $date);
         } else {
             $date_immutable = DateTimeImmutable::createFromFormat('d.m.Y H:i', $date);
