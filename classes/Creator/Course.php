@@ -6,6 +6,7 @@ use ilObjCourse;
 use ilDateTime;
 use ilDate;
 use ilDateTimeException;
+use DateTimeImmutable;
 
 class Course extends BaseObject
 {
@@ -126,15 +127,12 @@ class Course extends BaseObject
             $this->getData()->getEventEnd() !== '0' &&
             $this->getData()->getEventEnd() !== ''
         ) {
-            $start = new ilDateTime((new \DateTimeImmutable(
-                $this->getData()->getEventStart(),
-                new \DateTimeZone($this->getEffectiveActorTimeZone())
-            ))->getTimestamp(), IL_CAL_UNIX);
-            $end = new ilDateTime((new \DateTimeImmutable(
-                $this->getData()->getEventEnd(),
-                new \DateTimeZone($this->getEffectiveActorTimeZone())
-            ))->getTimestamp(), IL_CAL_UNIX);
-            $course->setCoursePeriod($start, $end);
+            $start = $this->checkAndParseDateStringToObject($this->getData()->getEventStart());
+            $end = $this->checkAndParseDateStringToObject($this->getData()->getEventEnd());
+            if($start !== '' && $end !== '') {
+                $course->setCoursePeriod(new ilDateTime($start->getTimestamp(), IL_CAL_UNIX), new ilDateTime($end->getTimestamp(), IL_CAL_UNIX));
+
+            }
         }
 
         $course->setOfflineStatus(!(bool) $this->getData()->getOnline());
@@ -148,25 +146,19 @@ class Course extends BaseObject
         if ($this->getData()->getRegistrationStart() !== "" &&
             $this->getData()->getRegistrationEnd() !== "" &&
             $this->getData()->getRegistration() !== 0) {
-            $subscription_start = new ilDateTime((new \DateTimeImmutable(
-                $this->getData()->getRegistrationStart(),
-                new \DateTimeZone($this->getEffectiveActorTimeZone())
-            ))->getTimestamp(), IL_CAL_UNIX);
-            $subscription_end = new ilDateTime((new \DateTimeImmutable(
-                $this->getData()->getRegistrationEnd(),
-                new \DateTimeZone($this->getEffectiveActorTimeZone())
-            ))->getTimestamp(), IL_CAL_UNIX);
-
-            $course->setSubscriptionStart($subscription_start->get(IL_CAL_UNIX));
-            $course->setSubscriptionEnd($subscription_end->get(IL_CAL_UNIX));
+            $subscription_start = $this->checkAndParseDateStringToObject($this->getData()->getRegistrationStart());
+            $subscription_end = $this->checkAndParseDateStringToObject($this->getData()->getRegistrationEnd());
+            if($subscription_start !== '' && $subscription_end !== '') {
+                $course->setSubscriptionStart(new ilDateTime($subscription_start->getTimestamp(), IL_CAL_UNIX));
+                $course->setSubscriptionEnd(new ilDateTime($subscription_end->getTimestamp(), IL_CAL_UNIX));
+            }
         }
         $unsubscribe_value = $this->getData()->getUnsubscribeEnd();
         if(strlen($unsubscribe_value) > 0) {
-            $unsubscribe_end = new ilDate((new \DateTimeImmutable(
-                $this->getData()->getUnsubscribeEnd(),
-                new \DateTimeZone($this->getEffectiveActorTimeZone())
-            ))->getTimestamp(), IL_CAL_UNIX);
-            $course->setCancellationEnd($unsubscribe_end);
+            $unsubscribe_end = $this->checkAndParseDateStringToObject($this->getData()->getUnsubscribeEnd());
+            if($unsubscribe_end !== '') {
+                $course->setCancellationEnd(new ilDate($unsubscribe_end->getTimestamp(), IL_CAL_UNIX));
+            }
         }
 
         $course->update();

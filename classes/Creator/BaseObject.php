@@ -11,6 +11,7 @@ use ILIAS\DI\Exceptions\Exception;
 use ilObject;
 use ILIAS\DI\Container;
 use ILIAS\UI\Implementation\Component\Input\Field\DateTime;
+use DateTimeImmutable;
 
 class BaseObject implements ObjectImporter
 {
@@ -77,35 +78,29 @@ class BaseObject implements ObjectImporter
 
             if($this->getData()->getAvailabilityStart() !== '' && $this->getData()->getAvailabilityEnd() !== '')
             {
-                $availability_start = new \DateTimeImmutable(
-                    $this->getData()->getAvailabilityStart(),
-                    new \DateTimeZone($this->getEffectiveActorTimeZone())
-                );
-                $availability_end = new \DateTimeImmutable(
-                    $this->getData()->getAvailabilityEnd(),
-                    new \DateTimeZone($this->getEffectiveActorTimeZone())
-                );
+                $availability_start = $this->checkAndParseDateStringToObject($this->getData()->getAvailabilityStart());
+                $availability_end = $this->checkAndParseDateStringToObject( $this->getData()->getAvailabilityEnd());
 
                 $activation = new ilObjectActivation();
                 $activation->setTimingType(1);
-                $activation->setTimingStart($availability_start->getTimestamp());
-                $activation->setTimingEnd($availability_end->getTimestamp());
-                $activation->update($ref_id);
+                if($availability_start !== '' && $availability_end !== '') {
+                    $activation->setTimingStart($availability_start->getTimestamp());
+                    $activation->setTimingEnd($availability_end->getTimestamp());
+                    $activation->update($ref_id);
+                }
                 if($crs_or_grp_object != null) {
-                    $event_start = new \DateTimeImmutable(
-                        $this->getData()->getEventStart(),
-                        new \DateTimeZone($this->getEffectiveActorTimeZone())
-                    );
-                    $event_end = new \DateTimeImmutable(
-                        $this->getData()->getEventEnd(),
-                        new \DateTimeZone($this->getEffectiveActorTimeZone())
-                    );
-                    if($event_start !== null && $event_end !== null) {
-                        $period_start = new ilDateTime($event_start->getTimestamp(), IL_CAL_UNIX);
-                        $period_end = new ilDateTime($event_end->getTimestamp(), IL_CAL_UNIX);
-                        $crs_or_grp_object->setCoursePeriod($period_start, $period_end);
-                        $crs_or_grp_object->setActivationStart($availability_start->getTimestamp());
-                        $crs_or_grp_object->setActivationEnd($availability_end->getTimestamp());
+                    $event_start = $this->getData()->getEventStart();
+                    $event_end = $this->getData()->getEventEnd();
+                    if($event_start !== '' && $event_end !== '') {
+                        $period_start = $this->checkAndParseDateStringToObject($event_start);
+                        $period_end = $this->checkAndParseDateStringToObject($event_end);
+                        if($crs_or_grp_object->getType() === 'crs' && $period_start !== '' && $period_end !== '') {
+                            $crs_or_grp_object->setCoursePeriod(new ilDateTime($period_start->getTimestamp(), IL_CAL_UNIX), new ilDateTime($period_end->getTimestamp(), IL_CAL_UNIX));
+                        }
+                        if($availability_start !== '' && $availability_end !== '') {
+                            $crs_or_grp_object->setActivationStart($availability_start->getTimestamp());
+                            $crs_or_grp_object->setActivationEnd($availability_end->getTimestamp());
+                        }
                         $crs_or_grp_object->setActivationVisibility(1);
                     }
 
@@ -181,5 +176,30 @@ class BaseObject implements ObjectImporter
     {
         $obj_type = ilObject::_lookupType($ref_id, true);
         return $obj_type === $type;
+    }
+
+    /**
+     * @param string $date
+     * @return DateTimeImmutable|string
+     */
+    protected function checkAndParseDateStringToObject(string $date) {
+        $date_immutable = '';
+        if (preg_match("/(\d{2}).(\d{2}).(\d{2}) (\d{2}):(\d{2})/", $date, $d_parts) == false) {
+            $this->dic->logger()->root()->warning('Date for object has not the correct format (d.m.y H:i), tying other parser for: ' . $date);
+        } else {
+            $date_immutable = DateTimeImmutable::createFromFormat('d.m.y H:i', $date);
+            $this->dic->logger()->root()->info('Parsing complete for date: ' . $date);
+        }
+        if (preg_match("/(\d{2}).(\d{2}).(\d{4}) (\d{2}):(\d{2})/", $date, $d_parts) == false) {
+            $this->dic->logger()->root()->warning('Date for object has not the correct format (d.m.Y H:i), ignoring: ' . $date);
+        } else {
+            $date_immutable = DateTimeImmutable::createFromFormat('d.m.Y H:i', $date);
+            $this->dic->logger()->root()->info('Parsing complete for date: ' . $date);
+        }
+
+        if($date_immutable === false) {
+            return '';
+        }
+        return $date_immutable;
     }
 }
