@@ -131,7 +131,6 @@ class Course extends BaseObject
             $end = $this->checkAndParseDateStringToObject($this->getData()->getEventEnd());
             if($start !== '' && $end !== '') {
                 $course->setCoursePeriod(new ilDateTime($start->getTimestamp(), IL_CAL_UNIX), new ilDateTime($end->getTimestamp(), IL_CAL_UNIX));
-
             }
         }
 
