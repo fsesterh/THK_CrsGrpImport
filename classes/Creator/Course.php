@@ -148,8 +148,8 @@ class Course extends BaseObject
             $subscription_start = $this->checkAndParseDateStringToObject($this->getData()->getRegistrationStart());
             $subscription_end = $this->checkAndParseDateStringToObject($this->getData()->getRegistrationEnd());
             if($subscription_start !== '' && $subscription_end !== '') {
-                $course->setSubscriptionStart(new ilDateTime($subscription_start->getTimestamp(), IL_CAL_UNIX));
-                $course->setSubscriptionEnd(new ilDateTime($subscription_end->getTimestamp(), IL_CAL_UNIX));
+                $course->setSubscriptionStart($subscription_start->getTimestamp());
+                $course->setSubscriptionEnd($subscription_end->getTimestamp());
             }
         }
         $unsubscribe_value = $this->getData()->getUnsubscribeEnd();

@@ -143,8 +143,8 @@ class Group extends BaseObject
             $subscription_start = $this->checkAndParseDateStringToObject($this->getData()->getRegistrationStart());
             $subscription_end = $this->checkAndParseDateStringToObject($this->getData()->getRegistrationEnd());
             if( $subscription_start !== '' && $subscription_end !== '') {
-                $group->setRegistrationStart(new ilDateTime($subscription_start->getTimestamp(), IL_CAL_UNIX));
-                $group->setRegistrationEnd(new ilDateTime($subscription_end->getTimestamp(), IL_CAL_UNIX));
+                $group->setRegistrationStart($subscription_start->getTimestamp());
+                $group->setRegistrationEnd($subscription_end->getTimestamp());
             }
         }
 
