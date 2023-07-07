@@ -117,15 +117,11 @@ class Group extends BaseObject
             $this->getData()->getEventEnd() !== '0' &&
             $this->getData()->getEventEnd() !== ''
         ) {
-            $start = new ilDateTime((new \DateTimeImmutable(
-                $this->getData()->getEventStart(),
-                new \DateTimeZone($this->getEffectiveActorTimeZone())
-            ))->getTimestamp(), IL_CAL_UNIX);
-            $end = new ilDateTime((new \DateTimeImmutable(
-                $this->getData()->getEventEnd(),
-                new \DateTimeZone($this->getEffectiveActorTimeZone())
-            ))->getTimestamp(), IL_CAL_UNIX);
-            $group->setPeriod($start, $end);
+            $start = $this->checkAndParseDateStringToObject($this->getData()->getEventStart());
+            $end = $this->checkAndParseDateStringToObject($this->getData()->getEventEnd());
+            if($start !== '' && $end !== '') {
+                $group->setPeriod(new ilDateTime($start->getTimestamp(), IL_CAL_UNIX), new ilDateTime($end->getTimestamp(), IL_CAL_UNIX));
+            }
         }
 
         $group->setOfflineStatus(!(bool) $this->getData()->getOnline());
@@ -144,28 +140,19 @@ class Group extends BaseObject
 
         if ($this->getData()->getRegistrationStart() !== "" &&
             $this->getData()->getRegistrationEnd() !== "") {
-            $subscription_start = new ilDateTime((new \DateTimeImmutable(
-                $this->getData()->getRegistrationStart(),
-                new \DateTimeZone($this->getEffectiveActorTimeZone())
-            ))->getTimestamp(), IL_CAL_UNIX);
-            $subscription_end = new ilDateTime((new \DateTimeImmutable(
-                $this->getData()->getRegistrationEnd(),
-                new \DateTimeZone($this->getEffectiveActorTimeZone())
-            ))->getTimestamp(), IL_CAL_UNIX);
-
-            $group->setRegistrationStart($subscription_start);
-            $group->setRegistrationEnd($subscription_end);
+            $subscription_start = $this->checkAndParseDateStringToObject($this->getData()->getRegistrationStart());
+            $subscription_end = $this->checkAndParseDateStringToObject($this->getData()->getRegistrationEnd());
+            if( $subscription_start !== '' && $subscription_end !== '') {
+                $group->setRegistrationStart(new ilDateTime($subscription_start->getTimestamp(), IL_CAL_UNIX));
+                $group->setRegistrationEnd(new ilDateTime($subscription_end->getTimestamp(), IL_CAL_UNIX));
+            }
         }
 
         $unsubscribe_value = $this->getData()->getUnsubscribeEnd();
         if(strlen($unsubscribe_value) > 0) {
-            $unsubscribe_end = new ilDate((new \DateTimeImmutable(
-                $this->getData()->getUnsubscribeEnd(),
-                new \DateTimeZone($this->getEffectiveActorTimeZone())
-            ))->getTimestamp(), IL_CAL_UNIX);
-            $group->setCancellationEnd($unsubscribe_end);
+            $unsubscribe_end = $this->checkAndParseDateStringToObject($this->getData()->getUnsubscribeEnd());
+            $group->setCancellationEnd(new ilDate($unsubscribe_end));
         }
-
 
         $group->update();
         return $group->getRefId();
