@@ -164,18 +164,12 @@ class ImportCsvObject
         }
     }
 
-    /**
-     * @return string
-     */
-    public function getTitleDe() : string
+    public function getTitleDe() : ?string
     {
         return $this->title_de;
     }
 
-    /**
-     * @return string
-     */
-    public function getDescriptionDe() : string
+    public function getDescriptionDe() : ?string
     {
         return $this->description_de;
     }

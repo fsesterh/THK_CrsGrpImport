@@ -117,6 +117,49 @@ class BaseObject implements ObjectImporter
         }
     }
 
+    /**
+     * @param \ilObjCourse|\ilObjGroup $object
+     */
+    public function handleI18nTitleAndDescription($object, bool $is_update = false): void
+    {
+        if (!$is_update && (is_string($this->getData()->getTitleEn()) && $this->getData()->getTitleEn() !== '')) {
+            $translation = \ilObjectTranslation::getInstance($object->getId());
+            $translation->setDefaultTitle((string) $this->getData()->getTitleDe());
+            $translation->setDefaultDescription((string) $this->getData()->getDescriptionDe());
+            $translation->setMasterLanguage('de');
+            $translation->addLanguage(
+                'en',
+                $this->getData()->getTitleEn(),
+                $this->getData()->getDescriptionEn(),
+                false,
+                false
+            );
+            $translation->save();
+        } elseif ($is_update) {
+            $translation = \ilObjectTranslation::getInstance($object->getId());
+            if (is_string($this->getData()->getTitleEn()) && $this->getData()->getTitleEn() !== '') {
+                if (isset($languages['en'])) {
+                    $translation->removeLanguage('en');
+                }
+
+                $translation->addLanguage(
+                    'en',
+                    $this->getData()->getTitleEn(),
+                    $this->getData()->getDescriptionEn(),
+                    false,
+                    false
+                );
+                $translation->save();
+            } else {
+                $languages = $translation->getLanguages();
+                if (isset($languages['en'])) {
+                    $translation->removeLanguage('en');
+                    $translation->save();
+                }
+            }
+        }
+    }
+
     public function update() : string
     {
     }

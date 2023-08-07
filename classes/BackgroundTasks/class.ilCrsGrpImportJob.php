@@ -174,6 +174,7 @@ class ilCrsGrpImportJob extends AbstractJob
         if (!in_array(strtolower($data->getAction()), [BaseObject::INSERT, BaseObject::UPDATE, BaseObject::IGNORE], true)) {
             return false;
         }
+
         if (!in_array($data->getType(), [self::COURSE, self::GROUP, self::COURSE_LINK, self::GROUP_LINK], true)) {
             return false;
         }
@@ -200,15 +201,20 @@ class ilCrsGrpImportJob extends AbstractJob
                 return false;
             }
 
-            // TODO: Validate i18n titles
             if ($data->getTitleDe() === '') {
                 return false;
             }
 
-            if ($data->getLimitMembers() &&
-                $data->getMinMembers() !== null &&
+            if ($data->getMinMembers() !== null &&
                 $data->getMaxMembers() !== null &&
                 $data->getMinMembers() > $data->getMaxMembers()) {
+                return false;
+            }
+        }
+
+        if (in_array($data->getType(), [self::COURSE_LINK, self::GROUP_LINK], true)) {
+            // course links and group links don't support an `update` action
+            if (!in_array(strtolower($data->getAction()), [BaseObject::INSERT, BaseObject::IGNORE], true)) {
                 return false;
             }
         }

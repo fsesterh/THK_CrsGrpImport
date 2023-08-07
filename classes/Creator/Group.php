@@ -39,10 +39,11 @@ class Group extends BaseObject
     protected function createGroup() : ilObjGroup
     {
         $group = new ilObjGroup();
-        $group->setTitle($this->getData()->getTitleDe());
-        $group->setDescription($this->getData()->getDescriptionDe());
+        $group->setTitle((string) $this->getData()->getTitleDe());
+        $group->setDescription((string) $this->getData()->getDescriptionDe());
         $group->create();
         $ref_id = $this->putGroupInTree($group);
+        $this->handleI18nTitleAndDescription($group);
         return $group;
     }
 
@@ -73,9 +74,10 @@ class Group extends BaseObject
             $ref_id = $this->getData()->getRefId();
             if ($this->checkPrerequisitesForUpdate($ref_id, $this->getData())) {
                 $obj = new ilObjGroup($ref_id, true);
-                $obj->setTitle($this->getData()->getTitleDe());
-                $obj->setDescription($this->getData()->getDescriptionDe());
+                $obj->setTitle((string) $this->getData()->getTitleDe());
+                $obj->setDescription((string) $this->getData()->getDescriptionDe());
                 $obj->update();
+                $this->handleI18nTitleAndDescription($obj, true);
                 $this->writeGroupAdvancedData($obj);
                 if ($this->writeAvailability($ref_id) === false) {
                     return BaseObject::STATUS_FAILED;

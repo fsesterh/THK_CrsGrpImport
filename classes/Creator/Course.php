@@ -41,21 +41,24 @@ class Course extends BaseObject
         return false;
     }
 
-    /**
-     * @return ilObjCourse|null
-     */
-    protected function createCourse()
+    protected function createCourse() : ?ilObjCourse
     {
-        $course_found_in_parent_tree = $this->dic->repositoryTree()->checkForParentType($this->getData()->getParentRefId(),
-            'crs');
+        $course_found_in_parent_tree = $this->dic->repositoryTree()->checkForParentType(
+            $this->getData()->getParentRefId(),
+            'crs'
+        );
         if ($course_found_in_parent_tree === false || $course_found_in_parent_tree === 0) {
             $course = new ilObjCourse();
-            $course->setTitle($this->getData()->getTitleDe());
-            $course->setDescription($this->getData()->getDescriptionDe());
+            $course->setTitle((string) $this->getData()->getTitleDe());
+            $course->setDescription((string) $this->getData()->getDescriptionDe());
             $course->create();
             $ref_id = $this->putCourseInTree($course);
+
+            $this->handleI18nTitleAndDescription($course);
+
             return $course;
         }
+
         return null;
     }
 
@@ -85,9 +88,10 @@ class Course extends BaseObject
         if ($ref_id !== 0 && $this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id) && $type === 'crs') {
             if ($this->checkPrerequisitesForUpdate($ref_id, $this->getData())) {
                 $obj = new ilObjCourse($ref_id, true);
-                $obj->setTitle($this->getData()->getTitleDe());
-                $obj->setDescription($this->getData()->getDescriptionDe());
+                $obj->setTitle((string) $this->getData()->getTitleDe());
+                $obj->setDescription((string) $this->getData()->getDescriptionDe());
                 $obj->update();
+                $this->handleI18nTitleAndDescription($obj, true);
                 $this->writeCourseAdvancedData($obj);
                 if ($this->writeAvailability($ref_id) === false) {
                     return BaseObject::STATUS_FAILED;
