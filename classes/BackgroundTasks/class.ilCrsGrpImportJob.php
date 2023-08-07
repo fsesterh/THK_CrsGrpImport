@@ -8,6 +8,7 @@ use ILIAS\BackgroundTasks\Types\SingleType;
 use ILIAS\BackgroundTasks\Implementation\Tasks\AbstractJob;
 use ILIAS\BackgroundTasks\Implementation\Values\ScalarValues\StringValue;
 use ILIAS\BackgroundTasks\Observer;
+use ILIAS\Plugin\CrsGrpImport\Creator\ContainerLink;
 use ilLogger;
 use ILIAS\Plugin\CrsGrpImport\Creator\BaseObject;
 use ILIAS\Plugin\CrsGrpImport\Creator\Course;
@@ -113,14 +114,14 @@ class ilCrsGrpImportJob extends AbstractJob
 
     protected function buildCourseLinkObject(ImportCsvObject $data) : string
     {
-        // TODO: Implement course link
-        throw new \RuntimeException('Not implemented yet');
+        $container = new ContainerLink($data, $this->csv_log, $this->dic);
+        return $this->buildObject($container, $data);
     }
 
     protected function buildGroupLinkObject(ImportCsvObject $data) : string
     {
-        // TODO: Implement course group
-        throw new \RuntimeException('Not implemented yet');
+        $container = new ContainerLink($data, $this->csv_log, $this->dic);
+        return $this->buildObject($container, $data);
     }
 
     protected function buildCourseObject(ImportCsvObject $data) : string
@@ -136,7 +137,7 @@ class ilCrsGrpImportJob extends AbstractJob
     }
 
     /**
-     * @param Course|Group $new_object
+     * @param Course|Group|ContainerLink $new_object
      * @param              $data
      * @return string
      * @throws ilDateTimeException
@@ -184,10 +185,14 @@ class ilCrsGrpImportJob extends AbstractJob
                 return false;
             }
 
-            // TODO: Validate didactic template
-            if (!in_array($data->getTemplateIdNativeType(), self::VALID_TYPE)) {
-                return false;
+            if ($data->getType() === self::COURSE) {
+                if ($data->getTemplateIdNativeType()  === 1) {
+                    return false;
+                }
             }
+
+            // TODO: Validate didactic templates
+
             if ($data->getAdmins() === '') {
                 return false;
             }
@@ -213,8 +218,25 @@ class ilCrsGrpImportJob extends AbstractJob
         }
 
         if (in_array($data->getType(), [self::COURSE_LINK, self::GROUP_LINK], true)) {
-            // course links and group links don't support an `update` action
             if (!in_array(strtolower($data->getAction()), [BaseObject::INSERT, BaseObject::IGNORE], true)) {
+                // course links and group links don't support an `update` action
+                return false;
+            }
+
+            if (!is_numeric($data->getRefId())) {
+                return false;
+            }
+
+            $obj_id = \ilObject::_lookupObjId($data->getRefId());
+            if (!$obj_id) {
+                return false;
+            }
+
+            if ($data->getType() === self::COURSE_LINK && \ilObject::_lookupType($obj_id) !== 'crs') {
+                return false;
+            }
+
+            if ($data->getType() === self::GROUP_LINK && \ilObject::_lookupType($obj_id) !== 'grp') {
                 return false;
             }
         }
