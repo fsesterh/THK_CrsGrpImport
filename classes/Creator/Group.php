@@ -39,8 +39,8 @@ class Group extends BaseObject
     protected function createGroup() : ilObjGroup
     {
         $group = new ilObjGroup();
-        $group->setTitle($this->getData()->getTitle());
-        $group->setDescription($this->getData()->getDescription());
+        $group->setTitle($this->getData()->getTitleDe());
+        $group->setDescription($this->getData()->getDescriptionDe());
         $group->create();
         $ref_id = $this->putGroupInTree($group);
         return $group;
@@ -73,8 +73,8 @@ class Group extends BaseObject
             $ref_id = $this->getData()->getRefId();
             if ($this->checkPrerequisitesForUpdate($ref_id, $this->getData())) {
                 $obj = new ilObjGroup($ref_id, true);
-                $obj->setTitle($this->getData()->getTitle());
-                $obj->setDescription($this->getData()->getDescription());
+                $obj->setTitle($this->getData()->getTitleDe());
+                $obj->setDescription($this->getData()->getDescriptionDe());
                 $obj->update();
                 $this->writeGroupAdvancedData($obj);
                 if ($this->writeAvailability($ref_id) === false) {
@@ -110,7 +110,8 @@ class Group extends BaseObject
      */
     protected function writeGroupAdvancedData(ilObjGroup $group) : int
     {
-        $group->updateGroupType($this->getData()->getGrpType());
+        // TODO Didactiy template
+        $group->updateGroupType($this->getData()->getEffectiveTemplateId());
 
         if ($this->getData()->getEventStart() !== '0' &&
             $this->getData()->getEventStart() !== '' &&
@@ -146,6 +147,28 @@ class Group extends BaseObject
         if(strlen($unsubscribe_value) > 0) {
             $unsubscribe_end = $this->checkAndParseDateStringToObject($this->getData()->getUnsubscribeEnd());
             $group->setCancellationEnd(new ilDate($unsubscribe_end));
+        }
+
+        $group->enableMembershipLimitation(
+            (bool) $this->getData()->getLimitMembers()
+        );
+        $group->setMinMembers((int) $this->getData()->getMinMembers());
+        $group->setMaxMembers((int) $this->getData()->getMaxMembers());
+        switch ((int) $this->getData()->getWaitingList()) {
+            case 2:
+                $group->enableWaitingList(true);
+                $group->setWaitingListAutoFill(true);
+                break;
+
+            case 1:
+                $group->enableWaitingList(true);
+                $group->setWaitingListAutoFill(false);
+                break;
+
+            default:
+                $group->enableWaitingList(false);
+                $group->setWaitingListAutoFill(false);
+                break;
         }
 
         $group->update();

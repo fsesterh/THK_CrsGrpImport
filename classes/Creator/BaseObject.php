@@ -71,40 +71,41 @@ class BaseObject implements ObjectImporter
 
     /**
      * @throws ilDateTimeException
+     * @param \ilObjCourse|\ilObjGroup $crs_or_grp_object
      */
     protected function writeAvailability(int $ref_id, $crs_or_grp_object = null) : bool
     {
         try {
-
-            if($this->getData()->getAvailabilityStart() !== '' && $this->getData()->getAvailabilityEnd() !== '')
-            {
+            if ($this->getData()->getAvailabilityStart() !== '' && $this->getData()->getAvailabilityEnd() !== '') {
                 $availability_start = $this->checkAndParseDateStringToObject($this->getData()->getAvailabilityStart());
-                $availability_end = $this->checkAndParseDateStringToObject( $this->getData()->getAvailabilityEnd());
+                $availability_end = $this->checkAndParseDateStringToObject($this->getData()->getAvailabilityEnd());
 
                 $activation = new ilObjectActivation();
                 $activation->setTimingType(1);
-                if($availability_start !== '' && $availability_end !== '') {
+                if ($availability_start !== '' && $availability_end !== '') {
                     $activation->setTimingStart($availability_start->getTimestamp());
                     $activation->setTimingEnd($availability_end->getTimestamp());
+                    $activation->toggleVisible((bool) $this->getData()->getAvailabilityVisible());
                     $activation->update($ref_id);
                 }
-                if($crs_or_grp_object != null) {
+                if ($crs_or_grp_object != null) {
                     $event_start = $this->getData()->getEventStart();
                     $event_end = $this->getData()->getEventEnd();
-                    if($event_start !== '' && $event_end !== '') {
+                    if ($event_start !== '' && $event_end !== '') {
                         $period_start = $this->checkAndParseDateStringToObject($event_start);
                         $period_end = $this->checkAndParseDateStringToObject($event_end);
-                        if($crs_or_grp_object->getType() === 'crs' && $period_start !== '' && $period_end !== '') {
-                            $crs_or_grp_object->setCoursePeriod(new ilDateTime($period_start->getTimestamp(), IL_CAL_UNIX), new ilDateTime($period_end->getTimestamp(), IL_CAL_UNIX));
+                        if ($crs_or_grp_object->getType() === 'crs' && $period_start !== '' && $period_end !== '') {
+                            $crs_or_grp_object->setCoursePeriod(new ilDateTime($period_start->getTimestamp(),
+                                IL_CAL_UNIX), new ilDateTime($period_end->getTimestamp(), IL_CAL_UNIX));
                         }
                     }
-                if($crs_or_grp_object->getType() === 'crs') {
-                    if($availability_start !== '' && $availability_end !== '') {
-                        $crs_or_grp_object->setActivationStart($availability_start->getTimestamp());
-                        $crs_or_grp_object->setActivationEnd($availability_end->getTimestamp());
-                        $crs_or_grp_object->setActivationVisibility(1);
+                    if ($crs_or_grp_object->getType() === 'crs') {
+                        if ($availability_start !== '' && $availability_end !== '') {
+                            $crs_or_grp_object->setActivationStart($availability_start->getTimestamp());
+                            $crs_or_grp_object->setActivationEnd($availability_end->getTimestamp());
+                            $crs_or_grp_object->setActivationVisibility(1);
+                        }
                     }
-                }
 
                     $crs_or_grp_object->update();
                 }
@@ -130,7 +131,7 @@ class BaseObject implements ObjectImporter
 
     public function checkPrerequisitesForInsert() : bool
     {
-        if ($this->getData()->getTitle() === '') {
+        if ($this->getData()->getTitleDe() === '') {
             $this->getData()->setImportResult(self::RESULT_DATASET_INCOMPLETE);
             return false;
         }
@@ -184,7 +185,8 @@ class BaseObject implements ObjectImporter
      * @param string $date
      * @return DateTimeImmutable|string
      */
-    protected function checkAndParseDateStringToObject(string $date) {
+    protected function checkAndParseDateStringToObject(string $date)
+    {
         $date_immutable = '';
         if (!preg_match("/(\d{2}).(\d{2}).(\d{2}) (\d{2}):(\d{2})/", $date, $d_parts)) {
             $this->dic->logger()->root()->warning('Date for object has not the correct format (d.m.y H:i), tying other parser for: ' . $date);
@@ -199,7 +201,7 @@ class BaseObject implements ObjectImporter
             $this->dic->logger()->root()->info('Parsing complete for date: ' . $date);
         }
 
-        if($date_immutable === false) {
+        if ($date_immutable === false) {
             return '';
         }
         return $date_immutable;

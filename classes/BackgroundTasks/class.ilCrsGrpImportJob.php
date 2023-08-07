@@ -24,7 +24,9 @@ class ilCrsGrpImportJob extends AbstractJob
 {
     public const COURSE = 'crs';
     public const GROUP = 'grp';
-    protected const VALID_TYPE = [0,1,2,3];
+    public const COURSE_LINK = 'crsr';
+    public const GROUP_LINK = 'grpr';
+    protected const VALID_TYPE = [0, 1, 2, 3];
 
     private $logger = null;
     private $csv_log;
@@ -66,7 +68,7 @@ class ilCrsGrpImportJob extends AbstractJob
     }
 
     /**
-     * @param array    $input
+     * @param array $input
      * @param Observer $observer
      * @return StringValue
      * @throws \ILIAS\BackgroundTasks\Exceptions\InvalidArgumentException
@@ -77,13 +79,21 @@ class ilCrsGrpImportJob extends AbstractJob
         $output = new StringValue();
         $this->logger->info('ilCrsGrpImportJob started...');
         $csv_serialized = $input[0]->getValue();
-        $csv_deserialized = unserialize($csv_serialized);
+        $csv_deserialized = unserialize($csv_serialized, [
+            'allowed_classes' => [
+                \ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject::class,
+            ]
+        ]);
         $base_status = BaseObject::STATUS_OK;
         foreach ($csv_deserialized as $key => $data) {
             if ($data->getType() === self::COURSE) {
                 $base_status = $this->buildCourseObject($data);
             } elseif ($data->getType() === self::GROUP) {
                 $base_status = $this->buildGroupObject($data);
+            } elseif ($data->getType() === self::COURSE_LINK) {
+                $base_status = $this->buildCourseLinkObject($data);
+            } elseif ($data->getType() === self::GROUP_LINK) {
+                $base_status = $this->buildGroupLinkObject($data);
             } else {
                 $base_status = BaseObject::STATUS_FAILED;
                 $data->setImportResult(BaseObject::RESULT_UNKNOWN_OBJECT_TYPE);
@@ -101,15 +111,28 @@ class ilCrsGrpImportJob extends AbstractJob
         return $output;
     }
 
-    /**
-     * @param        $data
-     * @return string
-     * @throws ilDateTimeException
-     */
-    protected function buildCourseObject($data) : string
+    protected function buildCourseLinkObject(ImportCsvObject $data) : string
+    {
+        // TODO: Implement course link
+        throw new \RuntimeException('Not implemented yet');
+    }
+
+    protected function buildGroupLinkObject(ImportCsvObject $data) : string
+    {
+        // TODO: Implement course group
+        throw new \RuntimeException('Not implemented yet');
+    }
+
+    protected function buildCourseObject(ImportCsvObject $data) : string
     {
         $new_course = new Course($data, $this->csv_log, $this->dic);
         return $this->buildObject($new_course, $data);
+    }
+
+    protected function buildGroupObject(ImportCsvObject $data) : string
+    {
+        $new_group = new Group($data, $this->csv_log, $this->dic);
+        return $this->buildObject($new_group, $data);
     }
 
     /**
@@ -148,50 +171,52 @@ class ilCrsGrpImportJob extends AbstractJob
 
     protected function ensureDataIsValid(ImportCsvObject $data) : bool
     {
-        if (! in_array(strtolower($data->getAction()), [BaseObject::INSERT, BaseObject::UPDATE, BaseObject::IGNORE])) {
+        if (!in_array(strtolower($data->getAction()), [BaseObject::INSERT, BaseObject::UPDATE, BaseObject::IGNORE], true)) {
             return false;
         }
-        if ($data->getTitle() === '') {
+        if (!in_array($data->getType(), [self::COURSE, self::GROUP, self::COURSE_LINK, self::GROUP_LINK], true)) {
             return false;
         }
-        if (! in_array($data->getType(), [self::COURSE, self::GROUP])) {
-            return false;
-        }
-        if (! in_array($data->getRegistrationNative(), self::VALID_TYPE)) {
-            return false;
-        }
-        if (! in_array($data->getGrpTypeNative(), self::VALID_TYPE)) {
-            return false;
-        }
-        if ($data->getAdmins() === '') {
-            return false;
-        } else {
+
+        if (in_array($data->getType(), [self::COURSE, self::GROUP], true)) {
+            if (!in_array($data->getRegistrationNative(), self::VALID_TYPE)) {
+                return false;
+            }
+
+            // TODO: Validate didactic template
+            if (!in_array($data->getTemplateIdNativeType(), self::VALID_TYPE)) {
+                return false;
+            }
+            if ($data->getAdmins() === '') {
+                return false;
+            }
+
             $usr_ids = \ilObjUser::_lookupId($data->getValidatedAdmins());
             if (count($usr_ids) === 0) {
                 return false;
             }
+
+            if (!in_array($data->getAdmissionLink(), [0, 1])) {
+                return false;
+            }
+
+            // TODO: Validate i18n titles
+            if ($data->getTitleDe() === '') {
+                return false;
+            }
+
+            if ($data->getLimitMembers() &&
+                $data->getMinMembers() !== null &&
+                $data->getMaxMembers() !== null &&
+                $data->getMinMembers() > $data->getMaxMembers()) {
+                return false;
+            }
         }
-        if (! in_array($data->getAdmissionLink(), [0,1])) {
-            return false;
-        }
+
         return true;
     }
 
-    /**
-     * @param        $datas
-     * @return string
-     * @throws ilDateTimeException
-     */
-    protected function buildGroupObject($data) : string
-    {
-        $new_group = new Group($data, $this->csv_log, $this->dic);
-        return $this->buildObject($new_group, $data);
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getExpectedTimeOfTaskInSeconds()
+    public function getExpectedTimeOfTaskInSeconds() : int
     {
         return 600;
     }

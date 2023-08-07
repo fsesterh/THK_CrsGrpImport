@@ -50,8 +50,8 @@ class Course extends BaseObject
             'crs');
         if ($course_found_in_parent_tree === false || $course_found_in_parent_tree === 0) {
             $course = new ilObjCourse();
-            $course->setTitle($this->getData()->getTitle());
-            $course->setDescription($this->getData()->getDescription());
+            $course->setTitle($this->getData()->getTitleDe());
+            $course->setDescription($this->getData()->getDescriptionDe());
             $course->create();
             $ref_id = $this->putCourseInTree($course);
             return $course;
@@ -85,8 +85,8 @@ class Course extends BaseObject
         if ($ref_id !== 0 && $this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id) && $type === 'crs') {
             if ($this->checkPrerequisitesForUpdate($ref_id, $this->getData())) {
                 $obj = new ilObjCourse($ref_id, true);
-                $obj->setTitle($this->getData()->getTitle());
-                $obj->setDescription($this->getData()->getDescription());
+                $obj->setTitle($this->getData()->getTitleDe());
+                $obj->setDescription($this->getData()->getDescriptionDe());
                 $obj->update();
                 $this->writeCourseAdvancedData($obj);
                 if ($this->writeAvailability($ref_id) === false) {
@@ -158,6 +158,28 @@ class Course extends BaseObject
             if($unsubscribe_end !== '') {
                 $course->setCancellationEnd(new ilDate($unsubscribe_end->getTimestamp(), IL_CAL_UNIX));
             }
+        }
+
+        $course->enableSubscriptionMembershipLimitation(
+            (bool) $this->getData()->getLimitMembers()
+        );
+        $course->setSubscriptionMinMembers((int) $this->getData()->getMinMembers());
+        $course->setSubscriptionMaxMembers((int) $this->getData()->getMaxMembers());
+        switch ((int) $this->getData()->getWaitingList()) {
+            case 2:
+                $course->enableWaitingList(true);
+                $course->setWaitingListAutoFill(true);
+                break;
+
+            case 1:
+                $course->enableWaitingList(true);
+                $course->setWaitingListAutoFill(false);
+                break;
+
+            default:
+                $course->enableWaitingList(false);
+                $course->setWaitingListAutoFill(false);
+                break;
         }
 
         $course->update();

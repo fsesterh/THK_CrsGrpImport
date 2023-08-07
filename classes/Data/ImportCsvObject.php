@@ -9,14 +9,23 @@ class ImportCsvObject
     private $action = '';
     private $type = '';
     private $ref_id = 0;
-    private $grp_type = 0;
-    private $title = '';
-    private $description = '';
+    /** @var int|null */
+    private $template_id = null;
+    /** @var null|string */
+    private $title_de = null;
+    /** @var null|string */
+    private $title_en = null;
+    /** @var null|string */
+    private $description_de = null;
+    /** @var null|string */
+    private $description_en = null;
     private $event_start = null;
     private $event_end = null;
     private $online = 0;
     private $availability_start = null;
     private $availability_end = null;
+    /** @var null|int */
+    private $availability_visible = null;
     private $registration = 0;
     private $registration_pass = '';
     private $admission_link = 0;
@@ -27,25 +36,40 @@ class ImportCsvObject
     private $parent_ref_id = null;
     private $import_result;
     private $actor_timezone = null;
+    /** @var int|null */
+    private $limit_members;
+    /** @var int|null */
+    private $min_members;
+    /** @var int|null */
+    private $max_members;
+    /** @var int|null */
+    private $waiting_list;
 
     public function __construct(
         string $action,
         string $type,
         int $ref_id,
-        int $grp_type,
-        string $title,
-        string $description,
+        ?int $template_id,
+        ?string $title_de,
+        ?string $title_en,
+        ?string $description_de,
+        ?string $description_en,
         ?string $event_start,
         ?string $event_end,
         int $online,
         ?string $availability_start,
         ?string $availability_end,
+        ?int $availability_visible,
         int $registration,
         string $registration_pass,
         int $admission_link,
         ?string $registration_start,
         ?string $registration_end,
         ?string $unsubscribe_end,
+        ?int $limit_members,
+        ?int $min_members,
+        ?int $max_members,
+        ?int $waiting_list,
         string $admins,
         ?int $parent_ref_id,
         ?string $actor_timezone
@@ -53,20 +77,27 @@ class ImportCsvObject
         $this->action = $action;
         $this->type = $type;
         $this->ref_id = $ref_id;
-        $this->grp_type = $grp_type;
-        $this->title = $title;
-        $this->description = $description;
+        $this->template_id = $template_id;
+        $this->title_de = $title_de;
+        $this->title_en = $title_en;
+        $this->description_de = $description_de;
+        $this->description_en = $description_en;
         $this->event_start = $event_start;
         $this->event_end = $event_end;
         $this->online = $online;
         $this->availability_start = $availability_start;
         $this->availability_end = $availability_end;
+        $this->availability_visible = $availability_visible;
         $this->registration = $registration;
         $this->registration_pass = $registration_pass;
         $this->admission_link = $admission_link;
         $this->registration_start = $registration_start;
         $this->registration_end = $registration_end;
         $this->unsubscribe_end = $unsubscribe_end;
+        $this->limit_members = $limit_members;
+        $this->min_members = $min_members;
+        $this->max_members = $max_members;
+        $this->waiting_list = $waiting_list;
         $this->admins = $admins;
         $this->parent_ref_id = $parent_ref_id;
         $this->import_result = '';
@@ -110,23 +141,23 @@ class ImportCsvObject
         $this->ref_id = $ref_id;
     }
 
-    public function getGrpTypeNative() : int
+    public function getTemplateIdNativeType() : ?int
     {
-        return $this->grp_type;
+        return $this->template_id;
     }
 
     /**
      * @return int
      */
-    public function getGrpType() : int
+    public function getEffectiveTemplateId() : int
     {
-        if ($this->grp_type === 0) {
+        if ($this->template_id === 0) {
             return GRP_REGISTRATION_DEACTIVATED;
-        } elseif ($this->grp_type === 1) {
+        } elseif ($this->template_id === 1) {
             return GRP_REGISTRATION_DIRECT;
-        } elseif ($this->grp_type === 2) {
+        } elseif ($this->template_id === 2) {
             return GRP_REGISTRATION_PASSWORD;
-        } elseif ($this->grp_type === 3) {
+        } elseif ($this->template_id === 3) {
             return GRP_REGISTRATION_REQUEST;
         } else {
             return GRP_REGISTRATION_DEACTIVATED;
@@ -136,17 +167,17 @@ class ImportCsvObject
     /**
      * @return string
      */
-    public function getTitle() : string
+    public function getTitleDe() : string
     {
-        return $this->title;
+        return $this->title_de;
     }
 
     /**
      * @return string
      */
-    public function getDescription() : string
+    public function getDescriptionDe() : string
     {
-        return $this->description;
+        return $this->description_de;
     }
 
     /**
@@ -306,5 +337,40 @@ class ImportCsvObject
     public function setImportResult(?string $import_result) : void
     {
         $this->import_result = $import_result;
+    }
+
+    public function getTitleEn() : ?string
+    {
+        return $this->title_en;
+    }
+
+    public function getDescriptionEn() : ?string
+    {
+        return $this->description_en;
+    }
+
+    public function getAvailabilityVisible() : ?int
+    {
+        return $this->availability_visible;
+    }
+
+    public function getLimitMembers() : ?int
+    {
+        return $this->limit_members;
+    }
+
+    public function getMinMembers() : ?int
+    {
+        return $this->min_members;
+    }
+
+    public function getMaxMembers() : ?int
+    {
+        return $this->max_members;
+    }
+
+    public function getWaitingList() : ?int
+    {
+        return $this->waiting_list;
     }
 }
