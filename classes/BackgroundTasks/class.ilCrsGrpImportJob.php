@@ -138,11 +138,8 @@ class ilCrsGrpImportJob extends AbstractJob
 
     /**
      * @param Course|Group|ContainerLink $new_object
-     * @param              $data
-     * @return string
-     * @throws ilDateTimeException
      */
-    protected function buildObject($new_object, $data) : string
+    protected function buildObject($new_object, ImportCsvObject $data) : string
     {
         $base_status = BaseObject::STATUS_OK;
         if ($this->ensureDataIsValid($data)) {
@@ -163,7 +160,9 @@ class ilCrsGrpImportJob extends AbstractJob
             }
         } else {
             $base_status = BaseObject::STATUS_FAILED;
-            $data->setImportResult(BaseObject::RESULT_DATASET_INVALID);
+            if (!$data->getImportResult()) {
+                $data->setImportResult(BaseObject::RESULT_DATASET_INVALID);
+            }
         }
 
         return $base_status;
@@ -173,32 +172,50 @@ class ilCrsGrpImportJob extends AbstractJob
     protected function ensureDataIsValid(ImportCsvObject $data) : bool
     {
         if (!in_array(strtolower($data->getAction()), [BaseObject::INSERT, BaseObject::UPDATE, BaseObject::IGNORE], true)) {
+            $data->setImportResult(BaseObject::RESULT_UNSUPPORTED_ACTION);
             return false;
         }
 
         if (!in_array($data->getType(), [self::COURSE, self::GROUP, self::COURSE_LINK, self::GROUP_LINK], true)) {
+            $data->setImportResult(BaseObject::RESULT_UNSUPPORTED_OBJECT_TYPE);
             return false;
         }
 
         if (in_array($data->getType(), [self::COURSE, self::GROUP], true)) {
             if (!in_array($data->getRegistrationNative(), self::VALID_TYPE)) {
+                $data->setImportResult(BaseObject::RESULT_UNSUPPORTED_REGISTRATION_TYPE);
                 return false;
             }
 
             if ($data->getType() === self::COURSE) {
                 if ($data->getTemplateIdNativeType()  === 1) {
+                    $data->setImportResult(BaseObject::RESULT_DIDACTIC_TEMPLATE_ID_1_NOT_ALLOWED);
                     return false;
                 }
             }
 
-            // TODO: Validate didactic templates
+            /** @var \ilDidacticTemplateSetting $template */
+            $templates = \ilDidacticTemplateSettings::getInstanceByObjectType($data->getType())->getTemplates();
+            $enabled_templates_by_id = [];
+            foreach ($templates as $template) {
+                if ($template->isEnabled()) {
+                    $enabled_templates_by_id[$template->getId()] = $template;
+                }
+            }
+
+            if ($data->getTemplateIdNativeType() > 0 && !isset($enabled_templates_by_id[$data->getTemplateIdNativeType()])) {
+                $data->setImportResult(BaseObject::RESULT_DIDACTIC_TEMPLATE_ID_NOT_SUPPORTED_OR_NOT_ENABLED);
+                return false;
+            }
 
             if ($data->getAdmins() === '') {
+                $data->setImportResult(BaseObject::RESULT_NO_ADMINS_PROVIDED);
                 return false;
             }
 
             $usr_ids = \ilObjUser::_lookupId($data->getValidatedAdmins());
             if (count($usr_ids) === 0) {
+                $data->setImportResult(BaseObject::RESULT_NO_ADMIN_USERS_COULD_BE_DETERMINED);
                 return false;
             }
 
@@ -207,12 +224,14 @@ class ilCrsGrpImportJob extends AbstractJob
             }
 
             if ($data->getTitleDe() === '') {
+                $data->setImportResult(BaseObject::RESULT_MISSING_GERMAN_TITLE);
                 return false;
             }
 
             if ($data->getMinMembers() !== null &&
                 $data->getMaxMembers() !== null &&
                 $data->getMinMembers() > $data->getMaxMembers()) {
+                $data->setImportResult(BaseObject::RESULT_MIN_MEMBERS_GREATER_THAN_MAX_MEMBERS);
                 return false;
             }
         }
@@ -220,23 +239,28 @@ class ilCrsGrpImportJob extends AbstractJob
         if (in_array($data->getType(), [self::COURSE_LINK, self::GROUP_LINK], true)) {
             if (!in_array(strtolower($data->getAction()), [BaseObject::INSERT, BaseObject::IGNORE], true)) {
                 // course links and group links don't support an `update` action
+                $data->setImportResult(BaseObject::RESULT_NO_UPDATE_ACTION_ALLOWED_FOR_LINKS);
                 return false;
             }
 
             if (!is_numeric($data->getRefId())) {
+                $data->setImportResult(BaseObject::RESULT_MISSING_REF_ID_FOR_LINK);
                 return false;
             }
 
             $obj_id = \ilObject::_lookupObjId($data->getRefId());
             if (!$obj_id) {
+                $data->setImportResult(BaseObject::RESULT_INVALID_REF_ID_FOR_LINK);
                 return false;
             }
 
-            if ($data->getType() === self::COURSE_LINK && \ilObject::_lookupType($obj_id) !== 'crs') {
+            if ($data->getType() === self::COURSE_LINK && \ilObject::_lookupType($obj_id) !== self::COURSE) {
+                $data->setImportResult(BaseObject::RESULT_TYPE_MISMATCH_FOR_LINK);
                 return false;
             }
 
-            if ($data->getType() === self::GROUP_LINK && \ilObject::_lookupType($obj_id) !== 'grp') {
+            if ($data->getType() === self::GROUP_LINK && \ilObject::_lookupType($obj_id) !== self::GROUP) {
+                $data->setImportResult(BaseObject::RESULT_TYPE_MISMATCH_FOR_LINK);
                 return false;
             }
         }

@@ -112,8 +112,14 @@ class Group extends BaseObject
      */
     protected function writeGroupAdvancedData(ilObjGroup $group) : int
     {
-        // TODO Didactiy template
-        $group->updateGroupType($this->getData()->getEffectiveTemplateId());
+        /** @var \ilDidacticTemplateSetting $template */
+        $templates = \ilDidacticTemplateSettings::getInstanceByObjectType($this->getData()->getType())->getTemplates();
+        $enabled_templates_by_id = [];
+        foreach ($templates as $template) {
+            if ($template->isEnabled() && $this->getData()->getTemplateIdNativeType() === $template->getId()) {
+                $group->applyDidacticTemplate($template->getId());
+            }
+        }
 
         if ($this->getData()->getEventStart() !== '0' &&
             $this->getData()->getEventStart() !== '' &&

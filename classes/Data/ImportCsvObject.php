@@ -146,24 +146,6 @@ class ImportCsvObject
         return $this->template_id;
     }
 
-    /**
-     * @return int
-     */
-    public function getEffectiveTemplateId() : int
-    {
-        if ($this->template_id === 0) {
-            return GRP_REGISTRATION_DEACTIVATED;
-        } elseif ($this->template_id === 1) {
-            return GRP_REGISTRATION_DIRECT;
-        } elseif ($this->template_id === 2) {
-            return GRP_REGISTRATION_PASSWORD;
-        } elseif ($this->template_id === 3) {
-            return GRP_REGISTRATION_REQUEST;
-        } else {
-            return GRP_REGISTRATION_DEACTIVATED;
-        }
-    }
-
     public function getTitleDe() : ?string
     {
         return $this->title_de;

@@ -127,7 +127,7 @@ class Import extends Base
                     $action = $conversion->ensureStringType($data[$i++]); // 0
                     $type = $conversion->ensureStringType($data[$i++]); // 1
                     $ref_id = $conversion->ensureIntType($data[$i++]); // 2
-                    $template = $conversion->ensureIntType($data[$i++]); // 3
+                    $template = $conversion->ensureIntOrNullType($data[$i++]); // 3
                     $title_de = $conversion->ensureStringType($data[$i++]); // 4
                     $title_en = $conversion->ensureStringType($data[$i++]); // 5
                     $description_de = $conversion->ensureStringType($data[$i++]); // 6
@@ -137,17 +137,17 @@ class Import extends Base
                     $online = $conversion->ensureIntType($data[$i++]); // 10
                     $availability_start = $conversion->ensureStringType($data[$i++]); // 11
                     $availability_end = $conversion->ensureStringType($data[$i++]); // 12
-                    $availability_visible = $conversion->ensureIntType($data[$i++]); // 13
+                    $availability_visible = $conversion->ensureIntOrNullType($data[$i++]); // 13
                     $registration = $conversion->ensureIntType($data[$i++]); // 14
                     $registration_pass = $conversion->ensureStringType($data[$i++]); // 15
                     $admission_link = $conversion->ensureIntType($data[$i++]); // 16
                     $registration_start = $conversion->ensureStringType($data[$i++]); // 17
                     $registration_end = $conversion->ensureStringType($data[$i++]); // 18
                     $unsubscribe_end = $conversion->ensureStringType($data[$i++]); // 19
-                    $limit_members = $conversion->ensureIntType($data[$i++]); // 20
-                    $min_members = $conversion->ensureIntType($data[$i++]); // 21
-                    $max_members = $conversion->ensureIntType($data[$i++]); // 22
-                    $waiting_list = $conversion->ensureIntType($data[$i++]); // 23
+                    $limit_members = $conversion->ensureIntOrNullType($data[$i++]); // 20
+                    $min_members = $conversion->ensureIntOrNullType($data[$i++]); // 21
+                    $max_members = $conversion->ensureIntOrNullType($data[$i++]); // 22
+                    $waiting_list = $conversion->ensureIntOrNullType($data[$i++]); // 23
                     $admins = $conversion->ensureStringType($data[$i++]); // 24
 
                     $import_row = new ImportCsvObject(
