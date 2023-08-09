@@ -91,7 +91,7 @@ class Group extends BaseObject
                 return BaseObject::STATUS_FAILED;
             }
         } else {
-            if($ref_id === 0) {
+            if ($ref_id === 0) {
                 $this->getData()->setImportResult(BaseObject::RESULT_NO_REF_ID_GIVEN_FOR_UPDATE);
                 return BaseObject::STATUS_FAILED;
             }
@@ -128,7 +128,7 @@ class Group extends BaseObject
         ) {
             $start = $this->checkAndParseDateStringToObject($this->getData()->getEventStart());
             $end = $this->checkAndParseDateStringToObject($this->getData()->getEventEnd());
-            if($start !== '' && $end !== '') {
+            if ($start !== '' && $end !== '') {
                 $start_time = new \ilDateTime($start->getTimestamp(), IL_CAL_UNIX, \ilTimeZone::UTC);
                 $end_time = new \ilDateTime($end->getTimestamp(), IL_CAL_UNIX, \ilTimeZone::UTC);
                 $group->setPeriod($start_time, $end_time);
@@ -145,14 +145,14 @@ class Group extends BaseObject
             $this->getData()->getRegistrationEnd() !== "") {
             $subscription_start = $this->checkAndParseDateStringToObject($this->getData()->getRegistrationStart());
             $subscription_end = $this->checkAndParseDateStringToObject($this->getData()->getRegistrationEnd());
-            if( $subscription_start !== '' && $subscription_end !== '') {
+            if ($subscription_start !== '' && $subscription_end !== '') {
                 $group->setRegistrationStart(new ilDateTime($subscription_start->getTimestamp(), IL_CAL_UNIX));
                 $group->setRegistrationEnd(new ilDateTime($subscription_end->getTimestamp(), IL_CAL_UNIX));
             }
         }
 
         $unsubscribe_value = $this->getData()->getUnsubscribeEnd();
-        if(strlen($unsubscribe_value) > 0) {
+        if (strlen($unsubscribe_value) > 0) {
             $unsubscribe_end = $this->checkAndParseDateStringToObject($this->getData()->getUnsubscribeEnd());
             $group->setCancellationEnd(new ilDate($unsubscribe_end));
         }

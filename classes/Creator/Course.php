@@ -105,7 +105,7 @@ class Course extends BaseObject
                 return BaseObject::STATUS_FAILED;
             }
         } else {
-            if($ref_id === 0) {
+            if ($ref_id === 0) {
                 $this->getData()->setImportResult(BaseObject::RESULT_NO_REF_ID_GIVEN_FOR_UPDATE);
                 return BaseObject::STATUS_FAILED;
             }
@@ -142,7 +142,7 @@ class Course extends BaseObject
         ) {
             $start = $this->checkAndParseDateStringToObject($this->getData()->getEventStart());
             $end = $this->checkAndParseDateStringToObject($this->getData()->getEventEnd());
-            if($start !== '' && $end !== '') {
+            if ($start !== '' && $end !== '') {
                 $course->setCoursePeriod(new ilDateTime($start->getTimestamp(), IL_CAL_UNIX), new ilDateTime($end->getTimestamp(), IL_CAL_UNIX));
             }
         }
@@ -160,15 +160,15 @@ class Course extends BaseObject
             $this->getData()->getRegistrationTypeForCourse() !== 0) {
             $subscription_start = $this->checkAndParseDateStringToObject($this->getData()->getRegistrationStart());
             $subscription_end = $this->checkAndParseDateStringToObject($this->getData()->getRegistrationEnd());
-            if($subscription_start !== '' && $subscription_end !== '') {
+            if ($subscription_start !== '' && $subscription_end !== '') {
                 $course->setSubscriptionStart($subscription_start->getTimestamp());
                 $course->setSubscriptionEnd($subscription_end->getTimestamp());
             }
         }
         $unsubscribe_value = $this->getData()->getUnsubscribeEnd();
-        if(strlen($unsubscribe_value) > 0) {
+        if (strlen($unsubscribe_value) > 0) {
             $unsubscribe_end = $this->checkAndParseDateStringToObject($this->getData()->getUnsubscribeEnd());
-            if($unsubscribe_end !== '') {
+            if ($unsubscribe_end !== '') {
                 $course->setCancellationEnd(new ilDate($unsubscribe_end->getTimestamp(), IL_CAL_UNIX));
             }
         }

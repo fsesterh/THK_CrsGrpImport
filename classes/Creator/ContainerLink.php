@@ -17,7 +17,7 @@ class ContainerLink extends BaseObject
             $container_reference = null;
             if ($this->getData()->getType() === ilCrsGrpImportJob::COURSE_LINK) {
                 $container_reference = new \ilObjCourseReference();
-            } elseif ($this->getData()->getType() ===  ilCrsGrpImportJob::GROUP_LINK) {
+            } elseif ($this->getData()->getType() === ilCrsGrpImportJob::GROUP_LINK) {
                 $container_reference = new \ilObjGroupReference();
             }
 

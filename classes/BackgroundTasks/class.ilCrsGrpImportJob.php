@@ -168,10 +168,13 @@ class ilCrsGrpImportJob extends AbstractJob
         return $base_status;
     }
 
-
     protected function ensureDataIsValid(ImportCsvObject $data) : bool
     {
-        if (!in_array(strtolower($data->getAction()), [BaseObject::INSERT, BaseObject::UPDATE, BaseObject::IGNORE], true)) {
+        if (!in_array(
+            strtolower($data->getAction()),
+            [BaseObject::INSERT, BaseObject::UPDATE, BaseObject::IGNORE],
+            true
+        )) {
             $data->setImportResult(BaseObject::RESULT_UNSUPPORTED_ACTION);
             return false;
         }
@@ -188,7 +191,7 @@ class ilCrsGrpImportJob extends AbstractJob
             }
 
             if ($data->getType() === self::COURSE) {
-                if ($data->getTemplateIdNativeType()  === 1) {
+                if ($data->getTemplateIdNativeType() === 1) {
                     $data->setImportResult(BaseObject::RESULT_DIDACTIC_TEMPLATE_ID_1_NOT_ALLOWED);
                     return false;
                 }

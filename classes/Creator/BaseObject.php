@@ -108,8 +108,10 @@ class BaseObject implements ObjectImporter
                         $period_start = $this->checkAndParseDateStringToObject($event_start);
                         $period_end = $this->checkAndParseDateStringToObject($event_end);
                         if ($crs_or_grp_object->getType() === 'crs' && $period_start !== '' && $period_end !== '') {
-                            $crs_or_grp_object->setCoursePeriod(new ilDateTime($period_start->getTimestamp(),
-                                IL_CAL_UNIX), new ilDateTime($period_end->getTimestamp(), IL_CAL_UNIX));
+                            $crs_or_grp_object->setCoursePeriod(new ilDateTime(
+                                $period_start->getTimestamp(),
+                                IL_CAL_UNIX
+                            ), new ilDateTime($period_end->getTimestamp(), IL_CAL_UNIX));
                         }
                     }
                     if ($crs_or_grp_object->getType() === 'crs') {
@@ -133,7 +135,7 @@ class BaseObject implements ObjectImporter
     /**
      * @param \ilObjCourse|\ilObjGroup $object
      */
-    public function handleI18nTitleAndDescription($object, bool $is_update = false): void
+    public function handleI18nTitleAndDescription($object, bool $is_update = false) : void
     {
         if (!$is_update && (is_string($this->getData()->getTitleEn()) && $this->getData()->getTitleEn() !== '')) {
             $translation = \ilObjectTranslation::getInstance($object->getId());
