@@ -115,50 +115,66 @@ class Import extends Base
         $conversion = new Conversions();
         $row = 0;
         $csv_array = [];
-        if (($handle = fopen($importFile, "r")) !== false) {
+        if (($handle = fopen($importFile, 'rb')) !== false) {
             while (($data = fgetcsv($handle, 1000, ";")) !== false) {
                 if (count($data) > 1) {
                     $row++;
                     if ($row === 1) {
                         continue;
                     }
-                    $action = $conversion->ensureStringType($data[0]);
-                    $type = $conversion->ensureStringType($data[1]);
-                    $ref_id = $conversion->ensureIntType($data[2]);
-                    $grp_type = $conversion->ensureIntType($data[3]);
-                    $title = $conversion->ensureStringType($data[4]);
-                    $description = $conversion->ensureStringType($data[5]);
-                    $event_start = $conversion->ensureStringType($data[6]);
-                    $event_end = $conversion->ensureStringType($data[7]);
-                    $online = $conversion->ensureIntType($data[8]);
-                    $availability_start = $conversion->ensureStringType($data[9]);
-                    $availability_end = $conversion->ensureStringType($data[10]);
-                    $registration = $conversion->ensureIntType($data[11]);
-                    $registration_pass = $conversion->ensureStringType($data[12]);
-                    $admission_link = $conversion->ensureIntType($data[13]);
-                    $registration_start = $conversion->ensureStringType($data[14]);
-                    $registration_end = $conversion->ensureStringType($data[15]);
-                    $unsubscribe_end = $conversion->ensureStringType($data[16]);
-                    $admins = $conversion->ensureStringType($data[17]);
+                    $i = 0;
+
+                    $action = $conversion->ensureStringType($data[$i++]); // 0
+                    $type = $conversion->ensureStringType($data[$i++]); // 1
+                    $ref_id = $conversion->ensureIntType($data[$i++]); // 2
+                    $template = $conversion->ensureIntOrNullType($data[$i++]); // 3
+                    $title_de = $conversion->ensureStringType($data[$i++]); // 4
+                    $title_en = $conversion->ensureStringType($data[$i++]); // 5
+                    $description_de = $conversion->ensureStringType($data[$i++]); // 6
+                    $description_en = $conversion->ensureStringType($data[$i++]); // 7
+                    $event_start = $conversion->ensureStringType($data[$i++]); // 8
+                    $event_end = $conversion->ensureStringType($data[$i++]); // 9
+                    $online = $conversion->ensureIntType($data[$i++]); // 10
+                    $availability_start = $conversion->ensureStringType($data[$i++]); // 11
+                    $availability_end = $conversion->ensureStringType($data[$i++]); // 12
+                    $availability_visible = $conversion->ensureIntOrNullType($data[$i++]); // 13
+                    $registration = $conversion->ensureIntType($data[$i++]); // 14
+                    $registration_pass = $conversion->ensureStringType($data[$i++]); // 15
+                    $admission_link = $conversion->ensureIntType($data[$i++]); // 16
+                    $registration_start = $conversion->ensureStringType($data[$i++]); // 17
+                    $registration_end = $conversion->ensureStringType($data[$i++]); // 18
+                    $unsubscribe_end = $conversion->ensureStringType($data[$i++]); // 19
+                    $limit_members = $conversion->ensureIntOrNullType($data[$i++]); // 20
+                    $min_members = $conversion->ensureIntOrNullType($data[$i++]); // 21
+                    $max_members = $conversion->ensureIntOrNullType($data[$i++]); // 22
+                    $waiting_list = $conversion->ensureIntOrNullType($data[$i++]); // 23
+                    $admins = $conversion->ensureStringType($data[$i++]); // 24
 
                     $import_row = new ImportCsvObject(
                         $action,
                         $type,
                         $ref_id,
-                        $grp_type,
-                        $title,
-                        $description,
+                        $template,
+                        $title_de,
+                        $title_en,
+                        $description_de,
+                        $description_de,
                         $event_start,
                         $event_end,
                         $online,
                         $availability_start,
                         $availability_end,
+                        $availability_visible,
                         $registration,
                         $registration_pass,
                         $admission_link ?: 0,
                         $registration_start,
                         $registration_end,
                         $unsubscribe_end,
+                        $limit_members,
+                        $min_members,
+                        $max_members,
+                        $waiting_list,
                         $admins,
                         $parent_ref_id,
                         $this->dic->user()->getTimeZone()

@@ -27,4 +27,17 @@ class Conversions
         }
         return (int) $value;
     }
+
+    public function ensureIntOrNullType($value) : ?int
+    {
+        global $DIC;
+
+        return $DIC->refinery()->byTrying([
+            $DIC->refinery()->kindlyTo()->int(),
+            $DIC->refinery()->kindlyTo()->null(),
+            $DIC->refinery()->custom()->transformation(static function ($from) {
+                return null;
+            })
+        ])->transform($value);
+    }
 }

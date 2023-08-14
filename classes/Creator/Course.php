@@ -41,21 +41,24 @@ class Course extends BaseObject
         return false;
     }
 
-    /**
-     * @return ilObjCourse|null
-     */
-    protected function createCourse()
+    protected function createCourse() : ?ilObjCourse
     {
-        $course_found_in_parent_tree = $this->dic->repositoryTree()->checkForParentType($this->getData()->getParentRefId(),
-            'crs');
+        $course_found_in_parent_tree = $this->dic->repositoryTree()->checkForParentType(
+            $this->getData()->getParentRefId(),
+            'crs'
+        );
         if ($course_found_in_parent_tree === false || $course_found_in_parent_tree === 0) {
             $course = new ilObjCourse();
-            $course->setTitle($this->getData()->getTitle());
-            $course->setDescription($this->getData()->getDescription());
+            $course->setTitle((string) $this->getData()->getTitleDe());
+            $course->setDescription((string) $this->getData()->getDescriptionDe());
             $course->create();
             $ref_id = $this->putCourseInTree($course);
+
+            $this->handleI18nTitleAndDescription($course);
+
             return $course;
         }
+
         return null;
     }
 
@@ -85,9 +88,10 @@ class Course extends BaseObject
         if ($ref_id !== 0 && $this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id) && $type === 'crs') {
             if ($this->checkPrerequisitesForUpdate($ref_id, $this->getData())) {
                 $obj = new ilObjCourse($ref_id, true);
-                $obj->setTitle($this->getData()->getTitle());
-                $obj->setDescription($this->getData()->getDescription());
+                $obj->setTitle((string) $this->getData()->getTitleDe());
+                $obj->setDescription((string) $this->getData()->getDescriptionDe());
                 $obj->update();
+                $this->handleI18nTitleAndDescription($obj, true);
                 $this->writeCourseAdvancedData($obj);
                 if ($this->writeAvailability($ref_id) === false) {
                     return BaseObject::STATUS_FAILED;
@@ -101,7 +105,7 @@ class Course extends BaseObject
                 return BaseObject::STATUS_FAILED;
             }
         } else {
-            if($ref_id === 0) {
+            if ($ref_id === 0) {
                 $this->getData()->setImportResult(BaseObject::RESULT_NO_REF_ID_GIVEN_FOR_UPDATE);
                 return BaseObject::STATUS_FAILED;
             }
@@ -122,6 +126,15 @@ class Course extends BaseObject
      */
     protected function writeCourseAdvancedData(ilObjCourse $course) : int
     {
+        /** @var \ilDidacticTemplateSetting $template */
+        $templates = \ilDidacticTemplateSettings::getInstanceByObjectType($this->getData()->getType())->getTemplates();
+        $enabled_templates_by_id = [];
+        foreach ($templates as $template) {
+            if ($template->isEnabled() && (int)$this->getData()->getTemplateIdNativeType() === (int) $template->getId()) {
+                $course->applyDidacticTemplate($template->getId());
+            }
+        }
+
         if ($this->getData()->getEventStart() !== '0' &&
             $this->getData()->getEventStart() !== '' &&
             $this->getData()->getEventEnd() !== '0' &&
@@ -129,7 +142,7 @@ class Course extends BaseObject
         ) {
             $start = $this->checkAndParseDateStringToObject($this->getData()->getEventStart());
             $end = $this->checkAndParseDateStringToObject($this->getData()->getEventEnd());
-            if($start !== '' && $end !== '') {
+            if ($start !== '' && $end !== '') {
                 $course->setCoursePeriod(new ilDateTime($start->getTimestamp(), IL_CAL_UNIX), new ilDateTime($end->getTimestamp(), IL_CAL_UNIX));
             }
         }
@@ -147,17 +160,39 @@ class Course extends BaseObject
             $this->getData()->getRegistrationTypeForCourse() !== 0) {
             $subscription_start = $this->checkAndParseDateStringToObject($this->getData()->getRegistrationStart());
             $subscription_end = $this->checkAndParseDateStringToObject($this->getData()->getRegistrationEnd());
-            if($subscription_start !== '' && $subscription_end !== '') {
+            if ($subscription_start !== '' && $subscription_end !== '') {
                 $course->setSubscriptionStart($subscription_start->getTimestamp());
                 $course->setSubscriptionEnd($subscription_end->getTimestamp());
             }
         }
         $unsubscribe_value = $this->getData()->getUnsubscribeEnd();
-        if(strlen($unsubscribe_value) > 0) {
+        if (strlen($unsubscribe_value) > 0) {
             $unsubscribe_end = $this->checkAndParseDateStringToObject($this->getData()->getUnsubscribeEnd());
-            if($unsubscribe_end !== '') {
+            if ($unsubscribe_end !== '') {
                 $course->setCancellationEnd(new ilDate($unsubscribe_end->getTimestamp(), IL_CAL_UNIX));
             }
+        }
+
+        $course->enableSubscriptionMembershipLimitation(
+            (bool) $this->getData()->getLimitMembers()
+        );
+        $course->setSubscriptionMinMembers((int) $this->getData()->getMinMembers());
+        $course->setSubscriptionMaxMembers((int) $this->getData()->getMaxMembers());
+        switch ((int) $this->getData()->getWaitingList()) {
+            case 2:
+                $course->enableWaitingList(true);
+                $course->setWaitingListAutoFill(true);
+                break;
+
+            case 1:
+                $course->enableWaitingList(true);
+                $course->setWaitingListAutoFill(false);
+                break;
+
+            default:
+                $course->enableWaitingList(false);
+                $course->setWaitingListAutoFill(false);
+                break;
         }
 
         $course->update();

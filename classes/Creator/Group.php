@@ -39,10 +39,11 @@ class Group extends BaseObject
     protected function createGroup() : ilObjGroup
     {
         $group = new ilObjGroup();
-        $group->setTitle($this->getData()->getTitle());
-        $group->setDescription($this->getData()->getDescription());
+        $group->setTitle((string) $this->getData()->getTitleDe());
+        $group->setDescription((string) $this->getData()->getDescriptionDe());
         $group->create();
         $ref_id = $this->putGroupInTree($group);
+        $this->handleI18nTitleAndDescription($group);
         return $group;
     }
 
@@ -73,9 +74,10 @@ class Group extends BaseObject
             $ref_id = $this->getData()->getRefId();
             if ($this->checkPrerequisitesForUpdate($ref_id, $this->getData())) {
                 $obj = new ilObjGroup($ref_id, true);
-                $obj->setTitle($this->getData()->getTitle());
-                $obj->setDescription($this->getData()->getDescription());
+                $obj->setTitle((string) $this->getData()->getTitleDe());
+                $obj->setDescription((string) $this->getData()->getDescriptionDe());
                 $obj->update();
+                $this->handleI18nTitleAndDescription($obj, true);
                 $this->writeGroupAdvancedData($obj);
                 if ($this->writeAvailability($ref_id) === false) {
                     return BaseObject::STATUS_FAILED;
@@ -89,7 +91,7 @@ class Group extends BaseObject
                 return BaseObject::STATUS_FAILED;
             }
         } else {
-            if($ref_id === 0) {
+            if ($ref_id === 0) {
                 $this->getData()->setImportResult(BaseObject::RESULT_NO_REF_ID_GIVEN_FOR_UPDATE);
                 return BaseObject::STATUS_FAILED;
             }
@@ -110,7 +112,14 @@ class Group extends BaseObject
      */
     protected function writeGroupAdvancedData(ilObjGroup $group) : int
     {
-        $group->updateGroupType($this->getData()->getGrpType());
+        /** @var \ilDidacticTemplateSetting $template */
+        $templates = \ilDidacticTemplateSettings::getInstanceByObjectType($this->getData()->getType())->getTemplates();
+        $enabled_templates_by_id = [];
+        foreach ($templates as $template) {
+            if ($template->isEnabled() && (int) $this->getData()->getTemplateIdNativeType() === (int) $template->getId()) {
+                $group->applyDidacticTemplate($template->getId());
+            }
+        }
 
         if ($this->getData()->getEventStart() !== '0' &&
             $this->getData()->getEventStart() !== '' &&
@@ -119,7 +128,7 @@ class Group extends BaseObject
         ) {
             $start = $this->checkAndParseDateStringToObject($this->getData()->getEventStart());
             $end = $this->checkAndParseDateStringToObject($this->getData()->getEventEnd());
-            if($start !== '' && $end !== '') {
+            if ($start !== '' && $end !== '') {
                 $start_time = new \ilDateTime($start->getTimestamp(), IL_CAL_UNIX, \ilTimeZone::UTC);
                 $end_time = new \ilDateTime($end->getTimestamp(), IL_CAL_UNIX, \ilTimeZone::UTC);
                 $group->setPeriod($start_time, $end_time);
@@ -136,16 +145,38 @@ class Group extends BaseObject
             $this->getData()->getRegistrationEnd() !== "") {
             $subscription_start = $this->checkAndParseDateStringToObject($this->getData()->getRegistrationStart());
             $subscription_end = $this->checkAndParseDateStringToObject($this->getData()->getRegistrationEnd());
-            if( $subscription_start !== '' && $subscription_end !== '') {
+            if ($subscription_start !== '' && $subscription_end !== '') {
                 $group->setRegistrationStart(new ilDateTime($subscription_start->getTimestamp(), IL_CAL_UNIX));
                 $group->setRegistrationEnd(new ilDateTime($subscription_end->getTimestamp(), IL_CAL_UNIX));
             }
         }
 
         $unsubscribe_value = $this->getData()->getUnsubscribeEnd();
-        if(strlen($unsubscribe_value) > 0) {
+        if (strlen($unsubscribe_value) > 0) {
             $unsubscribe_end = $this->checkAndParseDateStringToObject($this->getData()->getUnsubscribeEnd());
             $group->setCancellationEnd(new ilDate($unsubscribe_end));
+        }
+
+        $group->enableMembershipLimitation(
+            (bool) $this->getData()->getLimitMembers()
+        );
+        $group->setMinMembers((int) $this->getData()->getMinMembers());
+        $group->setMaxMembers((int) $this->getData()->getMaxMembers());
+        switch ((int) $this->getData()->getWaitingList()) {
+            case 2:
+                $group->enableWaitingList(true);
+                $group->setWaitingListAutoFill(true);
+                break;
+
+            case 1:
+                $group->enableWaitingList(true);
+                $group->setWaitingListAutoFill(false);
+                break;
+
+            default:
+                $group->enableWaitingList(false);
+                $group->setWaitingListAutoFill(false);
+                break;
         }
 
         $group->update();
