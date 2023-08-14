@@ -116,7 +116,7 @@ class Group extends BaseObject
         $templates = \ilDidacticTemplateSettings::getInstanceByObjectType($this->getData()->getType())->getTemplates();
         $enabled_templates_by_id = [];
         foreach ($templates as $template) {
-            if ($template->isEnabled() && $this->getData()->getTemplateIdNativeType() === $template->getId()) {
+            if ($template->isEnabled() && (int) $this->getData()->getTemplateIdNativeType() === (int) $template->getId()) {
                 $group->applyDidacticTemplate($template->getId());
             }
         }

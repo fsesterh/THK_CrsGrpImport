@@ -102,7 +102,7 @@ class ilCrsGrpImportJob extends AbstractJob
             $this->csv_log->addEntryToLog(
                 $base_status,
                 $data->getRefId(),
-                $data->getTitle(),
+                $data->getTitleDe(),
                 $data->getValidatedAdmins(),
                 $data->getImportResult()
             );
