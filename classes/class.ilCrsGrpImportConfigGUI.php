@@ -2,6 +2,12 @@
 
 /* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
 
+use ILIAS\Plugin\CrsGrpImport\Lock\Locker;
+use ILIAS\UI\Factory;
+use ILIAS\UI\Renderer;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
 require_once 'Services/Component/classes/class.ilPluginConfigGUI.php';
 
 /**
@@ -17,6 +23,41 @@ class ilCrsGrpImportConfigGUI extends \ilPluginConfigGUI
      * @var \ilCrsGrpImportPlugin
      */
     public $pluginObj = null;
+    /**
+     * @var Locker
+     */
+    private $lock;
+    /**
+     * @var ilCtrl
+     */
+    private $ctrl;
+    /**
+     * @var ilLanguage
+     */
+    private $lng;
+    /**
+     * @var ilGlobalPageTemplate
+     */
+    private $mainTpl;
+    /**
+     * @var Renderer
+     */
+    private $uiRenderer;
+    /**
+     * @var Factory
+     */
+    private $uiFactory;
+
+    public function __construct()
+    {
+        global $DIC;
+        $this->lock = $DIC['plugin.crsgrpimport.cronjob.locker'];
+        $this->ctrl = $DIC->ctrl();
+        $this->lng = $DIC->language();
+        $this->mainTpl = $DIC->ui()->mainTemplate();
+        $this->uiFactory = $DIC->ui()->factory();
+        $this->uiRenderer = $DIC->ui()->renderer();
+    }
 
     private function saveConfigurationForm()
     {
@@ -51,13 +92,47 @@ class ilCrsGrpImportConfigGUI extends \ilPluginConfigGUI
         $role->setRequired(false);
         $form->addItem($role);
         $form->addCommandButton('saveConfigurationForm', $this->dic->language()->txt('save'));
-        $this->dic->ui()->mainTemplate()->setContent($form->getHTML());
+
+        $content = "";
+
+        if ($this->lock->isLocked()) {
+            $releaseLockButton = $this->uiFactory->button()->standard(
+                $this->getPluginObject()->txt('lock.release'),
+                $this->ctrl->getLinkTarget($this, 'confirmReleaseLock')
+            );
+            ilUtil::sendInfo($this->getPluginObject()->txt('lock.locked'));
+            $content = $this->uiRenderer->render($releaseLockButton);
+        }
+
+        $content .= $form->getHTML();
+        $this->mainTpl->setContent($content);
+    }
+
+    protected function performReleaseLock() : void
+    {
+        if ($this->lock->isLocked()) {
+            $this->lock->releaseLock();
+            ilUtil::sendSuccess($this->getPluginObject()->txt('lock.released'), true);
+        }
+
+        $this->ctrl->redirect($this, 'configure');
+    }
+
+    public function confirmReleaseLock() : void
+    {
+        $confirmation = new ilConfirmationGUI();
+        $confirmation->setFormAction($this->ctrl->getFormAction($this, 'configure'));
+        $confirmation->setConfirm($this->lng->txt('confirm'), 'performReleaseLock');
+        $confirmation->setCancel($this->lng->txt('cancel'), 'configure');
+        $confirmation->setHeaderText($this->getPluginObject()->txt('lock.release.sure'));
+
+        $this->mainTpl->setContent($confirmation->getHTML());
     }
 
     /**
      * @param $cmd
      */
-    public function performCommand($cmd)
+    public function performCommand($cmd) : void
     {
         global $DIC;
 

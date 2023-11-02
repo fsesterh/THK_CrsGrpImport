@@ -4,16 +4,15 @@
 
 namespace ILIAS\Plugin\CrsGrpImport\Frontend\Controller;
 
-use ILIAS\FileUpload\DTO\UploadResult;
+use ilCrsGrpImportPlugin;
 use ILIAS\FileUpload\DTO\ProcessingStatus;
-use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
+use ILIAS\FileUpload\DTO\UploadResult;
+use ILIAS\FileUpload\Exception\IllegalStateException;
 use ILIAS\Plugin\CrsGrpImport\Data\Conversions;
-use ILIAS\BackgroundTasks\Implementation\Bucket\BasicBucket;
-use ILIAS\Plugin\CrsGrpImport\BackgroundTasks\ilCrsGrpImportJob;
-use ILIAS\Plugin\CrsGrpImport\BackgroundTasks\ilCrsGrpImportReport;
+use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
+use ILIAS\Plugin\CrsGrpImport\Repository\QueuedRepository;
 use ilLink;
 use ilObject;
-use ilCrsGrpImportPlugin;
 use ilUtil;
 
 /**
@@ -24,26 +23,32 @@ use ilUtil;
 class Import extends Base
 {
     /**
+     * @var QueuedRepository
+     */
+    private $queuedRepo;
+
+    /**
      * @inheritdoc
      */
-    protected function init()
+    protected function init() : void
     {
         parent::init();
+        $this->queuedRepo = QueuedRepository::getInstance();
     }
 
     /**
      * @inheritdoc
      */
-    public function getDefaultCommand()
+    public function getDefaultCommand() : string
     {
         return 'import';
     }
 
     /**
      * @return void
-     * @throws \ILIAS\FileUpload\Exception\IllegalStateException
+     * @throws IllegalStateException
      */
-    public function import()
+    public function import() : void
     {
         global $DIC;
 
@@ -73,20 +78,11 @@ class Import extends Base
         }
 
         $csv_array = $this->convertCSVToArray($uploadResult->getPath(), $parent_ref_id);
-        $bucket = new BasicBucket();
-        $bucket->setUserId($this->dic->user()->getId());
-        $csvExport = $this->dic->backgroundTasks()->taskFactory()->createTask(ilCrsGrpImportJob::class, [
-            serialize($csv_array)
-        ]);
-
-        $task = $this->dic->backgroundTasks()->taskFactory()->createTask(ilCrsGrpImportReport::class, [
-            $csvExport,
-            'import_log.csv'
-        ]);
-        $bucket->setTask($task);
-        $bucket->setTitle(ilCrsGrpImportPlugin::getInstance()->txt('import_title') . time());
-        $bucket->setDescription(ilCrsGrpImportPlugin::getInstance()->txt('import_description'));
-        $this->dic->backgroundTasks()->taskManager()->run($bucket);
+        if ($this->queuedRepo->queueImport(serialize($csv_array), $this->dic->user()->getId())) {
+            ilUtil::sendSuccess($this->getCoreController()->getPluginObject()->txt("import.queued.success"), true);
+        } else {
+            ilUtil::sendFailure($this->getCoreController()->getPluginObject()->txt("import.queued.failure"), true);
+        }
 
         $this->redirectToRefId($parent_ref_id);
     }

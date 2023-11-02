@@ -12,3 +12,17 @@ upload_error#:#File upload error
 role_select#:#Role-IDs
 role_select_info#:#Enter the role-ids, to show the import dialog to. The values must be entered comma seperated, e.g. '2,3,4,5', whitespaces will be stripped after saving.
 creation_accordion_header#:#Import Course/Group List
+
+cronResult#:#Processed %s imports. %s e-mails could not be send.
+cronResult.noImports#:#No imports to process.
+
+import.queued.success#:#Your request has been added to the queue. You will receive an email when your request has been processed.
+import.queued.failure#:#Your request could not be added to the queue.
+
+mail.message.title#:#Course & Groups Import completed
+mail.message.text#:#The import is completed. You can find the results in the attached csv file.
+
+lock.locked#:#The script is probably running. Please remove the lock if you are sure no import task is running.
+lock.release#:#Release Lock
+lock.release.sure#:#Are you sure you want to release the lock?
+lock.released#:#The lock has been removed.

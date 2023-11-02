@@ -85,6 +85,14 @@ Insert;grp;;0;My Group;Lorem Ipsum;10.03.2022 12:00;31.12.2022 23:55;0;15.03.202
 ```
 ## Other Information
 
+* In ILIAS 7 UserInterfaceHook plugins can't add cronjobs. The cronjob has to be manually started using the following bash command:
+  ```bash
+  php <path to plugin>/cron.php <username> <password> <client-id>
+  ```
+  * This script can then be added to a normal linux cronjob for automatic execution.
+  * In future versions of ILIAS (8+) this will no longer be required and the CronJob can be added to ILIAS directly and managed through it as well.
+
+
 ### Correlations
 
 None

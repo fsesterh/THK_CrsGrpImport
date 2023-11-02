@@ -2,6 +2,12 @@
 
 /* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
 
+
+use ILIAS\Plugin\CrsGrpImport\Job\CrsGrpImportJob;
+use ILIAS\Plugin\CrsGrpImport\Lock\PidBasedLocker;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
 require_once 'Services/UIComponent/classes/class.ilUserInterfaceHookPlugin.php';
 require_once 'Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/CrsGrpImport/vendor/autoload.php';
 /**
@@ -39,6 +45,8 @@ class ilCrsGrpImportPlugin extends \ilUserInterfaceHookPlugin
      */
     private static $instance;
 
+    protected static $initialized = false;
+
     /**
      * @return self|\ilPlugin|\ilUserInterfaceHookPlugin
      */
@@ -62,6 +70,16 @@ class ilCrsGrpImportPlugin extends \ilUserInterfaceHookPlugin
     protected function init()
     {
         parent::init();
+
+        if (!self::$initialized) {
+            self::$initialized = true;
+
+            $GLOBALS['DIC']['plugin.crsgrpimport.cronjob.locker'] = function () {
+                return new PidBasedLocker(
+                    new ilSetting($this->getPluginName())
+                );
+            };
+        }
     }
 
     /**
@@ -70,6 +88,12 @@ class ilCrsGrpImportPlugin extends \ilUserInterfaceHookPlugin
     final public function getPluginName()
     {
         return self::PNAME;
+    }
+
+    public function run() : ilCronJobResult
+    {
+        $job = new CrsGrpImportJob();
+        return $job->run();
     }
 
     public function getLinkTarget($cmd, $parameters = [], $prevent_xhtml_style = false)

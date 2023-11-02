@@ -12,3 +12,17 @@ upload_error#:#Fehler beim Hochladen der Datei
 role_select#:#Rollen-IDs
 role_select_info#:#Geben sie die Rollen-IDs ein, denen der Import Dialog angezeigt werden soll. Die Werte müssen kommasepariert eingegeben werden, z.B. '2,3,4,5', Leerzeichen werden während des Speicherns entfernt.
 creation_accordion_header#:#Kurs-/Gruppen-Liste importieren
+
+cronResult#:#%s Imports verarbeitet. %s E-Mails konnten nicht versand werden.
+cronResult.noImports#:#Keine Imports zu verarbeiten.
+
+import.queued.success#:#Ihre Anfrage wurde zur Warteschlange hinzugefügt. Sie erhalten eine E-Mail wenn ihre Anfrage bearbeitet wurde.
+import.queued.failure#:#Ihre Anfrage konnte nicht zur Warteschlange hinzugefügt werden.
+
+mail.message.title#:#Kurs & Gruppen Import abgeschlossen
+mail.message.text#:#Der Import ist abgeschlossen. Die Ergebnisse finden Sie in der angehängten csv-Datei.
+
+lock.locked#:#Aktuell befindet sich ein Importvorgang in Bearbeitung. Bitte entfernen Sie dem Lock wenn Sie sich sicher sind, dass aktuell kein Import ausgeführt wird.
+lock.release#:#Lock Entfernen
+lock.release.sure#:#Sind Sie sicher, dass Sie die Lock-Datei löschen möchten? Die Existenz dieser Datei verhindert, dass sich Import-Prozesse überlappen.
+lock.released#:#Die Lock-Datei wurde entfernt.
