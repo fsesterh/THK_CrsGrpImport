@@ -219,7 +219,7 @@ class CrsGrpImportJob extends ilCronJob
             $fileDataMail->copyAttachmentFile($tempFile, $fileName);
             $mail = new ilMail(ANONYMOUS_USER_ID);
             $errors = $mail->enqueue(
-                $user->getEmail(),
+                $user->getLogin(),
                 "",
                 "",
                 $this->dic->language()->txtlng($pluginLngModule, "{$pluginLngModule}_mail.message.title", $user->getLanguage()),
