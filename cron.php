@@ -71,11 +71,8 @@ try {
             break;
     }
 
-    global $DIC;
-    $http = $DIC->http();
-    $responseStream = Streams::ofString("[$status]: {$cronResult->getMessage()}\n");
-    $http->saveResponse($http->response()->withBody($responseStream));
-    $http->sendResponse();
+    echo "[$status]: {$cronResult->getMessage()}\n";
+    exit;
 } catch (Exception $e) {
     $cron->logout();
 
