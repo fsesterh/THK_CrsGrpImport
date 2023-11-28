@@ -4,47 +4,23 @@
 
 namespace ILIAS\Plugin\CrsGrpImport\Frontend;
 
-use ILIAS\DI\Container;
 use ilCrsGrpImportUIHookGUI;
+use ILIAS\DI\Container;
 
 class Dispatcher
 {
-    /**
-     * @var self
-     */
-    private static $instance = null;
+    private static ?self $instance = null;
+    protected ilCrsGrpImportUIHookGUI $coreController;
+    protected string $defaultController = '';
+    protected Container $dic;
 
-    /**
-     * @var ilCrsGrpImportUIHookGUI
-     */
-    protected $coreController;
-
-    /**
-     * @var string
-     */
-    protected $defaultController = '';
-
-    /**
-     * @var Container
-     */
-    protected $dic;
-
-    /**
-     * Dispatcher constructor.
-     * @param ilCrsGrpImportUIHookGUI $baseController
-     * @param string                  $defaultController
-     */
-    private function __construct(ilCrsGrpImportUIHookGUI $baseController, $defaultController = '')
+    private function __construct(ilCrsGrpImportUIHookGUI $baseController, string $defaultController = '')
     {
         $this->coreController = $baseController;
         $this->defaultController = $defaultController;
     }
 
-    /**
-     * @param ilCrsGrpImportUIHookGUI $base_controller
-     * @return self
-     */
-    public static function getInstance(ilCrsGrpImportUIHookGUI $base_controller)
+    public static function getInstance(ilCrsGrpImportUIHookGUI $base_controller): ?self
     {
         if (self::$instance === null) {
             self::$instance = new self($base_controller);
@@ -53,27 +29,18 @@ class Dispatcher
         return self::$instance;
     }
 
-    /**
-     *
-     */
     private function __clone()
     {
     }
 
-    /**
-     * @param string $controller
-     */
-    protected function requireController($controller)
+    protected function requireController(string $controller): void
     {
         require_once $this->getControllerPath() . $controller . '.php';
     }
 
-    /**
-     * @return string
-     */
-    protected function getControllerPath()
+    protected function getControllerPath(): string
     {
-        $path = $this->getCoreController()->getPluginObject()->getDirectory() .
+        return $this->getCoreController()->getPluginObject()->getDirectory() .
             DIRECTORY_SEPARATOR .
             'classes' .
             DIRECTORY_SEPARATOR .
@@ -81,39 +48,24 @@ class Dispatcher
             DIRECTORY_SEPARATOR .
             'Controller' .
             DIRECTORY_SEPARATOR;
-
-        return $path;
     }
 
-    /**
-     * @return ilCrsGrpImportUIHookGUI
-     */
-    public function getCoreController()
+    public function getCoreController(): ilCrsGrpImportUIHookGUI
     {
         return $this->coreController;
     }
 
-    /**
-     * @param ilCrsGrpImportUIHookGUI $coreController
-     */
     public function setCoreController(ilCrsGrpImportUIHookGUI $coreController)
     {
         $this->coreController = $coreController;
     }
 
-    /**
-     * @param Container $dic
-     */
-    public function setDic(Container $dic)
+    public function setDic(Container $dic): void
     {
         $this->dic = $dic;
     }
 
-    /**
-     * @param string $cmd
-     * @return string
-     */
-    public function dispatch($cmd)
+    public function dispatch(string $cmd): string
     {
         $controller = $this->getController($cmd);
         $command = $this->getCommand($cmd);
@@ -122,11 +74,7 @@ class Dispatcher
         return $controller->$command();
     }
 
-    /**
-     * @param string $cmd
-     * @return string
-     */
-    protected function getController($cmd)
+    protected function getController(string $cmd): string
     {
         $parts = \explode('.', $cmd);
 
@@ -137,11 +85,7 @@ class Dispatcher
         return $this->defaultController ? $this->defaultController : 'Error';
     }
 
-    /**
-     * @param string $cmd
-     * @return string
-     */
-    protected function getCommand($cmd)
+    protected function getCommand(string $cmd): string
     {
         $parts = \explode('.', $cmd);
 
@@ -155,10 +99,9 @@ class Dispatcher
     }
 
     /**
-     * @param string $controller
      * @return mixed
      */
-    protected function instantiateController($controller)
+    protected function instantiateController(string $controller)
     {
         $class = "ILIAS\\Plugin\\CrsGrpImport\\Frontend\\Controller\\$controller";
 

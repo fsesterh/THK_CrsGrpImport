@@ -6,9 +6,8 @@ class Conversions
 {
     /**
      * @param mixed $value
-     * @return string
      */
-    public function ensureStringType($value) : string
+    public function ensureStringType($value): string
     {
         if ($value === null) {
             return '';
@@ -18,9 +17,8 @@ class Conversions
 
     /**
      * @param mixed $value
-     * @return int
      */
-    public function ensureIntType($value) : int
+    public function ensureIntType($value): int
     {
         if ($value === null) {
             return -1;

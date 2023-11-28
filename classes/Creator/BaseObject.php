@@ -2,23 +2,18 @@
 
 namespace ILIAS\Plugin\CrsGrpImport\Creator;
 
-use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
-use ilDateTimeException;
-use ilDateTime;
-use ilObjectActivation;
-use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
-use ILIAS\DI\Exceptions\Exception;
-use ilObject;
-use ILIAS\DI\Container;
-use ILIAS\UI\Implementation\Component\Input\Field\DateTime;
 use DateTimeImmutable;
+use ilDateTime;
+use ilDateTimeException;
+use ILIAS\DI\Container;
+use ILIAS\DI\Exceptions\Exception;
+use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
+use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
+use ilObject;
+use ilObjectActivation;
 
 class BaseObject implements ObjectImporter
 {
-    public const IL_CSV_IMPORT_DATE_TIME = IL_CAL_DATETIME;
-    public const IL_CSV_IMPORT_DATE = IL_CAL_DATE;
-
-
     public const INSERT = 'insert';
     public const UPDATE = 'update';
     public const IGNORE = 'ignore';
@@ -72,7 +67,7 @@ class BaseObject implements ObjectImporter
         $this->dataCache = $ilObjDataCache;
     }
 
-    protected function getEffectiveActorTimeZone() : string
+    protected function getEffectiveActorTimeZone(): string
     {
         $time_zone = $this->getData()->getActorTimezone();
         if (null === $time_zone || '' === $time_zone) {
@@ -86,7 +81,7 @@ class BaseObject implements ObjectImporter
      * @throws ilDateTimeException
      * @param \ilObjCourse|\ilObjGroup $crs_or_grp_object
      */
-    protected function writeAvailability(int $ref_id, $crs_or_grp_object = null) : bool
+    protected function writeAvailability(int $ref_id, $crs_or_grp_object = null): bool
     {
         try {
             if ($this->getData()->getAvailabilityStart() !== '' && $this->getData()->getAvailabilityEnd() !== '') {
@@ -175,7 +170,7 @@ class BaseObject implements ObjectImporter
         }
     }
 
-    public function update() : string
+    public function update(): string
     {
     }
 
@@ -183,11 +178,11 @@ class BaseObject implements ObjectImporter
     {
     }
 
-    public function insert() : int
+    public function insert(): int
     {
     }
 
-    public function checkPrerequisitesForInsert() : bool
+    public function checkPrerequisitesForInsert(): bool
     {
         if ($this->getData()->getTitleDe() === '') {
             $this->getData()->setImportResult(self::RESULT_DATASET_INCOMPLETE);
@@ -196,12 +191,12 @@ class BaseObject implements ObjectImporter
         return true;
     }
 
-    public function getData() : ImportCsvObject
+    public function getData(): ImportCsvObject
     {
         return $this->data;
     }
 
-    public function checkPrerequisitesForUpdate(int $ref_id, ImportCsvObject $data) : bool
+    public function checkPrerequisitesForUpdate(int $ref_id, ImportCsvObject $data): bool
     {
         if ($ref_id > 0) {
             if (!$this->isInTrash($ref_id)) {
@@ -223,24 +218,23 @@ class BaseObject implements ObjectImporter
         return false;
     }
 
-    protected function isInTrash(int $ref_id) : bool
+    protected function isInTrash(int $ref_id): bool
     {
         return ilObject::_isInTrash($ref_id);
     }
 
-    protected function objectExists(int $ref_id) : bool
+    protected function objectExists(int $ref_id): bool
     {
         return ilObject::_exists($ref_id, true);
     }
 
-    protected function isCorrectObjectType(int $ref_id, string $type) : bool
+    protected function isCorrectObjectType(int $ref_id, string $type): bool
     {
         $obj_type = ilObject::_lookupType($ref_id, true);
         return $obj_type === $type;
     }
 
     /**
-     * @param string $date
      * @return DateTimeImmutable|string
      */
     protected function checkAndParseDateStringToObject(string $date)

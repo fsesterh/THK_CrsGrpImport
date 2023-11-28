@@ -3,7 +3,6 @@
 namespace ILIAS\Plugin\CrsGrpImport\Log;
 
 use ilCSVWriter;
-use ilCrsGrpImportPlugin;
 
 class CSVLog
 {
@@ -22,17 +21,17 @@ class CSVLog
         $this->csv->addRow();
     }
 
-    protected function addLineToLog(array $entry) : void
+    protected function addLineToLog(array $entry): void
     {
         array_push($this->csv_log, $entry);
     }
 
-    public function getCSVLog() : string
+    public function getCSVLog(): string
     {
         return $this->csv->getCSVString();
     }
 
-    public function addEntryToLog(string $status, ?int $ref_id, ?string $title, array $admins, string $result) : void
+    public function addEntryToLog(string $status, ?int $ref_id, ?string $title, array $admins, string $result): void
     {
         if (count($admins) > 0) {
             $admins = implode(',', $admins);

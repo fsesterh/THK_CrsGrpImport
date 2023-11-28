@@ -2,7 +2,9 @@
 
 /* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
 
+use ILIAS\DI\Container;
 use ILIAS\Plugin\CrsGrpImport\Lock\Locker;
+use ILIAS\Plugin\CrsGrpImport\Utils\UiUtil;
 use ILIAS\UI\Factory;
 use ILIAS\UI\Renderer;
 
@@ -11,42 +13,23 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once 'Services/Component/classes/class.ilPluginConfigGUI.php';
 
 /**
- * Class ilCrsGrpImportConfigGUI
+ * @ilCtrl_Calls      ilCrsGrpImportConfigGUI: ilPropertyFormGUI
+ * @ilCtrl_Calls      ilCrsGrpImportConfigGUI: ilExplorerSelectInputGUI
+ * @ilCtrl_Calls      ilCrsGrpImportConfigGUI: ilFileSystemGUI
+ * @ilCtrl_Calls      ilCrsGrpImportConfigGUI: ilAdministrationGUI
+ * @ilCtrl_IsCalledBy ilCrsGrpImportConfigGUI: ilObjComponentSettingsGUI
  */
-class ilCrsGrpImportConfigGUI extends \ilPluginConfigGUI
+class ilCrsGrpImportConfigGUI extends ilPluginConfigGUI
 {
-    /**
-     * @var \ILIAS\DI\Container
-     */
-    protected $dic;
-    /**
-     * @var \ilCrsGrpImportPlugin
-     */
-    public $pluginObj = null;
-    /**
-     * @var Locker
-     */
-    private $lock;
-    /**
-     * @var ilCtrl
-     */
-    private $ctrl;
-    /**
-     * @var ilLanguage
-     */
-    private $lng;
-    /**
-     * @var ilGlobalPageTemplate
-     */
-    private $mainTpl;
-    /**
-     * @var Renderer
-     */
-    private $uiRenderer;
-    /**
-     * @var Factory
-     */
-    private $uiFactory;
+    protected Container $dic;
+    public ilCrsGrpImportPlugin $pluginObj;
+    private Locker $lock;
+    private ilCtrl $ctrl;
+    private ilLanguage $lng;
+    private ilGlobalPageTemplate $mainTpl;
+    private Renderer $uiRenderer;
+    private Factory $uiFactory;
+    private UiUtil $uiUtil;
 
     public function __construct()
     {
@@ -57,29 +40,30 @@ class ilCrsGrpImportConfigGUI extends \ilPluginConfigGUI
         $this->mainTpl = $DIC->ui()->mainTemplate();
         $this->uiFactory = $DIC->ui()->factory();
         $this->uiRenderer = $DIC->ui()->renderer();
+        $this->uiUtil = new UiUtil();
     }
 
-    private function saveConfigurationForm()
+    private function saveConfigurationForm(): void
     {
         try {
             global $DIC;
 
             $local_role_ids_post = $DIC->http()->request()->getParsedBody()['default_local_role_ids'];
             $local_role_ids_post = str_replace(' ', '', $local_role_ids_post);
-            if (strlen($local_role_ids_post) === 0) {
+            if ($local_role_ids_post == '') {
                 $this->dic->settings()->delete('crs_grp_import_default_local_role_ids');
             } else {
                 $this->dic->settings()->set('crs_grp_import_default_local_role_ids', $local_role_ids_post);
             }
 
-            ilUtil::sendSuccess($this->dic->language()->txt('saved_successfully'), true);
+            $this->uiUtil->sendSuccess($this->dic->language()->txt('saved_successfully'), true);
             $this->dic->ctrl()->redirect($this, 'configure');
         } catch (ilException $e) {
-            ilUtil::sendFailure($this->dic->language()->txt('form_input_not_valid'));
+            $this->uiUtil->sendFailure($this->dic->language()->txt('form_input_not_valid'));
         }
     }
 
-    protected function configure() : void
+    protected function configure(): void
     {
         $form = new ilPropertyFormGUI();
         $form->setTitle($this->dic->language()->txt('settings'));
@@ -100,7 +84,7 @@ class ilCrsGrpImportConfigGUI extends \ilPluginConfigGUI
                 $this->getPluginObject()->txt('lock.release'),
                 $this->ctrl->getLinkTarget($this, 'confirmReleaseLock')
             );
-            ilUtil::sendInfo($this->getPluginObject()->txt('lock.locked'));
+            $this->uiUtil->sendInfo($this->getPluginObject()->txt('lock.locked'));
             $content = $this->uiRenderer->render($releaseLockButton);
         }
 
@@ -108,17 +92,17 @@ class ilCrsGrpImportConfigGUI extends \ilPluginConfigGUI
         $this->mainTpl->setContent($content);
     }
 
-    protected function performReleaseLock() : void
+    protected function performReleaseLock(): void
     {
         if ($this->lock->isLocked()) {
             $this->lock->releaseLock();
-            ilUtil::sendSuccess($this->getPluginObject()->txt('lock.released'), true);
+            $this->uiUtil->sendSuccess($this->getPluginObject()->txt('lock.released'), true);
         }
 
         $this->ctrl->redirect($this, 'configure');
     }
 
-    public function confirmReleaseLock() : void
+    public function confirmReleaseLock(): void
     {
         $confirmation = new ilConfirmationGUI();
         $confirmation->setFormAction($this->ctrl->getFormAction($this, 'configure'));
@@ -129,10 +113,7 @@ class ilCrsGrpImportConfigGUI extends \ilPluginConfigGUI
         $this->mainTpl->setContent($confirmation->getHTML());
     }
 
-    /**
-     * @param $cmd
-     */
-    public function performCommand($cmd) : void
+    public function performCommand(string $cmd): void
     {
         global $DIC;
 

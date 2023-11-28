@@ -20,11 +20,14 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\CrsGrpImport\Job;
 
+use ilComponentFactory;
 use ilCronJob;
 use ilCronJobResult;
-use ilCrsGrpEnrollmentPlugin;
+use ilCrsGrpImportPlugin;
 use ilDateTimeException;
 use ilFileDataMail;
+use ilFileUtils;
+use ILIAS\DI\Container;
 use ILIAS\Plugin\CrsGrpImport\Creator\BaseObject;
 use ILIAS\Plugin\CrsGrpImport\Creator\Course;
 use ILIAS\Plugin\CrsGrpImport\Creator\Group;
@@ -35,15 +38,13 @@ use ILIAS\Plugin\CrsGrpImport\Repository\QueuedRepository;
 use ilLogger;
 use ilMail;
 use ilObjUser;
-use ilPluginAdmin;
-use ilPluginException;
-use ilUtil;
 use ReflectionClass;
 
 /**
  * Class CrsGrpImportJob
+ *
  * @package Job
- * @author Marvin Beym <mbeym@databay.de>
+ * @author  Marvin Beym <mbeym@databay.de>
  */
 class CrsGrpImportJob extends ilCronJob
 {
@@ -51,57 +52,55 @@ class CrsGrpImportJob extends ilCronJob
     public const GROUP = 'grp';
     protected const VALID_TYPE = [0, 1, 2, 3];
 
+    private Locker $lock;
+    private Container $dic;
+    private ilLogger $logger;
     /**
-     * @var Locker
+     * @var
      */
-    private $lock;
-    /**
-     * @var \ILIAS\DI\Container|mixed
-     */
-    private $dic;
-    /**
-     * @var ilPluginAdmin
-     */
-    private $pluginAdmin;
-    /**
-     * @var ilLogger
-     */
-    private $logger;
-    /**
-     * @var CSVLog
-     */
-    private $csv_log;
-    /**
-     * @var QueuedRepository
-     */
-    private $queuedRepo;
+    private CSVLog $csv_log;
+    private QueuedRepository $queuedRepo;
+    private ilCrsGrpImportPlugin $plugin;
+    private ilComponentFactory $componentFactory;
 
     public function __construct()
     {
         global $DIC;
         $this->logger = $DIC->logger()->root();
         $this->dic = $DIC;
-        $this->pluginAdmin = $this->dic['ilPluginAdmin'];
+        /** @var  $componentFactory */
+        $this->componentFactory = $DIC['component.factory'];
         $this->lock = $this->dic['plugin.crsgrpimport.cronjob.locker'];
         $this->queuedRepo = QueuedRepository::getInstance();
+        $this->plugin = ilCrsGrpImportPlugin::getInstance();
     }
 
-    public function getId() : string
+    public function getTitle(): string
+    {
+        return $this->plugin->txt("job.title");
+    }
+
+    public function getDescription(): string
+    {
+        return $this->plugin->txt("job.description");
+    }
+
+    public function getId(): string
     {
         return (new ReflectionClass($this))->getShortName();
     }
 
-    public function hasAutoActivation() : bool
+    public function hasAutoActivation(): bool
     {
         return false;
     }
 
-    public function hasFlexibleSchedule() : bool
+    public function hasFlexibleSchedule(): bool
     {
         return true;
     }
 
-    public function getDefaultScheduleType() : int
+    public function getDefaultScheduleType(): int
     {
         return self::SCHEDULE_TYPE_IN_HOURS;
     }
@@ -109,7 +108,7 @@ class CrsGrpImportJob extends ilCronJob
     /**
      * @return int[]
      */
-    public function getAllScheduleTypes() : array
+    public function getAllScheduleTypes(): array
     {
         return [
             self::SCHEDULE_TYPE_IN_MINUTES,
@@ -118,7 +117,7 @@ class CrsGrpImportJob extends ilCronJob
         ];
     }
 
-    public function getDefaultScheduleValue() : int
+    public function getDefaultScheduleValue(): int
     {
         return 1;
     }
@@ -126,35 +125,9 @@ class CrsGrpImportJob extends ilCronJob
     /**
      * @throws ilDateTimeException
      */
-    public function run() : ilCronJobResult
+    public function run(): ilCronJobResult
     {
-        $plugin = null;
         $cronResult = new ilCronJobResult();
-
-        try {
-            if (
-                $this->pluginAdmin->exists('Services', 'UIComponent', 'uihk', 'CrsGrpImport') &&
-                $this->pluginAdmin->isActive('Services', 'UIComponent', 'uihk', 'CrsGrpImport')
-            ) {
-                /**
-                 * @var ilCrsGrpEnrollmentPlugin $plugin
-                 */
-                $plugin = call_user_func(
-                    [get_class($this->pluginAdmin), 'getPluginObject'],
-                    'Services',
-                    'UIComponent',
-                    'uihk',
-                    'CrsGrpImport'
-                );
-            }
-        } catch (ilPluginException $e) {
-        }
-
-        if (!$plugin) {
-            $cronResult->setStatus(ilCronJobResult::STATUS_FAIL);
-            $cronResult->setMessage('Fatal Error! Plugin not installed!');
-            return $cronResult;
-        }
 
         if ($this->lock->acquireLock()) {
             $this->logger->info('Acquired lock.');
@@ -175,7 +148,10 @@ class CrsGrpImportJob extends ilCronJob
         foreach ($queuedImports as $queuedImport) {
             $csvLog = new CSVLog();
 
-            $csv_deserialized = unserialize($queuedImport->getCsvData(), ['allowed_classes' => [ImportCsvObject::class]]);
+            $csv_deserialized = unserialize(
+                $queuedImport->getCsvData(),
+                ['allowed_classes' => [ImportCsvObject::class]]
+            );
             foreach ($csv_deserialized as $key => $data) {
                 $base_status = BaseObject::STATUS_OK;
 
@@ -196,7 +172,7 @@ class CrsGrpImportJob extends ilCronJob
                 );
             }
 
-            $tempFile = ilUtil::ilTempnam() . '.csv';
+            $tempFile = ilFileUtils::ilTempnam() . '.csv';
             file_put_contents($tempFile, $csvLog->getCSVLog());
 
             $fileName = 'import_log.csv';
@@ -222,8 +198,16 @@ class CrsGrpImportJob extends ilCronJob
                 $user->getLogin(),
                 "",
                 "",
-                $this->dic->language()->txtlng($pluginLngModule, "{$pluginLngModule}_mail.message.title", $user->getLanguage()),
-                $this->dic->language()->txtlng($pluginLngModule, "{$pluginLngModule}_mail.message.text", $user->getLanguage()),
+                $this->dic->language()->txtlng(
+                    $pluginLngModule,
+                    "{$pluginLngModule}_mail.message.title",
+                    $user->getLanguage()
+                ),
+                $this->dic->language()->txtlng(
+                    $pluginLngModule,
+                    "{$pluginLngModule}_mail.message.text",
+                    $user->getLanguage()
+                ),
                 [$fileName],
                 false
             );
@@ -244,7 +228,7 @@ class CrsGrpImportJob extends ilCronJob
         $cronResult->setStatus(ilCronJobResult::STATUS_OK);
         $cronResult->setMessage(
             sprintf(
-                $plugin->txt("cronResult"),
+                $this->plugin->txt("cronResult"),
                 count($queuedImports),
                 $failedMailDeliveries
             )
@@ -256,12 +240,10 @@ class CrsGrpImportJob extends ilCronJob
     }
 
     /**
-     * @param        $data
-     * @param CSVLog $csvLog
-     * @return string
+     * @param mixed $data
      * @throws ilDateTimeException
      */
-    protected function buildCourseObject($data, CSVLog $csvLog) : string
+    protected function buildCourseObject($data, CSVLog $csvLog): string
     {
         $new_course = new Course($data, $csvLog, $this->dic);
         return $this->buildObject($new_course, $data);
@@ -269,11 +251,10 @@ class CrsGrpImportJob extends ilCronJob
 
     /**
      * @param Course|Group $new_object
-     * @param              $data
-     * @return string
+     * @param mixed        $data
      * @throws ilDateTimeException
      */
-    protected function buildObject($new_object, $data) : string
+    protected function buildObject($new_object, $data): string
     {
         $base_status = BaseObject::STATUS_OK;
         if ($this->ensureDataIsValid($data)) {
@@ -301,7 +282,7 @@ class CrsGrpImportJob extends ilCronJob
     }
 
 
-    protected function ensureDataIsValid(ImportCsvObject $data) : bool
+    protected function ensureDataIsValid(ImportCsvObject $data): bool
     {
         if (!in_array(strtolower($data->getAction()), [BaseObject::INSERT, BaseObject::UPDATE, BaseObject::IGNORE])) {
             return false;
@@ -333,11 +314,10 @@ class CrsGrpImportJob extends ilCronJob
     }
 
     /**
-     * @param $data
-     * @return string
+     * @param mixed $data
      * @throws ilDateTimeException
      */
-    protected function buildGroupObject($data, CSVLog $csvLog) : string
+    protected function buildGroupObject($data, CSVLog $csvLog): string
     {
         $new_group = new Group($data, $csvLog, $this->dic);
         return $this->buildObject($new_group, $data);

@@ -2,17 +2,18 @@
 
 namespace ILIAS\Plugin\CrsGrpImport\Creator;
 
-use ilDateTime;
-use ilObjGroup;
 use ilDate;
+use ilDateTime;
 use ilDateTimeException;
+use ilObjGroup;
+use ilParticipants;
 
 class Group extends BaseObject
 {
     /**
      * @throws ilDateTimeException
      */
-    public function insert() : int
+    public function insert(): int
     {
         if ($this->getData() !== null && $this->checkPrerequisitesForInsert()) {
             $group = $this->createGroup();
@@ -27,7 +28,7 @@ class Group extends BaseObject
         return 0;
     }
 
-    public function checkPrerequisitesForInsert() : bool
+    public function checkPrerequisitesForInsert(): bool
     {
         $valid_data = parent::checkPrerequisitesForInsert();
         if ($valid_data) {
@@ -36,22 +37,19 @@ class Group extends BaseObject
         return false;
     }
 
-    protected function createGroup() : ilObjGroup
+    protected function createGroup(): ilObjGroup
     {
         $group = new ilObjGroup();
         $group->setTitle((string) $this->getData()->getTitleDe());
         $group->setDescription((string) $this->getData()->getDescriptionDe());
         $group->create();
         $ref_id = $this->putGroupInTree($group);
+        $group->read();
         $this->handleI18nTitleAndDescription($group);
         return $group;
     }
 
-    /**
-     * @param ilObjGroup $group
-     * @return int
-     */
-    protected function putGroupInTree(ilObjGroup $group) : int
+    protected function putGroupInTree(ilObjGroup $group): int
     {
         $ref_id = $group->createReference();
         $group->putInTree($this->getData()->getParentRefId());
@@ -61,10 +59,9 @@ class Group extends BaseObject
     }
 
     /**
-     * @return void
      * @throws ilDateTimeException
      */
-    public function update() : string
+    public function update(): string
     {
         $parentRefId = $this->getData()->getParentRefId();
         $ref_id = $this->getData()->getRefId();
@@ -77,6 +74,7 @@ class Group extends BaseObject
                 $obj->setTitle((string) $this->getData()->getTitleDe());
                 $obj->setDescription((string) $this->getData()->getDescriptionDe());
                 $obj->update();
+                $obj->read();
                 $this->handleI18nTitleAndDescription($obj, true);
                 $this->writeGroupAdvancedData($obj);
                 if ($this->writeAvailability($ref_id) === false) {
@@ -106,11 +104,9 @@ class Group extends BaseObject
     }
 
     /**
-     * @param ilObjGroup $group
-     * @return int
      * @throws ilDateTimeException
      */
-    protected function writeGroupAdvancedData(ilObjGroup $group) : int
+    protected function writeGroupAdvancedData(ilObjGroup $group): int
     {
         /** @var \ilDidacticTemplateSetting $template */
         $templates = \ilDidacticTemplateSettings::getInstanceByObjectType($this->getData()->getType())->getTemplates();
@@ -183,16 +179,12 @@ class Group extends BaseObject
         return $group->getRefId();
     }
 
-    /**
-     * @param ilObjGroup $group
-     * @return bool
-     */
-    protected function addAdminsToGroup(ilObjGroup $group) : bool
+    protected function addAdminsToGroup(ilObjGroup $group): bool
     {
         $usr_ids = \ilObjUser::_lookupId($this->getData()->getValidatedAdmins());
         if (is_array($usr_ids) && count($usr_ids) > 0) {
             foreach ($usr_ids as $usr_id) {
-                $success = $group->getMembersObject()->add($usr_id, IL_GRP_ADMIN);
+                $success = $group->getMembersObject()->add($usr_id, ilParticipants::IL_GRP_ADMIN);
                 if ($success === false) {
                     $this->getData()->setImportResult('One or all of the user accounts for admins not found. Data not processed.');
                 }

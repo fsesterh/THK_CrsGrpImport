@@ -2,18 +2,19 @@
 
 namespace ILIAS\Plugin\CrsGrpImport\Creator;
 
-use ilObjCourse;
-use ilDateTime;
+use ilCourseConstants;
 use ilDate;
+use ilDateTime;
 use ilDateTimeException;
-use DateTimeImmutable;
+use ilObjCourse;
+use ilParticipants;
 
 class Course extends BaseObject
 {
     /**
      * @throws ilDateTimeException
      */
-    public function insert() : int
+    public function insert(): int
     {
         if ($this->getData() !== null && $this->checkPrerequisitesForInsert()) {
             $course = $this->createCourse();
@@ -32,7 +33,7 @@ class Course extends BaseObject
         return 0;
     }
 
-    public function checkPrerequisitesForInsert() : bool
+    public function checkPrerequisitesForInsert(): bool
     {
         $valid_data = parent::checkPrerequisitesForInsert();
         if ($valid_data) {
@@ -41,7 +42,7 @@ class Course extends BaseObject
         return false;
     }
 
-    protected function createCourse() : ?ilObjCourse
+    protected function createCourse(): ?ilObjCourse
     {
         $course_found_in_parent_tree = $this->dic->repositoryTree()->checkForParentType(
             $this->getData()->getParentRefId(),
@@ -53,7 +54,7 @@ class Course extends BaseObject
             $course->setDescription((string) $this->getData()->getDescriptionDe());
             $course->create();
             $ref_id = $this->putCourseInTree($course);
-
+            $course->read();
             $this->handleI18nTitleAndDescription($course);
 
             return $course;
@@ -62,11 +63,7 @@ class Course extends BaseObject
         return null;
     }
 
-    /**
-     * @param ilObjCourse $course
-     * @return int
-     */
-    protected function putCourseInTree(ilObjCourse $course) : int
+    protected function putCourseInTree(ilObjCourse $course): int
     {
         $ref_id = $course->createReference();
         $course->putInTree($this->getData()->getParentRefId());
@@ -76,10 +73,9 @@ class Course extends BaseObject
     }
 
     /**
-     * @return void
      * @throws ilDateTimeException
      */
-    public function update() : string
+    public function update(): string
     {
         $parentRefId = $this->getData()->getParentRefId();
         $ref_id = $this->getData()->getRefId();
@@ -93,6 +89,7 @@ class Course extends BaseObject
                 $obj->update();
                 $this->handleI18nTitleAndDescription($obj, true);
                 $this->writeCourseAdvancedData($obj);
+                $obj->read();
                 if ($this->writeAvailability($ref_id) === false) {
                     return BaseObject::STATUS_FAILED;
                 }
@@ -112,7 +109,7 @@ class Course extends BaseObject
             if (!$this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id)) {
                 $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_NOT_IN_SUBTREE);
                 return BaseObject::STATUS_FAILED;
-            } elseif ($type != 'crs') {
+            } elseif ($type !== 'crs') {
                 $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_HAS_DIFFERENT_TYPE);
                 return BaseObject::STATUS_FAILED;
             }
@@ -120,11 +117,9 @@ class Course extends BaseObject
     }
 
     /**
-     * @param ilObjCourse $course
-     * @return int
      * @throws ilDateTimeException
      */
-    protected function writeCourseAdvancedData(ilObjCourse $course) : int
+    protected function writeCourseAdvancedData(ilObjCourse $course): int
     {
         /** @var \ilDidacticTemplateSetting $template */
         $templates = \ilDidacticTemplateSettings::getInstanceByObjectType($this->getData()->getType())->getTemplates();
@@ -143,14 +138,17 @@ class Course extends BaseObject
             $start = $this->checkAndParseDateStringToObject($this->getData()->getEventStart());
             $end = $this->checkAndParseDateStringToObject($this->getData()->getEventEnd());
             if ($start !== '' && $end !== '') {
-                $course->setCoursePeriod(new ilDateTime($start->getTimestamp(), IL_CAL_UNIX), new ilDateTime($end->getTimestamp(), IL_CAL_UNIX));
+                $course->setCoursePeriod(
+                    new ilDateTime($start->getTimestamp(), IL_CAL_UNIX),
+                    new ilDateTime($end->getTimestamp(), IL_CAL_UNIX)
+                );
             }
         }
 
         $course->setOfflineStatus(!(bool) $this->getData()->getOnline());
         $course->setSubscriptionType($this->getData()->getRegistrationTypeForCourse());
         if ((int) $this->getData()->getRegistrationTypeForCourse() !== 0) {
-            $course->setSubscriptionLimitationType(IL_CRS_SUBSCRIPTION_UNLIMITED);
+            $course->setSubscriptionLimitationType(ilCourseConstants::IL_CRS_SUBSCRIPTION_UNLIMITED);
         }
 
         $course->setSubscriptionPassword($this->getData()->getRegistrationPass());
@@ -199,16 +197,12 @@ class Course extends BaseObject
         return $course->getRefId();
     }
 
-    /**
-     * @param ilObjCourse $course
-     * @return bool
-     */
-    protected function addAdminsToCourse(ilObjCourse $course) : bool
+    protected function addAdminsToCourse(ilObjCourse $course): bool
     {
         $usr_ids = \ilObjUser::_lookupId($this->getData()->getValidatedAdmins());
         if (is_array($usr_ids) && count($usr_ids) > 0) {
             foreach ($usr_ids as $usr_id) {
-                $success = $course->getMembersObject()->add($usr_id, IL_CRS_ADMIN);
+                $success = $course->getMembersObject()->add($usr_id, ilParticipants::IL_CRS_ADMIN);
                 if ($success === false) {
                     $this->getData()->setImportResult('One or all of the user accounts for admins not found. Data not processed.');
                 }

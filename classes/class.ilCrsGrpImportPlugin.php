@@ -8,12 +8,10 @@ use ILIAS\Plugin\CrsGrpImport\Lock\PidBasedLocker;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-require_once 'Services/UIComponent/classes/class.ilUserInterfaceHookPlugin.php';
-require_once 'Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/CrsGrpImport/vendor/autoload.php';
 /**
  * Class ilCrsGrpImportPlugin
  */
-class ilCrsGrpImportPlugin extends \ilUserInterfaceHookPlugin
+class ilCrsGrpImportPlugin extends ilUserInterfaceHookPlugin implements ilCronJobProvider
 {
     /**
      * @var string
@@ -40,34 +38,28 @@ class ilCrsGrpImportPlugin extends \ilUserInterfaceHookPlugin
      */
     public const PNAME = 'CrsGrpImport';
 
-    /**
-     * @var self|\ilPlugin|\ilUserInterfaceHookPlugin
-     */
-    private static $instance;
+    private static ?self $instance = null;
 
-    protected static $initialized = false;
+    protected static bool $initialized = false;
 
-    /**
-     * @return self|\ilPlugin|\ilUserInterfaceHookPlugin
-     */
-    public static function getInstance()
+    public static function getInstance(): self
     {
-        if (null !== self::$instance) {
+        if (self::$instance) {
             return self::$instance;
         }
 
-        return (self::$instance = \ilPluginAdmin::getPluginObject(
-            self::CTYPE,
-            self::CNAME,
-            self::SLOT_ID,
-            self::PNAME
-        ));
+        global $DIC;
+
+        /** @var ilComponentFactory $componentFactory */
+        $componentFactory = $DIC['component.factory'];
+        self::$instance = $componentFactory->getPlugin('crsgrpimport');
+        return self::$instance;
     }
 
     /**
      * @inheritdoc
      */
-    protected function init()
+    protected function init(): void
     {
         parent::init();
 
@@ -82,21 +74,17 @@ class ilCrsGrpImportPlugin extends \ilUserInterfaceHookPlugin
         }
     }
 
-    /**
-     * @return string
-     */
-    final public function getPluginName()
+    final public function getPluginName(): string
     {
         return self::PNAME;
     }
 
-    public function run() : ilCronJobResult
+    public function run(): ilCronJobResult
     {
-        $job = new CrsGrpImportJob();
-        return $job->run();
+        return (new CrsGrpImportJob())->run();
     }
 
-    public function getLinkTarget($cmd, $parameters = [], $prevent_xhtml_style = false)
+    public function getLinkTarget($cmd, $parameters = [], $prevent_xhtml_style = false): string
     {
         /** @var $ilCtrl ilCtrl */
         global $ilCtrl;
@@ -120,5 +108,25 @@ class ilCrsGrpImportPlugin extends \ilUserInterfaceHookPlugin
         $ilCtrl->setParameterByClass('ilCrsGrpImportUIHookGUI', self::PLUGIN_CMD_DETECTION_PARAMETER, '');
 
         return $url;
+    }
+
+    public function getCronJobInstances(): array
+    {
+        return [
+            new CrsGrpImportJob()
+        ];
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getCronJobInstance(string $jobId): ilCronJob
+    {
+        foreach ($this->getCronJobInstances() as $cronJobInstance) {
+            if ($cronJobInstance->getId() === $jobId) {
+                return $cronJobInstance;
+            }
+        }
+        throw new Exception("No cron job found with the id '$jobId'.");
     }
 }

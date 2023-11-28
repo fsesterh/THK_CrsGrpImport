@@ -13,24 +13,21 @@ use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
 use ILIAS\Plugin\CrsGrpImport\Repository\QueuedRepository;
 use ilLink;
 use ilObject;
-use ilUtil;
 
 /**
  * Class Index
+ *
  * @package ILIAS\Plugin\CrsGrpImport\Frontend\Controller
  * @author  Michael Jansen <mjansen@databay.de>
  */
 class Import extends Base
 {
-    /**
-     * @var QueuedRepository
-     */
-    private $queuedRepo;
+    private QueuedRepository $queuedRepo;
 
     /**
      * @inheritdoc
      */
-    protected function init() : void
+    protected function init(): void
     {
         parent::init();
         $this->queuedRepo = QueuedRepository::getInstance();
@@ -39,16 +36,15 @@ class Import extends Base
     /**
      * @inheritdoc
      */
-    public function getDefaultCommand() : string
+    public function getDefaultCommand(): string
     {
         return 'import';
     }
 
     /**
-     * @return void
      * @throws IllegalStateException
      */
-    public function import() : void
+    public function import(): void
     {
         global $DIC;
 
@@ -61,33 +57,39 @@ class Import extends Base
         }
 
         if (false === $DIC->upload()->hasUploads()) {
-            ilUtil::sendFailure(ilCrsGrpImportPlugin::getInstance()->txt('upload_error'), true);
+            $this->uiUtil->sendFailure(ilCrsGrpImportPlugin::getInstance()->txt('upload_error'), true);
             $this->redirectToRefId($parent_ref_id);
         }
 
         $uploadResults = $DIC->upload()->getResults();
         $uploadResult = array_values($uploadResults)[0];
         if (!($uploadResult instanceof UploadResult)) {
-            ilUtil::sendFailure(ilCrsGrpImportPlugin::getInstance()->txt('upload_error'), true);
+            $this->uiUtil->sendFailure(ilCrsGrpImportPlugin::getInstance()->txt('upload_error'), true);
             $this->redirectToRefId($parent_ref_id);
         }
 
         if ($uploadResult->getStatus()->getCode() === ProcessingStatus::REJECTED) {
-            ilUtil::sendFailure(ilCrsGrpImportPlugin::getInstance()->txt('upload_error'), true);
+            $this->uiUtil->sendFailure(ilCrsGrpImportPlugin::getInstance()->txt('upload_error'), true);
             $this->redirectToRefId($parent_ref_id);
         }
 
         $csv_array = $this->convertCSVToArray($uploadResult->getPath(), $parent_ref_id);
         if ($this->queuedRepo->queueImport(serialize($csv_array), $this->dic->user()->getId())) {
-            ilUtil::sendSuccess($this->getCoreController()->getPluginObject()->txt("import.queued.success"), true);
+            $this->uiUtil->sendSuccess(
+                $this->getCoreController()->getPluginObject()->txt("import.queued.success"),
+                true
+            );
         } else {
-            ilUtil::sendFailure($this->getCoreController()->getPluginObject()->txt("import.queued.failure"), true);
+            $this->uiUtil->sendFailure(
+                $this->getCoreController()->getPluginObject()->txt("import.queued.failure"),
+                true
+            );
         }
 
         $this->redirectToRefId($parent_ref_id);
     }
 
-    protected function redirectToRefId(int $ref_id) : void
+    protected function redirectToRefId(int $ref_id): void
     {
         $url = '#';
         if ($ref_id > 0) {
@@ -102,11 +104,9 @@ class Import extends Base
     }
 
     /**
-     * @param string   $importFile
-     * @param int|null $parent_ref_id
      * @return ImportCsvObject[]
      */
-    public function convertCSVToArray(string $importFile, ?int $parent_ref_id = null) : array
+    public function convertCSVToArray(string $importFile, ?int $parent_ref_id = null): array
     {
         $conversion = new Conversions();
         $row = 0;

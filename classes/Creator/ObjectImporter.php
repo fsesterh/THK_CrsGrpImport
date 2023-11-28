@@ -8,7 +8,7 @@ interface ObjectImporter
 
     public function update();
 
-    public function insert() : int;
+    public function insert(): int;
 
-    public function checkPrerequisitesForInsert() : bool;
+    public function checkPrerequisitesForInsert(): bool;
 }

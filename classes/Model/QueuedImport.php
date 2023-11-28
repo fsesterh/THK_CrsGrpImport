@@ -24,30 +24,16 @@ use DateTime;
 
 /**
  * Class QueuedImport
+ *
  * @package Model
- * @author Marvin Beym <mbeym@databay.de>
+ * @author  Marvin Beym <mbeym@databay.de>
  */
 class QueuedImport
 {
-    /**
-     * @var int
-     */
-    private $id;
-
-    /**
-     * @var string
-     */
-    private $csvData;
-
-    /**
-     * @var int
-     */
-    private $userId;
-
-    /**
-     * @var DateTime
-     */
-    private $creationDate;
+    private int $id;
+    private string $csvData;
+    private int $userId;
+    private DateTime $creationDate;
 
     public function __construct(int $id, string $csvData, int $userId, DateTime $creationDate)
     {
@@ -57,22 +43,22 @@ class QueuedImport
         $this->creationDate = $creationDate;
     }
 
-    public function getId() : int
+    public function getId(): int
     {
         return $this->id;
     }
 
-    public function getCsvData() : string
+    public function getCsvData(): string
     {
         return $this->csvData;
     }
 
-    public function getUserId() : int
+    public function getUserId(): int
     {
         return $this->userId;
     }
 
-    public function getCreationDate() : DateTime
+    public function getCreationDate(): DateTime
     {
         return $this->creationDate;
     }

@@ -3,6 +3,7 @@
 namespace ILIAS\Plugin\CrsGrpImport\Data;
 
 use ilCourseConstants;
+use ilGroupConstants;
 
 class ImportCsvObject
 {
@@ -104,39 +105,27 @@ class ImportCsvObject
         $this->actor_timezone = $actor_timezone;
     }
 
-    public function getActorTimezone() : ?string
+    public function getActorTimezone(): ?string
     {
         return $this->actor_timezone;
     }
 
-    /**
-     * @return string
-     */
-    public function getAction() : string
+    public function getAction(): string
     {
         return strtolower($this->action);
     }
 
-    /**
-     * @return string
-     */
-    public function getType() : string
+    public function getType(): string
     {
         return strtolower($this->type);
     }
 
-    /**
-     * @return int
-     */
-    public function getRefId() : int
+    public function getRefId(): int
     {
         return $this->ref_id;
     }
 
-    /**
-     * @param int $ref_id
-     */
-    public function setRefId(int $ref_id) : void
+    public function setRefId(int $ref_id): void
     {
         $this->ref_id = $ref_id;
     }
@@ -156,124 +145,82 @@ class ImportCsvObject
         return $this->description_de;
     }
 
-    /**
-     * @return string
-     */
-    public function getEventStart() : string
+    public function getEventStart(): string
     {
         return $this->event_start;
     }
 
-    /**
-     * @return string
-     */
-    public function getEventEnd() : string
+    public function getEventEnd(): string
     {
         return $this->event_end;
     }
 
-    /**
-     * @return int
-     */
-    public function getOnline() : int
+    public function getOnline(): int
     {
         return $this->online;
     }
 
-    /**
-     * @return string
-     */
-    public function getAvailabilityStart() : string
+    public function getAvailabilityStart(): string
     {
         return $this->availability_start;
     }
 
-    /**
-     * @return string
-     */
-    public function getAvailabilityEnd() : string
+    public function getAvailabilityEnd(): string
     {
         return $this->availability_end;
     }
 
-    /**
-     * @return int
-     */
-    public function getRegistrationNative() : int
+    public function getRegistrationNative(): int
     {
         return $this->registration;
     }
 
-
-    /**
-     * @return int
-     */
-    public function getRegistrationTypeForCourse() : int
+    public function getRegistrationTypeForCourse(): int
     {
-        $init_crs_constants = new ilCourseConstants();
         if ($this->registration === 0) {
-            return IL_CRS_SUBSCRIPTION_DEACTIVATED;
+            return ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED;
         } elseif ($this->registration === 1) {
-            return IL_CRS_SUBSCRIPTION_DIRECT;
+            return ilCourseConstants::IL_CRS_SUBSCRIPTION_DIRECT;
         } elseif ($this->registration === 2) {
-            return IL_CRS_SUBSCRIPTION_PASSWORD;
+            return ilCourseConstants::IL_CRS_SUBSCRIPTION_PASSWORD;
         } elseif ($this->registration === 3) {
-            return IL_CRS_SUBSCRIPTION_CONFIRMATION;
+            return ilCourseConstants::IL_CRS_SUBSCRIPTION_CONFIRMATION;
         } else {
-            return IL_CRS_SUBSCRIPTION_DEACTIVATED;
+            return ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED;
         }
     }
 
-    public function getRegistrationType() : int
+    public function getRegistrationType(): int
     {
         return $this->registration;
     }
 
-
-    /**
-     * @return string
-     */
-    public function getRegistrationPass() : string
+    public function getRegistrationPass(): string
     {
         return $this->registration_pass;
     }
 
-    /**
-     * @return int
-     */
-    public function getAdmissionLink() : int
+    public function getAdmissionLink(): int
     {
         return $this->admission_link;
     }
 
-    /**
-     * @return string
-     */
-    public function getRegistrationStart() : string
+    public function getRegistrationStart(): string
     {
         return $this->registration_start;
     }
 
-    /**
-     * @return string
-     */
-    public function getRegistrationEnd() : string
+    public function getRegistrationEnd(): string
     {
         return $this->registration_end;
     }
 
-    /**
-     * @return string
-     */
-    public function getUnsubscribeEnd() : string
+    public function getUnsubscribeEnd(): string
     {
         return $this->unsubscribe_end;
     }
 
-    /**
-     * @return array
-     */
-    public function getValidatedAdmins() : array
+    public function getValidatedAdmins(): array
     {
         if (strlen($this->getAdmins()) > 0) {
             $logins = explode(',', $this->admins);
@@ -283,34 +230,22 @@ class ImportCsvObject
         return [];
     }
 
-    /**
-     * @return string
-     */
-    public function getAdmins() : string
+    public function getAdmins(): string
     {
         return $this->admins;
     }
 
-    /**
-     * @return int|null
-     */
-    public function getParentRefId() : ?int
+    public function getParentRefId(): ?int
     {
         return $this->parent_ref_id;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getImportResult() : ?string
+    public function getImportResult(): ?string
     {
         return $this->import_result;
     }
 
-    /**
-     * @param string|null $import_result
-     */
-    public function setImportResult(?string $import_result) : void
+    public function setImportResult(?string $import_result): void
     {
         $this->import_result = $import_result;
     }

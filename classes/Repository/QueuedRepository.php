@@ -26,19 +26,15 @@ use ILIAS\Plugin\CrsGrpImport\Model\QueuedImport;
 
 /**
  * Class QueuedRepository
+ *
  * @package ILIAS\Plugin\CrsGrpImport\Repository
- * @author Marvin Beym <mbeym@databay.de>
+ * @author  Marvin Beym <mbeym@databay.de>
  */
 class QueuedRepository
 {
-    /**
-     * @var self|null
-     */
-    private static $instance = null;
-    /**
-     * @var ilDBInterface
-     */
-    protected $db;
+    private static ?QueuedRepository $instance = null;
+
+    protected ilDBInterface $db;
     /**
      * @var string
      */
@@ -55,7 +51,7 @@ class QueuedRepository
         }
     }
 
-    public static function getInstance(?ilDBInterface $db = null) : self
+    public static function getInstance(?ilDBInterface $db = null): self
     {
         if (self::$instance) {
             return self::$instance;
@@ -66,7 +62,7 @@ class QueuedRepository
     /**
      * @return QueuedImport[]
      */
-    public function readAll() : array
+    public function readAll(): array
     {
         $result = $this->db->query("SELECT * FROM " . self::TABLE_NAME);
 
@@ -77,7 +73,7 @@ class QueuedRepository
         return $data;
     }
 
-    public function queueImport(string $csvData, int $userId) : bool
+    public function queueImport(string $csvData, int $userId): bool
     {
         $queuedImport = new QueuedImport(
             (int) $this->db->nextId(self::TABLE_NAME),
@@ -94,7 +90,7 @@ class QueuedRepository
             ]) === 1;
     }
 
-    public function removeQueuedImport(QueuedImport $queuedImport) : bool
+    public function removeQueuedImport(QueuedImport $queuedImport): bool
     {
         return (int) $this->db->manipulateF(
             "DELETE FROM " . self::TABLE_NAME . " WHERE id = %s",
@@ -103,7 +99,7 @@ class QueuedRepository
         ) === 1;
     }
 
-    protected function map(array $row) : QueuedImport
+    protected function map(array $row): QueuedImport
     {
         return (new QueuedImport(
             (int) $row["id"],

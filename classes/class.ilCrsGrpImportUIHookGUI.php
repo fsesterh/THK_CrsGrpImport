@@ -2,6 +2,7 @@
 
 /* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
 
+use ILIAS\DI\Container;
 use ILIAS\Plugin\CrsGrpImport\Frontend;
 
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -9,20 +10,18 @@ require_once 'Services/UIComponent/classes/class.ilUIHookPluginGUI.php';
 
 /**
  * Class ilCrsGrpImportUIHookGUI
+ *
  * @ilCtrl_Calls      ilCrsGrpImportUIHookGUI: ilPropertyFormGUI
  * @ilCtrl_isCalledBy ilCrsGrpImportUIHookGUI: ilObjCourseGUI, ilObjGroupGUI
  * @ilCtrl_isCalledBy ilCrsGrpImportUIHookGUI: ilUIPluginRouterGUI
  */
 class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
 {
-    protected static $stop_recursion = false;
-    protected static $has_accordion = false;
-    protected static $handled = false;
+    protected static bool $stop_recursion = false;
+    protected static bool $has_accordion = false;
+    protected static bool $handled = false;
 
-    /**
-     * @var \ILIAS\DI\Container
-     */
-    protected $dic;
+    protected Container $dic;
 
     /**
      * ilCrsGrpImportUIHookGUI constructor.
@@ -57,7 +56,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
         $this->dic->ui()->mainTemplate()->printToStdOut();
     }
 
-    public function getHTML($a_comp, $a_part, $a_par = [])
+    public function getHTML($a_comp, $a_part, $a_par = []): array
     {
         if (self::$stop_recursion === true) {
             return ['mode' => ilUIHookPluginGUI::KEEP];
@@ -99,7 +98,10 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
                     ];
 
                     foreach ($import_sections as $import_section) {
-                        $header = preg_quote($this->dic->language()->txt('option'), '/') . ' (\d+): ' . preg_quote($import_section, '/');
+                        $header = preg_quote(
+                            $this->dic->language()->txt('option'),
+                            '/'
+                        ) . ' (\d+): ' . preg_quote($import_section, '/');
                         if (preg_match('/' . $header . '/', $accordion_section->textContent, $matches)) {
                             $counter = (int) $matches[1] + 1;
                             $previous_sibling = $accordion_section;
@@ -168,7 +170,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
                         $header = '(' . preg_quote($this->dic->language()->txt('option'), '/') . ' )(\d+):';
                         $accordion_header->nodeValue = preg_replace_callback(
                             '/' . $header . '/',
-                            static function (array $matches) : string {
+                            static function (array $matches): string {
                                 return $matches[1] . ' ' . ((string) (((int) $matches[2]) + 1)) . ': ';
                             },
                             $accordion_header->nodeValue
@@ -236,13 +238,10 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
         return ['mode' => ilUIHookPluginGUI::KEEP];
     }
 
-    /**
-     * @return bool
-     */
-    private function isAllowedUser() : bool
+    private function isAllowedUser(): bool
     {
         $selected_role = explode(',', $this->dic->settings()->get('crs_grp_import_default_local_role_ids'));
-        $user_roles = $this->dic->rbac()->review()->assignedRoles($this->dic->user()->id);
+        $user_roles = $this->dic->rbac()->review()->assignedRoles($this->dic->user()->getId());
 
         if (count(array_intersect($user_roles, $selected_role)) > 0) {
             return true;
@@ -251,10 +250,9 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
     }
 
     /**
-     * @param $ref_id
-     * @return ilPropertyFormGUI
+     * @throws ilCtrlException
      */
-    private function getImportForm($ref_id) : ilPropertyFormGUI
+    private function getImportForm(string $ref_id): ilPropertyFormGUI
     {
         $form = new ilPropertyFormGUI();
         $url = $this->dic->ctrl()->getLinkTargetByClass(

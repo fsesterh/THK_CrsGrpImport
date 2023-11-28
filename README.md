@@ -7,18 +7,26 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 in this document are to be interpreted as described in
 [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt).
 
-**Table of Contents**
-
-* [Installation](#installation)
+<!-- TOC -->
+* [CrsGrpImport](#crsgrpimport)
+  * [Requirements](#requirements)
+  * [Installation](#installation)
     * [Composer](#composer)
-* [Configuration](#configuration)
-* [Specifications](#specifications)
-* [Validation](#validation)
-* [Example](#example-csv-file)
-* [Other information](#other-information)
+  * [Configuration](#configuration)
+  * [Specifications](#specifications)
+  * [Validation](#validation)
+  * [Example CSV file](#example-csv-file)
+  * [Other Information](#other-information)
     * [Correlations](#correlations)
     * [Bugs](#bugs)
     * [License](#license)
+<!-- TOC -->
+
+## Requirements
+
+* PHP: [![Minimum PHP Version](https://img.shields.io/badge/Minimum_PHP-7.4-blue.svg)](https://php.net/) [![Maximum PHP Version](https://img.shields.io/badge/Maximum_PHP-8.0-blue.svg)](https://php.net/)
+* ILIAS: [![Minimum ILIAS Version](https://img.shields.io/badge/Minimum_ILIAS-8.0-orange.svg)](https://ilias.de/) [![Maximum ILIAS Version](https://img.shields.io/badge/Maximum_ILIAS-8.999-orange.svg)](https://ilias.de/)
+
 
 ## Installation
 
