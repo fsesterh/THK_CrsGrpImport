@@ -154,7 +154,7 @@ class Import extends Base
                         $title_de,
                         $title_en,
                         $description_de,
-                        $description_de,
+                        $description_en,
                         $event_start,
                         $event_end,
                         $online,
