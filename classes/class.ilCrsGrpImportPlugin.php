@@ -4,7 +4,6 @@
 
 
 use ILIAS\Plugin\CrsGrpImport\Job\CrsGrpImportJob;
-use ILIAS\Plugin\CrsGrpImport\Lock\PidBasedLocker;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -40,8 +39,6 @@ class ilCrsGrpImportPlugin extends ilUserInterfaceHookPlugin implements ilCronJo
 
     private static ?self $instance = null;
 
-    protected static bool $initialized = false;
-
     public static function getInstance(): self
     {
         if (self::$instance) {
@@ -54,24 +51,6 @@ class ilCrsGrpImportPlugin extends ilUserInterfaceHookPlugin implements ilCronJo
         $componentFactory = $DIC['component.factory'];
         self::$instance = $componentFactory->getPlugin('crsgrpimport');
         return self::$instance;
-    }
-
-    /**
-     * @inheritdoc
-     */
-    protected function init(): void
-    {
-        parent::init();
-
-        if (!self::$initialized) {
-            self::$initialized = true;
-
-            $GLOBALS['DIC']['plugin.crsgrpimport.cronjob.locker'] = function () {
-                return new PidBasedLocker(
-                    new ilSetting($this->getPluginName())
-                );
-            };
-        }
     }
 
     final public function getPluginName(): string

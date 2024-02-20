@@ -32,7 +32,6 @@ use ILIAS\Plugin\CrsGrpImport\Creator\BaseObject;
 use ILIAS\Plugin\CrsGrpImport\Creator\Course;
 use ILIAS\Plugin\CrsGrpImport\Creator\Group;
 use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
-use ILIAS\Plugin\CrsGrpImport\Lock\Locker;
 use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
 use ILIAS\Plugin\CrsGrpImport\Repository\QueuedRepository;
 use ilLogger;
@@ -70,7 +69,6 @@ class CrsGrpImportJob extends ilCronJob
         $this->dic = $DIC;
         /** @var  $componentFactory */
         $this->componentFactory = $DIC['component.factory'];
-        $this->lock = $this->dic['plugin.crsgrpimport.cronjob.locker'];
         $this->queuedRepo = QueuedRepository::getInstance();
         $this->plugin = ilCrsGrpImportPlugin::getInstance();
     }
@@ -128,19 +126,6 @@ class CrsGrpImportJob extends ilCronJob
     public function run(): ilCronJobResult
     {
         $cronResult = new ilCronJobResult();
-
-        if ($this->lock->acquireLock()) {
-            $this->logger->info('Acquired lock.');
-        } else {
-            $message = sprintf(
-                'Terminated import script: %s',
-                'Script is probably running, please remove the lock if you are sure no task is running.'
-            );
-            $this->logger->info($message);
-            $cronResult->setStatus(ilCronJobResult::STATUS_NO_ACTION);
-            $cronResult->setMessage($message);
-            return $cronResult;
-        }
 
         $failedMailDeliveries = 0;
 
