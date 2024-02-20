@@ -125,7 +125,7 @@ class Course extends BaseObject
         $templates = \ilDidacticTemplateSettings::getInstanceByObjectType($this->getData()->getType())->getTemplates();
         $enabled_templates_by_id = [];
         foreach ($templates as $template) {
-            if ($template->isEnabled() && (int)$this->getData()->getTemplateIdNativeType() === (int) $template->getId()) {
+            if ($template->isEnabled() && (int) $this->getData()->getTemplateIdNativeType() === (int) $template->getId()) {
                 $course->applyDidacticTemplate($template->getId());
             }
         }

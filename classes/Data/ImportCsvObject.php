@@ -130,17 +130,17 @@ class ImportCsvObject
         $this->ref_id = $ref_id;
     }
 
-    public function getTemplateIdNativeType() : ?int
+    public function getTemplateIdNativeType(): ?int
     {
         return $this->template_id;
     }
 
-    public function getTitleDe() : ?string
+    public function getTitleDe(): ?string
     {
         return $this->title_de;
     }
 
-    public function getDescriptionDe() : ?string
+    public function getDescriptionDe(): ?string
     {
         return $this->description_de;
     }
@@ -250,37 +250,37 @@ class ImportCsvObject
         $this->import_result = $import_result;
     }
 
-    public function getTitleEn() : ?string
+    public function getTitleEn(): ?string
     {
         return $this->title_en;
     }
 
-    public function getDescriptionEn() : ?string
+    public function getDescriptionEn(): ?string
     {
         return $this->description_en;
     }
 
-    public function getAvailabilityVisible() : ?int
+    public function getAvailabilityVisible(): ?int
     {
         return $this->availability_visible;
     }
 
-    public function getLimitMembers() : ?int
+    public function getLimitMembers(): ?int
     {
         return $this->limit_members;
     }
 
-    public function getMinMembers() : ?int
+    public function getMinMembers(): ?int
     {
         return $this->min_members;
     }
 
-    public function getMaxMembers() : ?int
+    public function getMaxMembers(): ?int
     {
         return $this->max_members;
     }
 
-    public function getWaitingList() : ?int
+    public function getWaitingList(): ?int
     {
         return $this->waiting_list;
     }

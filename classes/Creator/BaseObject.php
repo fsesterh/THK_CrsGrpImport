@@ -130,7 +130,7 @@ class BaseObject implements ObjectImporter
     /**
      * @param \ilObjCourse|\ilObjGroup $object
      */
-    public function handleI18nTitleAndDescription($object, bool $is_update = false) : void
+    public function handleI18nTitleAndDescription($object, bool $is_update = false): void
     {
         if (!$is_update && (is_string($this->getData()->getTitleEn()) && $this->getData()->getTitleEn() !== '')) {
             $translation = \ilObjectTranslation::getInstance($object->getId());

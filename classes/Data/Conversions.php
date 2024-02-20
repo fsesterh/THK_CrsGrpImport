@@ -26,7 +26,7 @@ class Conversions
         return (int) $value;
     }
 
-    public function ensureIntOrNullType($value) : ?int
+    public function ensureIntOrNullType($value): ?int
     {
         global $DIC;
 
