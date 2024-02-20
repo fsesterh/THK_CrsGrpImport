@@ -2,7 +2,7 @@
 
 namespace ILIAS\Plugin\CrsGrpImport\Creator;
 
-use ILIAS\Plugin\CrsGrpImport\BackgroundTasks\ilCrsGrpImportJob;
+use ILIAS\Plugin\CrsGrpImport\Job\CrsGrpImportJob;
 use ilObjCourse;
 use ilDateTime;
 use ilDate;
@@ -11,13 +11,13 @@ use DateTimeImmutable;
 
 class ContainerLink extends BaseObject
 {
-    public function insert() : int
+    public function insert(): int
     {
         if ($this->getData() !== null && $this->checkPrerequisitesForInsert()) {
             $container_reference = null;
-            if ($this->getData()->getType() === ilCrsGrpImportJob::COURSE_LINK) {
+            if ($this->getData()->getType() === CrsGrpImportJob::COURSE_LINK) {
                 $container_reference = new \ilObjCourseReference();
-            } elseif ($this->getData()->getType() === ilCrsGrpImportJob::GROUP_LINK) {
+            } elseif ($this->getData()->getType() === CrsGrpImportJob::GROUP_LINK) {
                 $container_reference = new \ilObjGroupReference();
             }
 
@@ -36,7 +36,7 @@ class ContainerLink extends BaseObject
         return 0;
     }
 
-    private function putInTree(\ilContainerReference $obj) : int
+    private function putInTree(\ilContainerReference $obj): int
     {
         $ref_id = $obj->createReference();
         $obj->putInTree($this->getData()->getParentRefId());
@@ -46,7 +46,7 @@ class ContainerLink extends BaseObject
         return $ref_id;
     }
 
-    public function update() : string
+    public function update(): string
     {
         throw new \RuntimeException('Not implemented yet');
     }

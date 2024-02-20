@@ -29,6 +29,7 @@ use ilFileDataMail;
 use ilFileUtils;
 use ILIAS\DI\Container;
 use ILIAS\Plugin\CrsGrpImport\Creator\BaseObject;
+use ILIAS\Plugin\CrsGrpImport\Creator\ContainerLink;
 use ILIAS\Plugin\CrsGrpImport\Creator\Course;
 use ILIAS\Plugin\CrsGrpImport\Creator\Group;
 use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
@@ -49,15 +50,12 @@ class CrsGrpImportJob extends ilCronJob
 {
     public const COURSE = 'crs';
     public const GROUP = 'grp';
+    public const COURSE_LINK = 'crsr';
+    public const GROUP_LINK = 'grpr';
     protected const VALID_TYPE = [0, 1, 2, 3];
 
-    private Locker $lock;
     private Container $dic;
     private ilLogger $logger;
-    /**
-     * @var
-     */
-    private CSVLog $csv_log;
     private QueuedRepository $queuedRepo;
     private ilCrsGrpImportPlugin $plugin;
     private ilComponentFactory $componentFactory;
@@ -137,6 +135,10 @@ class CrsGrpImportJob extends ilCronJob
                 $queuedImport->getCsvData(),
                 ['allowed_classes' => [ImportCsvObject::class]]
             );
+            /**
+             * @var  $key
+             * @var ImportCsvObject $data
+             */
             foreach ($csv_deserialized as $key => $data) {
                 $base_status = BaseObject::STATUS_OK;
 
@@ -144,6 +146,10 @@ class CrsGrpImportJob extends ilCronJob
                     $base_status = $this->buildCourseObject($data, $csvLog);
                 } elseif ($data->getType() === self::GROUP) {
                     $base_status = $this->buildGroupObject($data, $csvLog);
+                } elseif ($data->getType() === self::COURSE_LINK) {
+                    $base_status = $this->buildCourseLinkObject($data, $csvLog);
+                } elseif ($data->getType() === self::GROUP_LINK) {
+                    $base_status = $this->buildGroupLinkObject($data, $csvLog);
                 } else {
                     $base_status = BaseObject::STATUS_FAILED;
                     $data->setImportResult(BaseObject::RESULT_UNKNOWN_OBJECT_TYPE);
@@ -151,7 +157,7 @@ class CrsGrpImportJob extends ilCronJob
                 $csvLog->addEntryToLog(
                     $base_status,
                     $data->getRefId(),
-                    $data->getTitle(),
+                    $data->getTitleDe(),
                     $data->getValidatedAdmins(),
                     $data->getImportResult()
                 );
@@ -218,10 +224,30 @@ class CrsGrpImportJob extends ilCronJob
                 $failedMailDeliveries
             )
         );
-        $this->lock->releaseLock();
-
 
         return $cronResult;
+    }
+
+    protected function buildCourseLinkObject(ImportCsvObject $data, CSVLog $csvLog): string
+    {
+        $container = new ContainerLink($data, $csvLog, $this->dic);
+        return $this->buildObject($container, $data);
+    }
+
+    protected function buildGroupLinkObject(ImportCsvObject $data, CSVLog $csvLog): string
+    {
+        $container = new ContainerLink($data, $csvLog, $this->dic);
+        return $this->buildObject($container, $data);
+    }
+
+    /**
+     * @param mixed $data
+     * @throws ilDateTimeException
+     */
+    protected function buildGroupObject($data, CSVLog $csvLog): string
+    {
+        $new_group = new Group($data, $csvLog, $this->dic);
+        return $this->buildObject($new_group, $data);
     }
 
     /**
@@ -235,11 +261,10 @@ class CrsGrpImportJob extends ilCronJob
     }
 
     /**
-     * @param Course|Group $new_object
-     * @param mixed        $data
+     * @param Course|Group|ContainerLink $new_object
      * @throws ilDateTimeException
      */
-    protected function buildObject($new_object, $data): string
+    protected function buildObject($new_object, ImportCsvObject $data): string
     {
         $base_status = BaseObject::STATUS_OK;
         if ($this->ensureDataIsValid($data)) {
@@ -260,7 +285,9 @@ class CrsGrpImportJob extends ilCronJob
             }
         } else {
             $base_status = BaseObject::STATUS_FAILED;
-            $data->setImportResult(BaseObject::RESULT_DATASET_INVALID);
+            if (!$data->getImportResult()) {
+                $data->setImportResult(BaseObject::RESULT_DATASET_INVALID);
+            }
         }
 
         return $base_status;
@@ -269,42 +296,104 @@ class CrsGrpImportJob extends ilCronJob
 
     protected function ensureDataIsValid(ImportCsvObject $data): bool
     {
-        if (!in_array(strtolower($data->getAction()), [BaseObject::INSERT, BaseObject::UPDATE, BaseObject::IGNORE])) {
-            return false;
-        }
-        if ($data->getTitle() === '') {
-            return false;
-        }
-        if (!in_array($data->getType(), [self::COURSE, self::GROUP])) {
-            return false;
-        }
-        if (!in_array($data->getRegistrationNative(), self::VALID_TYPE)) {
-            return false;
-        }
-        if (!in_array($data->getGrpTypeNative(), self::VALID_TYPE)) {
-            return false;
-        }
-        if ($data->getAdmins() === '') {
+        if (!in_array(
+            strtolower($data->getAction()),
+            [BaseObject::INSERT, BaseObject::UPDATE, BaseObject::IGNORE],
+            true
+        )) {
+            $data->setImportResult(BaseObject::RESULT_UNSUPPORTED_ACTION);
             return false;
         }
 
-        $usr_ids = ilObjUser::_lookupId($data->getValidatedAdmins());
-        if (count($usr_ids) === 0) {
+        if (!in_array($data->getType(), [self::COURSE, self::GROUP, self::COURSE_LINK, self::GROUP_LINK], true)) {
+            $data->setImportResult(BaseObject::RESULT_UNSUPPORTED_OBJECT_TYPE);
             return false;
         }
-        if (!in_array($data->getAdmissionLink(), [0, 1])) {
-            return false;
+
+        if (in_array($data->getType(), [self::COURSE, self::GROUP], true)) {
+            if (!in_array($data->getRegistrationNative(), self::VALID_TYPE)) {
+                $data->setImportResult(BaseObject::RESULT_UNSUPPORTED_REGISTRATION_TYPE);
+                return false;
+            }
+
+            if ($data->getType() === self::COURSE) {
+                if ($data->getTemplateIdNativeType() === 1) {
+                    $data->setImportResult(BaseObject::RESULT_DIDACTIC_TEMPLATE_ID_1_NOT_ALLOWED);
+                    return false;
+                }
+            }
+
+            /** @var \ilDidacticTemplateSetting $template */
+            $templates = \ilDidacticTemplateSettings::getInstanceByObjectType($data->getType())->getTemplates();
+            $enabled_templates_by_id = [];
+            foreach ($templates as $template) {
+                if ($template->isEnabled()) {
+                    $enabled_templates_by_id[$template->getId()] = $template;
+                }
+            }
+
+            if ($data->getTemplateIdNativeType() > 0 && !isset($enabled_templates_by_id[$data->getTemplateIdNativeType()])) {
+                $data->setImportResult(BaseObject::RESULT_DIDACTIC_TEMPLATE_ID_NOT_SUPPORTED_OR_NOT_ENABLED);
+                return false;
+            }
+
+            if ($data->getAdmins() === '') {
+                $data->setImportResult(BaseObject::RESULT_NO_ADMINS_PROVIDED);
+                return false;
+            }
+
+            $usr_ids = \ilObjUser::_lookupId($data->getValidatedAdmins());
+            if (count($usr_ids) === 0) {
+                $data->setImportResult(BaseObject::RESULT_NO_ADMIN_USERS_COULD_BE_DETERMINED);
+                return false;
+            }
+
+            if (!in_array($data->getAdmissionLink(), [0, 1])) {
+                return false;
+            }
+
+            if ($data->getTitleDe() === '') {
+                $data->setImportResult(BaseObject::RESULT_MISSING_GERMAN_TITLE);
+                return false;
+            }
+
+            if ($data->getMinMembers() !== null &&
+                $data->getMaxMembers() !== null &&
+                $data->getMinMembers() > $data->getMaxMembers()) {
+                $data->setImportResult(BaseObject::RESULT_MIN_MEMBERS_GREATER_THAN_MAX_MEMBERS);
+                return false;
+            }
         }
+
+        if (in_array($data->getType(), [self::COURSE_LINK, self::GROUP_LINK], true)) {
+            if (!in_array(strtolower($data->getAction()), [BaseObject::INSERT, BaseObject::IGNORE], true)) {
+                // course links and group links don't support an `update` action
+                $data->setImportResult(BaseObject::RESULT_NO_UPDATE_ACTION_ALLOWED_FOR_LINKS);
+                return false;
+            }
+
+            if (!is_numeric($data->getRefId())) {
+                $data->setImportResult(BaseObject::RESULT_MISSING_REF_ID_FOR_LINK);
+                return false;
+            }
+
+            $obj_id = \ilObject::_lookupObjId($data->getRefId());
+            if (!$obj_id) {
+                $data->setImportResult(BaseObject::RESULT_INVALID_REF_ID_FOR_LINK);
+                return false;
+            }
+
+            if ($data->getType() === self::COURSE_LINK && \ilObject::_lookupType($obj_id) !== self::COURSE) {
+                $data->setImportResult(BaseObject::RESULT_TYPE_MISMATCH_FOR_LINK);
+                return false;
+            }
+
+            if ($data->getType() === self::GROUP_LINK && \ilObject::_lookupType($obj_id) !== self::GROUP) {
+                $data->setImportResult(BaseObject::RESULT_TYPE_MISMATCH_FOR_LINK);
+                return false;
+            }
+        }
+
         return true;
-    }
-
-    /**
-     * @param mixed $data
-     * @throws ilDateTimeException
-     */
-    protected function buildGroupObject($data, CSVLog $csvLog): string
-    {
-        $new_group = new Group($data, $csvLog, $this->dic);
-        return $this->buildObject($new_group, $data);
     }
 }
