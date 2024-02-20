@@ -136,7 +136,14 @@ class BaseObject implements ObjectImporter
             $translation = \ilObjectTranslation::getInstance($object->getId());
             $translation->setDefaultTitle((string) $this->getData()->getTitleDe());
             $translation->setDefaultDescription((string) $this->getData()->getDescriptionDe());
-            $translation->setMasterLanguage('de');
+            $translation->setLanguages([]);
+            $translation->addLanguage(
+                'de',
+                $this->getData()->getTitleDe(),
+                $this->getData()->getDescriptionDe(),
+                true,
+                false
+            );
             $translation->addLanguage(
                 'en',
                 $this->getData()->getTitleEn(),
@@ -144,6 +151,7 @@ class BaseObject implements ObjectImporter
                 false,
                 false
             );
+            $translation->setMasterLanguage('de');
             $translation->save();
         } elseif ($is_update) {
             $translation = \ilObjectTranslation::getInstance($object->getId());
