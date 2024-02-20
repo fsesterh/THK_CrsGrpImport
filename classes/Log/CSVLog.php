@@ -33,14 +33,10 @@ class CSVLog
 
     public function addEntryToLog(string $status, ?int $ref_id, ?string $title, array $admins, string $result): void
     {
-        if (count($admins) > 0) {
-            $admins = implode(',', $admins);
-        }
-
         $this->csv->addColumn($status);
         $this->csv->addColumn($ref_id);
         $this->csv->addColumn($title);
-        $this->csv->addColumn($admins);
+        $this->csv->addColumn(implode(',', $admins));
         $this->csv->addColumn($result);
         $this->csv->addRow();
     }
