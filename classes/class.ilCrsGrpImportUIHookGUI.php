@@ -255,7 +255,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
     private function getImportForm(string $ref_id): ilPropertyFormGUI
     {
         $form = new ilPropertyFormGUI();
-        $url = $this->dic->ctrl()->getLinkTargetByClass(
+        $url = $this->dic->ctrl()->getFormActionByClass(
             [ilUIPluginRouterGUI::class, self::class],
             'Import.showCmd'
         );
@@ -266,8 +266,8 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
         $parent_ref_id = new ilHiddenInputGUI('parent_ref_id');
         $parent_ref_id->setValue($ref_id);
         $form->addItem($parent_ref_id);
-        $form->addCommandButton('#', $this->plugin_object->txt('grp' . '_add'));
-        $form->addCommandButton('cancel', $this->dic->language()->txt('cancel'));
+        $form->addCommandButton('Import.import', $this->plugin_object->txt('grp' . '_add'));
+        $form->addCommandButton('Import.cancel', $this->dic->language()->txt('cancel'));
         return $form;
     }
 }

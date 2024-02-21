@@ -90,9 +90,7 @@ class Dispatcher
         $parts = \explode('.', $cmd);
 
         if (\count($parts) == 2) {
-            $cmd = $parts[1];
-
-            return $cmd . 'Cmd';
+            return $parts[1];
         }
 
         return '';
