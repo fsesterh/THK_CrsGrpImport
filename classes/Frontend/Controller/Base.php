@@ -35,14 +35,6 @@ abstract class Base
     {
     }
 
-    /**
-     * @return mixed
-     */
-    final public function __call(string $name, array $arguments)
-    {
-        return \call_user_func_array([$this, $this->getDefaultCommand()], []);
-    }
-
     abstract public function getDefaultCommand(): string;
 
     public function getCoreController(): ilCrsGrpImportUIHookGUI

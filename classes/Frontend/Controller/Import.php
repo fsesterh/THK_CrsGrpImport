@@ -13,6 +13,7 @@ use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
 use ILIAS\Plugin\CrsGrpImport\Repository\QueuedRepository;
 use ilLink;
 use ilObject;
+use ilRepositoryGUI;
 
 /**
  * Class Index
@@ -38,7 +39,7 @@ class Import extends Base
      */
     public function getDefaultCommand(): string
     {
-        return 'import';
+        return 'Import.cancel';
     }
 
     /**
@@ -87,6 +88,11 @@ class Import extends Base
         }
 
         $this->redirectToRefId($parent_ref_id);
+    }
+
+    public function cancel(): void
+    {
+        $this->dic->ctrl()->redirectByClass(ilRepositoryGUI::class);
     }
 
     protected function redirectToRefId(int $ref_id): void
