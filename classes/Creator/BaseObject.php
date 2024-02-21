@@ -113,7 +113,7 @@ class BaseObject implements ObjectImporter
                         if ($availability_start !== '' && $availability_end !== '') {
                             $crs_or_grp_object->setActivationStart($availability_start->getTimestamp());
                             $crs_or_grp_object->setActivationEnd($availability_end->getTimestamp());
-                            $crs_or_grp_object->setActivationVisibility(1);
+                            $crs_or_grp_object->setActivationVisibility($activation->enabledVisible());
                         }
                     }
 
