@@ -263,7 +263,7 @@ class BaseObject implements ObjectImporter
             return $date_immutable ?: '';
         }
 
-        if (!preg_match("/^(\d{2}).(\d{2}).(\d{4})$/", $date, $d_parts)) {
+        if (!preg_match("/(\d{2}).(\d{2}).(\d{4})/", $date, $d_parts)) {
             $this->dic->logger()->root()->warning('Date for object has not the correct format (d.m.Y), ignoring: ' . $date);
         } else {
             $date_immutable = DateTimeImmutable::createFromFormat('d.m.Y', $date);
