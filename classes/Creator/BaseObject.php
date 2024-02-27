@@ -253,12 +253,14 @@ class BaseObject implements ObjectImporter
         } else {
             $date_immutable = DateTimeImmutable::createFromFormat('d.m.y H:i', $date);
             $this->dic->logger()->root()->info('Parsing complete for date: ' . $date);
+            return $date_immutable ?: '';
         }
         if (!preg_match("/(\d{2}).(\d{2}).(\d{4}) (\d{2}):(\d{2})/", $date, $d_parts)) {
             $this->dic->logger()->root()->warning('Date for object has not the correct format (d.m.Y H:i), ignoring: ' . $date);
         } else {
             $date_immutable = DateTimeImmutable::createFromFormat('d.m.Y H:i', $date);
             $this->dic->logger()->root()->info('Parsing complete for date: ' . $date);
+            return $date_immutable ?: '';
         }
 
         if (!preg_match("/(\d{2}).(\d{2}).(\d{4})/", $date, $d_parts)) {
@@ -266,11 +268,9 @@ class BaseObject implements ObjectImporter
         } else {
             $date_immutable = DateTimeImmutable::createFromFormat('d.m.Y', $date);
             $this->dic->logger()->root()->info('Parsing complete for date: ' . $date);
+            return $date_immutable ?: '';
         }
 
-        if ($date_immutable === false) {
-            return '';
-        }
         return $date_immutable;
     }
 }
