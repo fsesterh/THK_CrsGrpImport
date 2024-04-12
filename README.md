@@ -1,6 +1,8 @@
 # CrsGrpImport
 
-UIHook plugin for course and group creation with a csv
+UIHook plugin for importing courses, groups, course references and group references from a CSV file.
+User need the permission to create courses or groups in order to use the plugin. Objects are created at the tree node where users upload the file.
+It is NOT possible to set a repository target (a category for example) for the new objects.
 
 The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 "SHOULD NOT", "RECOMMENDED", "MAY", and "OPTIONAL"
@@ -51,64 +53,50 @@ Developers MUST omit the `--no-dev` argument.
 
 ## Configuration
 
-You SHOULD configure the roles in the configuration of the plugin.
+* You SHOULD configure the roles in the configuration of the plugin.
+* You MUST activate the cronjob in order to process import files.
 
-## Specifications
-
-An ILIAS plugin that applies defaults to news settings of new objects and provides
-a user interface for news setting migrations.
-
-## Validation
+## Settings
 There are some values which must be set in a specific way, to create courses an groups, these values are as following:
 * Action
-  * Values: insert, update, ignore
-* Title
-  * Value: Must be set
+  * Insert | Update | Ignore
 * Type
-  * Values: crs, grp
-* Registration
-  * Values: 0,1,2,3
-    * 0: Deactivated
-    * 1: Direct registration
-    * 2: Password registration
-    * 3: Request confirmation
-    * anything else: deactivated
-* Grp_type
-  * Values: 0,1,2,3
-    * 0: Deactivated
-    * 1: Direct registration
-    * 2: Password registration
-    * 3: Request registration
-    * anything else: deactivated
-* Admins
-  * Value: Must be set
-* AdmissionLink
-  * Values: 0,1
+  * crs | grp | crsr | grpr
+  * please note: creating a course or group reference requires a RefId! Crsr and grpr objects will ALWAYS be created with the option to use the title of the referenced object. It is not possible currently to set a custom title via the import file.
+* RefId
+  * integer
+* Template
+  * integer
+  * please check the ids for your didactic templates on your installation for courses and groups
+* TitleDE: max 255 chars, must be set
+* TitleEN: max 255 chars
+* Description DE, max 128 chars
+* Description EN, max 128 chars
+* EventStart: DD.MM.YYYY HH:mm
+* EventEnd: DD.MM.YYYY HH:mm
+* Online: 0 | 1
+* AvailabilityStart: DD.MM.YYYY HH:mm
+* AvailabilityEnd: DD.MM.YYYY HH:mm
+* AvailabilityVisible: 0 | 1
+  * visibility of object outside of availability
+* Registration: 0 - none | 1 = direct | 2 = with password | 3 = manually by admin
+* RegistrationPass: string, used with Registration = 2
+* AdmissionLink: 0 | 1
+* RegistrationStart: DD.MM.YYYY HH:mm
+* RegistrationEnd: DD.MM.YYYY HH:mm
+* UnsubscribeEnd: DD.MM.YYYY
+  * please note that you cannot set HH:mm for this field currently!
+* LimitMembers: 0 | 1
+* MinMembers: integer
+* MaxMembers: integer
+* WaitingList: 0 = none | 1 = automatic | 2 = manual
+* Admins: username,username,username
 
-## Example CSV file
+### Example CSV file
 ```
-Action;Type;RefId;GrpType;Title;Description;EventStart;EventEnd;Online;AvailabilityStart;AvailabilityEnd;Registration;RegistrationPass;AdmissionLink;RegistrationStart;RegistrationEnd;UnsubscribeEnd;Admins; 
-Insert;crs;;;My Course;Lorem Ipsum;10.03.2022 12:00;31.12.2022 23:55;1;15.03.2022 12:00;15.03.2023 12:00;1;geheim;0;15.03.2023 12:00;15.03.2023 12:00;15.03.2023 12:00;root;
-Insert;grp;;0;My Group;Lorem Ipsum;10.03.2022 12:00;31.12.2022 23:55;0;15.03.2022 12:00;15.03.2023 12:00;0;geheim;1;15.03.2023 12:01;15.03.2023 12:01;15.03.2023 12:01;root;
+Action;Type;RefId;Template;TitleDE;TitleEN;DescriptionDE;DescriptionEN;EventStart;EventEnd;Online;AvailabilityStart;AvailabilityEnd;AvailabilityVisible;Registration;RegistrationPass;AdmissionLink;RegistrationStart;RegistrationEnd;UnsubscribeEnd;LimitMembers;MinMembers;MaxMembers;WaitingList;Admins
+Insert;crs;;;Mein Titel;My Title;Meine Beschreibung;My Description;12.04.2024 10:00;12.04.2024 12:00;1;01.04.2024 10:00;15.05.2024 10:00;1;;;;;;;;;;;username
+
 ```
-## Other Information
-
-* In ILIAS 7 UserInterfaceHook plugins can't add cronjobs. The cronjob has to be manually started using the following bash command:
-  ```bash
-  php <path to plugin>/cron.php <username> <password> <client-id>
-  ```
-  * This script can then be added to a normal linux cronjob for automatic execution.
-  * In future versions of ILIAS (8+) this will no longer be required and the CronJob can be added to ILIAS directly and managed through it as well.
-
-
-### Correlations
-
-None
-
-### Bugs
-
-None
-
-### License
 
 See [LICENSE](./LICENSE) file in this repository.
