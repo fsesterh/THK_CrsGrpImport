@@ -15,13 +15,9 @@ in this document are to be interpreted as described in
   * [Installation](#installation)
     * [Composer](#composer)
   * [Configuration](#configuration)
-  * [Specifications](#specifications)
-  * [Validation](#validation)
+  * [Settings](#settings)
   * [Example CSV file](#example-csv-file)
-  * [Other Information](#other-information)
-    * [Correlations](#correlations)
-    * [Bugs](#bugs)
-    * [License](#license)
+  * [License](#license)
 <!-- TOC -->
 
 ## Requirements
@@ -98,5 +94,5 @@ Action;Type;RefId;Template;TitleDE;TitleEN;DescriptionDE;DescriptionEN;EventStar
 Insert;crs;;;Mein Titel;My Title;Meine Beschreibung;My Description;12.04.2024 10:00;12.04.2024 12:00;1;01.04.2024 10:00;15.05.2024 10:00;1;;;;;;;;;;;username
 
 ```
-
+## License
 See [LICENSE](./LICENSE) file in this repository.
