@@ -89,8 +89,9 @@ class BaseObject implements ObjectImporter
                 $availability_end = $this->checkAndParseDateStringToObject($this->getData()->getAvailabilityEnd());
 
                 $activation = new ilObjectActivation();
-                $activation->setTimingType(1);
+                $activation->setTimingType(ilObjectActivation::TIMINGS_DEACTIVATED);
                 if ($availability_start !== '' && $availability_end !== '') {
+                    $activation->setTimingType(ilObjectActivation::TIMINGS_ACTIVATION);
                     $activation->setTimingStart($availability_start->getTimestamp());
                     $activation->setTimingEnd($availability_end->getTimestamp());
                     $activation->toggleVisible((bool) $this->getData()->getAvailabilityVisible());

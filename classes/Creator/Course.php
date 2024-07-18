@@ -90,7 +90,7 @@ class Course extends BaseObject
                 $this->handleI18nTitleAndDescription($obj, true);
                 $this->writeCourseAdvancedData($obj);
                 $obj->read();
-                if ($this->writeAvailability($ref_id) === false) {
+                if ($this->writeAvailability($ref_id, $obj) === false) {
                     return BaseObject::STATUS_FAILED;
                 }
                 if ($this->addAdminsToCourse($obj) === true) {
