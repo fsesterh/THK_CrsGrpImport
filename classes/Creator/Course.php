@@ -2,6 +2,7 @@
 
 namespace ILIAS\Plugin\CrsGrpImport\Creator;
 
+use ilBlockSetting;
 use ilCourseConstants;
 use ilDate;
 use ilDateTime;
@@ -192,6 +193,39 @@ class Course extends BaseObject
                 $course->setWaitingListAutoFill(false);
                 break;
         }
+
+        $course->setUseNews($this->getData()->getNews());
+
+        //News Block
+        $course->setNewsBlockActivated($this->getData()->isNewsBlock());
+        ilBlockSetting::_write(
+            "news",
+            "default_visibility",
+            $this->getData()->getNewsDefaultAccess()
+                ? "public"
+                : "users",
+            0,
+            $course->getId()
+        );
+
+        // News Timeline
+        $course->setNewsTimeline($this->getData()->getNewsTimeline());
+        $course->setNewsTimelineAutoEntries($this->getData()->getNewsTimeAutoEntry());
+        $course->setNewsTimelineLandingPage($this->getData()->getNewsTimeLanding());
+
+        //Show News Starting From
+        $newsStartDate = $this->checkAndParseDateStringToObject($this->getData()->getNewsStartDate());
+        if ($newsStartDate !== '') {
+            ilBlockSetting::_write("news", "hide_news_per_date", "1", 0, $course->getId());
+            ilBlockSetting::_write(
+                "news",
+                "hide_news_date",
+                (new ilDateTime($newsStartDate->getTimestamp(), IL_CAL_UNIX))->get(IL_CAL_DATETIME),
+                0,
+                $course->getId()
+            );
+        }
+
 
         $course->update();
         return $course->getRefId();
