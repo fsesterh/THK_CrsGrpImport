@@ -45,6 +45,14 @@ class ImportCsvObject
     private $max_members;
     /** @var int|null */
     private $waiting_list;
+    private bool $news;
+    private bool $news_block;
+    private bool $news_default_access;
+    private bool $news_rss_feed;
+    private bool $news_timeline;
+    private bool $news_time_auto_entry;
+    private bool $news_time_landing;
+    private string $news_start_date;
 
     public function __construct(
         string $action,
@@ -71,6 +79,14 @@ class ImportCsvObject
         ?int $min_members,
         ?int $max_members,
         ?int $waiting_list,
+        bool $news,
+        bool $news_block,
+        bool $news_default_access,
+        bool $news_rss_feed,
+        bool $news_timeline,
+        bool $news_time_auto_entry,
+        bool $news_time_landing,
+        string $news_start_date,
         string $admins,
         ?int $parent_ref_id,
         ?string $actor_timezone
@@ -99,6 +115,14 @@ class ImportCsvObject
         $this->min_members = $min_members;
         $this->max_members = $max_members;
         $this->waiting_list = $waiting_list;
+        $this->news = $news;
+        $this->news_block = $news_block;
+        $this->news_default_access = $news_default_access;
+        $this->news_rss_feed = $news_rss_feed;
+        $this->news_timeline = $news_timeline;
+        $this->news_time_auto_entry = $news_time_auto_entry;
+        $this->news_time_landing = $news_time_landing;
+        $this->news_start_date = $news_start_date;
         $this->admins = $admins;
         $this->parent_ref_id = $parent_ref_id;
         $this->import_result = '';
@@ -283,5 +307,45 @@ class ImportCsvObject
     public function getWaitingList(): ?int
     {
         return $this->waiting_list;
+    }
+
+    public function getNews(): bool
+    {
+        return $this->news;
+    }
+
+    public function isNewsBlock(): bool
+    {
+        return $this->news_block;
+    }
+
+    public function getNewsDefaultAccess(): bool
+    {
+        return $this->news_default_access;
+    }
+
+    public function getNewsRssFeed(): bool
+    {
+        return $this->news_rss_feed;
+    }
+
+    public function getNewsTimeline(): bool
+    {
+        return $this->news_timeline;
+    }
+
+    public function getNewsTimeAutoEntry(): bool
+    {
+        return $this->news_time_auto_entry;
+    }
+
+    public function getNewsTimeLanding(): bool
+    {
+        return $this->news_time_landing;
+    }
+
+    public function getNewsStartDate(): string
+    {
+        return $this->news_start_date;
     }
 }
