@@ -2,6 +2,7 @@
 
 namespace ILIAS\Plugin\CrsGrpImport\Creator;
 
+use ilBlockSetting;
 use ilDate;
 use ilDateTime;
 use ilDateTimeException;
@@ -173,6 +174,38 @@ class Group extends BaseObject
                 $group->enableWaitingList(false);
                 $group->setWaitingListAutoFill(false);
                 break;
+        }
+
+        $group->setUseNews($this->getData()->getNews());
+
+        //News Block
+        $group->setNewsBlockActivated($this->getData()->isNewsBlock());
+        ilBlockSetting::_write(
+            "news",
+            "default_visibility",
+            $this->getData()->getNewsDefaultAccess()
+                ? "public"
+                : "users",
+            0,
+            $group->getId()
+        );
+
+        // News Timeline
+        $group->setNewsTimeline($this->getData()->getNewsTimeline());
+        $group->setNewsTimelineAutoEntries($this->getData()->getNewsTimeAutoEntry());
+        $group->setNewsTimelineLandingPage($this->getData()->getNewsTimeLanding());
+
+        //Show News Starting From
+        $newsStartDate = $this->checkAndParseDateStringToObject($this->getData()->getNewsStartDate());
+        if ($newsStartDate !== '') {
+            ilBlockSetting::_write("news", "hide_news_per_date", "1", 0, $group->getId());
+            ilBlockSetting::_write(
+                "news",
+                "hide_news_date",
+                (new ilDateTime($newsStartDate->getTimestamp(), IL_CAL_UNIX))->get(IL_CAL_DATETIME),
+                0,
+                $group->getId()
+            );
         }
 
         $group->update();
