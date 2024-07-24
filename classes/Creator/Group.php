@@ -189,6 +189,14 @@ class Group extends BaseObject
             0,
             $group->getId()
         );
+        ilBlockSetting::_write(
+            "news",
+            "public_feed",
+            ($this->getData()->getNewsRssFeed()),
+            0,
+            $group->getId()
+        );
+
 
         // News Timeline
         $group->setNewsTimeline($this->getData()->getNewsTimeline());
