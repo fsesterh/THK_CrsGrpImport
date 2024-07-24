@@ -207,6 +207,13 @@ class Course extends BaseObject
             0,
             $course->getId()
         );
+        ilBlockSetting::_write(
+            "news",
+            "public_feed",
+            ($this->getData()->getNewsRssFeed()),
+            0,
+            $course->getId()
+        );
 
         // News Timeline
         $course->setNewsTimeline($this->getData()->getNewsTimeline());
