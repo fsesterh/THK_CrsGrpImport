@@ -1,5 +1,16 @@
 # Change-Log
 
+## 8.1.0
+
+* Added support for News
+* Added support for NewsBlock
+* Added support for NewsDefaultAccess
+* Added support for NewsRSSFeed
+* Added support for NewsTimeline
+* Added support for NewsTimeAutoEntry
+* Added support for NewsTimeLanding
+* Added support for NewsStartDate
+
 ## 8.0.0
 
 * Added support for always visible setting
