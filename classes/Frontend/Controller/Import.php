@@ -150,7 +150,15 @@ class Import extends Base
                     $min_members = $conversion->ensureIntOrNullType($data[$i++]); // 21
                     $max_members = $conversion->ensureIntOrNullType($data[$i++]); // 22
                     $waiting_list = $conversion->ensureIntOrNullType($data[$i++]); // 23
-                    $admins = $conversion->ensureStringType($data[$i++]); // 24
+                    $news = $conversion->ensureIntOrNullType($data[$i++]); // 24
+                    $news_block = $conversion->ensureIntOrNullType($data[$i++]); // 25
+                    $news_default_access = $conversion->ensureIntOrNullType($data[$i++]); // 26
+                    $news_rss_feed = $conversion->ensureIntOrNullType($data[$i++]); // 27
+                    $news_timeline = $conversion->ensureIntOrNullType($data[$i++]); // 28
+                    $news_time_auto_entry = $conversion->ensureIntOrNullType($data[$i++]); // 29
+                    $news_time_landing = $conversion->ensureIntOrNullType($data[$i++]); // 30
+                    $news_start_date = $conversion->ensureStringType($data[$i++]); // 31
+                    $admins = $conversion->ensureStringType($data[$i++]); // 32
 
                     $import_row = new ImportCsvObject(
                         $action,
@@ -177,6 +185,14 @@ class Import extends Base
                         $min_members,
                         $max_members,
                         $waiting_list,
+                        (bool) $news,
+                        (bool) $news_block,
+                        (bool) $news_default_access,
+                        (bool) $news_rss_feed,
+                        (bool) $news_timeline,
+                        (bool) $news_time_auto_entry,
+                        (bool) $news_time_landing,
+                        $news_start_date,
                         $admins,
                         $parent_ref_id,
                         $this->dic->user()->getTimeZone()
