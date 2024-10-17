@@ -2,6 +2,7 @@
 
 ## 8.1.0
 
+* Improved file format checks
 * Added support for News
 * Added support for NewsBlock
 * Added support for NewsDefaultAccess
