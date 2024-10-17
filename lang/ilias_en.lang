@@ -20,7 +20,7 @@ import.queued.success#:#Your request has been added to the queue. You will recei
 import.queued.failure#:#Your request could not be added to the queue.
 
 mail.message.title#:#Course & Groups Import completed
-mail.message.text#:#The import is completed. You can find the results in the attached csv file.
+mail.message.text#:#The import is completed. You can find the results in the attached CSV file.
 
 lock.locked#:#The script is probably running. Please remove the lock if you are sure no import task is running.
 lock.release#:#Release Lock
