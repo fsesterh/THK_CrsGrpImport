@@ -86,6 +86,14 @@ There are some values which must be set in a specific way, to create courses an 
 * MinMembers: integer
 * MaxMembers: integer
 * WaitingList: 0 = none | 1 = automatic | 2 = manual
+* News: 0 | 1
+* NewsBlock: 0 | 1
+* NewsDefaultAccess: 0 | 1
+* NewsRSSFeed: 0 | 1
+* NewsTimeline: 0 | 1
+* NewsTimeAutoEntry: 0 | 1
+* NewsTimeLanding: 0 | 1
+* NewsStartDate: DD.MM.YYYY HH:mm
 * Admins: username,username,username
 
 ### Example CSV file
