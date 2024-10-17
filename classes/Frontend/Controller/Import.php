@@ -25,6 +25,42 @@ class Import extends Base
 {
     private QueuedRepository $queuedRepo;
 
+    private const CSV_HEADERS = [
+        "Action",
+		"Type",
+		"RefId",
+		"Template",
+		"TitleDE",
+		"TitleEN",
+		"DescriptionDE",
+		"DescriptionEN",
+		"EventStart",
+		"EventEnd",
+		"Online",
+		"AvailabilityStart",
+		"AvailabilityEnd",
+		"AvailabilityVisible",
+		"Registration",
+		"RegistrationPass",
+		"AdmissionLink",
+		"RegistrationStart",
+		"RegistrationEnd",
+		"UnsubscribeEnd",
+		"LimitMembers",
+		"MinMembers",
+		"MaxMembers",
+		"WaitingList",
+		"News",
+        "NewsBlock",
+		"NewsDefaultAccess",
+		"NewsRSSFeed",
+		"NewsTimeline",
+		"NewsTimeAutoEntry",
+		"NewsTimeLanding",
+		"NewsStartDate",
+		"Admins"
+    ];
+
     /**
      * @inheritdoc
      */
@@ -49,6 +85,8 @@ class Import extends Base
     {
         global $DIC;
 
+        $plugin = ilCrsGrpImportPlugin::getInstance();
+
         $request_body = $DIC->http()->request()->getParsedBody();
         if (!array_key_exists('parent_ref_id', $request_body)) {
         }
@@ -58,23 +96,23 @@ class Import extends Base
         }
 
         if (false === $DIC->upload()->hasUploads()) {
-            $this->uiUtil->sendFailure(ilCrsGrpImportPlugin::getInstance()->txt('upload_error'), true);
+            $this->uiUtil->sendFailure($plugin->txt('upload_error'), true);
             $this->redirectToRefId($parent_ref_id);
         }
 
         $uploadResults = $DIC->upload()->getResults();
         $uploadResult = array_values($uploadResults)[0];
         if (!($uploadResult instanceof UploadResult)) {
-            $this->uiUtil->sendFailure(ilCrsGrpImportPlugin::getInstance()->txt('upload_error'), true);
+            $this->uiUtil->sendFailure($plugin->txt('upload_error'), true);
             $this->redirectToRefId($parent_ref_id);
         }
 
         if ($uploadResult->getStatus()->getCode() === ProcessingStatus::REJECTED) {
-            $this->uiUtil->sendFailure(ilCrsGrpImportPlugin::getInstance()->txt('upload_error'), true);
+            $this->uiUtil->sendFailure($plugin->txt('upload_error'), true);
             $this->redirectToRefId($parent_ref_id);
         }
 
-        $csv_array = $this->convertCSVToArray($uploadResult->getPath(), $parent_ref_id);
+        $csv_array = $this->convertCSVToArray($plugin, $uploadResult->getPath(), $parent_ref_id);
         if ($this->queuedRepo->queueImport(serialize($csv_array), $this->dic->user()->getId())) {
             $this->uiUtil->sendSuccess(
                 $this->getCoreController()->getPluginObject()->txt("import.queued.success"),
@@ -112,7 +150,7 @@ class Import extends Base
     /**
      * @return ImportCsvObject[]
      */
-    public function convertCSVToArray(string $importFile, ?int $parent_ref_id = null): array
+    public function convertCSVToArray(ilCrsGrpImportPlugin $plugin, string $importFile, ?int $parent_ref_id = null): array
     {
         $conversion = new Conversions();
         $row = 0;
@@ -122,6 +160,42 @@ class Import extends Base
                 if (count($data) > 1) {
                     $row++;
                     if ($row === 1) {
+                        //Header
+                        $failures = [];
+
+                        foreach (self::CSV_HEADERS as $expectedPosition => $expectedColumnTitle) {
+                            $foundPosition = array_search($expectedColumnTitle, $data, true);
+                            if (is_int($foundPosition)) {
+                                if ($foundPosition !== $expectedPosition) {
+                                    $failures[] = sprintf(
+                                        $plugin->txt("csv.verification.header.column.position.wrong"),
+                                        $expectedColumnTitle,
+                                        $expectedPosition,
+                                        $foundPosition
+                                    );
+                                }
+                            } else {
+                                $failures[] = sprintf(
+                                    $plugin->txt("csv.verification.header.column.missing"),
+                                    $expectedColumnTitle,
+                                    $expectedPosition
+                                );
+                            }
+                        }
+
+                        if ($failures !== []) {
+                            $errorMessage = "<ul>";
+                            foreach ($failures as $failureMessage) {
+                                $errorMessage .= "<li>$failureMessage</li>";
+                            }
+                            $errorMessage .= "</ul>";
+                            $this->uiUtil->sendFailure($errorMessage, true);
+
+                            $this->dic->ctrl()->setParameterByClass(ilRepositoryGUI::class, "ref_id", $parent_ref_id);
+                            $this->dic->ctrl()->setParameterByClass(ilRepositoryGUI::class, "new_type", "crs"); //What type shouldn't matter (either crs or grp)
+                            $this->dic->ctrl()->redirectByClass(ilRepositoryGUI::class, "create");
+                        }
+
                         continue;
                     }
                     $i = 0;

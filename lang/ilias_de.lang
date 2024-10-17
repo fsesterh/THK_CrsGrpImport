@@ -29,3 +29,6 @@ lock.released#:#Die Lock-Datei wurde entfernt.
 
 job.title#:#CrsGrpImport Import
 job.description#:#Verarbeitet die Warteschlange.
+
+csv.verification.header.column.missing#:#Die Spalte <span style="font-weight: bold">%s</span> wurde in den csv-Daten nicht gefunden. Erwartete Position in CSV-Datei: <span style="font-weight: bold">%s</span>.
+csv.verification.header.column.position.wrong#:#Die Spalte <span style="font-weight: bold">%s</span> wird an Position <span style="font-weight: bold">%s</span> erwartet. An Position <span style="font-weight: bold">%s</span> gefunden.

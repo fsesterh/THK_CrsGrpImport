@@ -29,3 +29,6 @@ lock.released#:#The lock has been removed.
 
 job.title#:#CrsGrpImport Import
 job.description#:#Processes the queue.
+
+csv.verification.header.column.missing#:#The column span style="font-weight: bold">%s</span> was not found in the csv data. Expected position in CSV file: <span style="font-weight: bold">%s</span>.
+csv.verification.header.column.position.wrong#:#The column <span style="font-weight: bold">%s</span> is expected at position <span style="font-weight: bold">%s</span>. Found at position %s.
