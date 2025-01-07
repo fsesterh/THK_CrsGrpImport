@@ -96,10 +96,11 @@ There are some values which must be set in a specific way, to create courses an 
 * NewsStartDate: DD.MM.YYYY HH:mm
 * Admins: username,username,username
 
-### Example CSV file
+### Example Files:
 ```
-Action;Type;RefId;Template;TitleDE;TitleEN;DescriptionDE;DescriptionEN;EventStart;EventEnd;Online;AvailabilityStart;AvailabilityEnd;AvailabilityVisible;Registration;RegistrationPass;AdmissionLink;RegistrationStart;RegistrationEnd;UnsubscribeEnd;LimitMembers;MinMembers;MaxMembers;WaitingList;Admins
-Insert;crs;;;Mein Titel;My Title;Meine Beschreibung;My Description;12.04.2024 10:00;12.04.2024 12:00;1;01.04.2024 10:00;15.05.2024 10:00;1;;;;;;;;;;;username
+example_files/crsgrp_importtemplate_v8_1_0.ods
+example_files/crsgrp_importtemplate_v8_1_0.xlsx
+example_files/test_csv_8-1-0.csv
 
 ```
 ## License
