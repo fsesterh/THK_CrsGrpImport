@@ -22,9 +22,6 @@ use ILIAS\Plugin\CrsGrpImport\Job\CrsGrpImportJob;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-/**
- * Class ilCrsGrpImportPlugin
- */
 class ilCrsGrpImportPlugin extends ilUserInterfaceHookPlugin implements ilCronJobProvider
 {
     public const ID = 'crsgrpimport';

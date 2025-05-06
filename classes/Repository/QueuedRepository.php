@@ -24,21 +24,13 @@ use DateTime;
 use ilDBInterface;
 use ILIAS\Plugin\CrsGrpImport\Model\QueuedImport;
 
-/**
- * Class QueuedRepository
- *
- * @package ILIAS\Plugin\CrsGrpImport\Repository
- * @author  Marvin Beym <mbeym@databay.de>
- */
 class QueuedRepository
 {
+    protected const TABLE_NAME = "crsgrp_import_queue";
+
     private static ?QueuedRepository $instance = null;
 
     protected ilDBInterface $db;
-    /**
-     * @var string
-     */
-    protected const TABLE_NAME = "crsgrp_import_queue";
 
     public function __construct(ilDBInterface $db = null)
     {

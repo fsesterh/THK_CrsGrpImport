@@ -25,9 +25,6 @@ use ILIAS\DI\Container;
 use ILIAS\Plugin\CrsGrpImport\Utils\UiUtil;
 use ReflectionClass;
 
-/**
- * @author Michael Jansen <mjansen@databay.de>
- */
 abstract class Base
 {
     public const CTX_IS_BASE_CLASS = 'baseClass';

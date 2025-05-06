@@ -20,12 +20,6 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\CrsGrpImport\Frontend\Controller;
 
-/**
- * Class Error
- *
- * @package ILIAS\Plugin\CrsGrpImport\Frontend\Controller
- * @author  Michael Jansen <mjansen@databay.de>
- */
 class Error extends Base
 {
     public function getDefaultCommand(): string

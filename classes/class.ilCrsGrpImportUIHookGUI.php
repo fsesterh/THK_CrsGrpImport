@@ -25,8 +25,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once 'Services/UIComponent/classes/class.ilUIHookPluginGUI.php';
 
 /**
- * Class ilCrsGrpImportUIHookGUI
- *
+  *
  * @ilCtrl_Calls      ilCrsGrpImportUIHookGUI: ilPropertyFormGUI
  * @ilCtrl_isCalledBy ilCrsGrpImportUIHookGUI: ilObjCourseGUI, ilObjGroupGUI
  * @ilCtrl_isCalledBy ilCrsGrpImportUIHookGUI: ilUIPluginRouterGUI
@@ -39,9 +38,6 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
 
     protected Container $dic;
 
-    /**
-     * ilCrsGrpImportUIHookGUI constructor.
-     */
     public function __construct()
     {
         global $DIC;

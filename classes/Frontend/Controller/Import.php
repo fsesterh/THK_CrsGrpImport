@@ -31,12 +31,6 @@ use ilLink;
 use ilObject;
 use ilRepositoryGUI;
 
-/**
- * Class Index
- *
- * @package ILIAS\Plugin\CrsGrpImport\Frontend\Controller
- * @author  Michael Jansen <mjansen@databay.de>
- */
 class Import extends Base
 {
     private QueuedRepository $queuedRepo;

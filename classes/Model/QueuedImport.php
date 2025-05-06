@@ -22,12 +22,6 @@ namespace ILIAS\Plugin\CrsGrpImport\Model;
 
 use DateTime;
 
-/**
- * Class QueuedImport
- *
- * @package Model
- * @author  Marvin Beym <mbeym@databay.de>
- */
 class QueuedImport
 {
     private int $id;
