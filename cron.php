@@ -27,6 +27,12 @@ while (!file_exists($iliasRootDir . 'ilias.ini.php')) {
 }
 chdir($iliasRootDir);
 
+require_once './Services/Cron/classes/class.ilCronStartUp.php';
+
+if ($_SERVER['argc'] < 3) {
+    die("Usage:  " . basename(__FILE__) . " username client \n");
+}
+
 if ($_SERVER['argc'] < 4) {
     echo "Usage: cron.php username password client\n";
     exit(1);
@@ -35,15 +41,7 @@ if ($_SERVER['argc'] < 4) {
 include_once './Services/Cron/classes/class.ilCronStartUp.php';
 require_once __DIR__ . '/vendor/autoload.php';
 
-$client = $_SERVER['argv'][3];
-$login = $_SERVER['argv'][1];
-$password = $_SERVER['argv'][2];
-
-$cron = new ilCronStartUp(
-    $client,
-    $login,
-    $password
-);
+$cron = new ilCronStartUp($_SERVER['argv'][2], $_SERVER['argv'][1]);
 
 try {
     $cron->authenticate();
