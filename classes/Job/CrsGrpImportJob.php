@@ -294,7 +294,6 @@ class CrsGrpImportJob extends ilCronJob
         return $base_status;
     }
 
-
     protected function ensureDataIsValid(ImportCsvObject $data): bool
     {
         if (!in_array(

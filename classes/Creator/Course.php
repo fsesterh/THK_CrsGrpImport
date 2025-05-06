@@ -233,7 +233,6 @@ class Course extends BaseObject
             );
         }
 
-
         $course->update();
         return $course->getRefId();
     }

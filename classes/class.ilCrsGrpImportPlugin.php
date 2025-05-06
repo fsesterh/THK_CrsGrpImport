@@ -2,7 +2,6 @@
 
 /* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
 
-
 use ILIAS\Plugin\CrsGrpImport\Job\CrsGrpImportJob;
 
 require_once __DIR__ . '/../vendor/autoload.php';

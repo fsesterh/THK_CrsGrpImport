@@ -197,7 +197,6 @@ class Group extends BaseObject
             $group->getId()
         );
 
-
         // News Timeline
         $group->setNewsTimeline($this->getData()->getNewsTimeline());
         $group->setNewsTimelineAutoEntries($this->getData()->getNewsTimeAutoEntry());
