@@ -11,6 +11,7 @@ use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
 use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
 use ilObject;
 use ilObjectActivation;
+use ilObjectDataCache;
 
 class BaseObject implements ObjectImporter
 {
@@ -53,18 +54,17 @@ class BaseObject implements ObjectImporter
     public const RESULT_INVALID_REF_ID_FOR_LINK = 'Dataset invalid, the provided ref_id for the reference/link could not be found';
     public const RESULT_TYPE_MISMATCH_FOR_LINK = 'Dataset invalid, the object type of the provided ref_id for the reference/link does not match the object type of the container';
 
-    private $data;
-    private $csv_log;
-    public $dic;
-    public $dataCache;
+    private ImportCsvObject $data;
+    private CSVLog $csv_log;
+    public Container $dic;
+    public ilObjectDataCache $dataCache;
 
     public function __construct(ImportCsvObject $data, CSVLog $csv_log, Container $dic)
     {
-        global $ilObjDataCache;
         $this->data = $data;
         $this->csv_log = $csv_log;
         $this->dic = $dic;
-        $this->dataCache = $ilObjDataCache;
+        $this->dataCache = $this->dic['ilObjectDataCache'];
     }
 
     protected function getEffectiveActorTimeZone(): string
