@@ -27,6 +27,7 @@ use ilCrsGrpImportPlugin;
 use ilDateTimeException;
 use ilFileDataMail;
 use ilFileUtils;
+use ILIAS\Cron\Schedule\CronJobScheduleType;
 use ILIAS\DI\Container;
 use ILIAS\Plugin\CrsGrpImport\Creator\BaseObject;
 use ILIAS\Plugin\CrsGrpImport\Creator\ContainerLink;
@@ -96,9 +97,9 @@ class CrsGrpImportJob extends ilCronJob
         return true;
     }
 
-    public function getDefaultScheduleType(): int
+    public function getDefaultScheduleType(): CronJobScheduleType
     {
-        return self::SCHEDULE_TYPE_IN_HOURS;
+        return CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS;
     }
 
     /**
@@ -107,9 +108,9 @@ class CrsGrpImportJob extends ilCronJob
     public function getAllScheduleTypes(): array
     {
         return [
-            self::SCHEDULE_TYPE_IN_MINUTES,
-            self::SCHEDULE_TYPE_IN_HOURS,
-            self::SCHEDULE_TYPE_DAILY,
+            CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES,
+            CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS,
+            CronJobScheduleType::SCHEDULE_TYPE_DAILY,
         ];
     }
 
