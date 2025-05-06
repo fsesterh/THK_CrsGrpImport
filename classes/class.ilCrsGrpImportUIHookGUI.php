@@ -33,14 +33,9 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
         $this->dic = $DIC;
     }
 
-    /**
-     *
-     */
-    public function executeCommand()
+    public function executeCommand(): void
     {
         $this->setPluginObject(ilCrsGrpImportPlugin::getInstance());
-
-        #$this->dic->ui()->mainTemplate()->getStandardTemplate();
 
         $next_class = $this->dic->ctrl()->getNextClass();
         switch (strtolower($next_class)) {

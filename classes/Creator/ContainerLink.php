@@ -2,12 +2,12 @@
 
 namespace ILIAS\Plugin\CrsGrpImport\Creator;
 
+use ilContainerReference;
 use ILIAS\Plugin\CrsGrpImport\Job\CrsGrpImportJob;
-use ilObjCourse;
-use ilDateTime;
-use ilDate;
-use ilDateTimeException;
-use DateTimeImmutable;
+use ilObjCourseReference;
+use ilObject;
+use ilObjGroupReference;
+use RuntimeException;
 
 class ContainerLink extends BaseObject
 {
@@ -16,17 +16,17 @@ class ContainerLink extends BaseObject
         if ($this->getData() !== null && $this->checkPrerequisitesForInsert()) {
             $container_reference = null;
             if ($this->getData()->getType() === CrsGrpImportJob::COURSE_LINK) {
-                $container_reference = new \ilObjCourseReference();
+                $container_reference = new ilObjCourseReference();
             } elseif ($this->getData()->getType() === CrsGrpImportJob::GROUP_LINK) {
-                $container_reference = new \ilObjGroupReference();
+                $container_reference = new ilObjGroupReference();
             }
 
             if ($container_reference === null) {
                 return 0;
             }
 
-            $container_reference->setTargetId(\ilObject::_lookupObjId($this->getData()->getRefId()));
-            $container_reference->setTitleType(\ilContainerReference::TITLE_TYPE_REUSE);
+            $container_reference->setTargetId(ilObject::_lookupObjId($this->getData()->getRefId()));
+            $container_reference->setTitleType(ilContainerReference::TITLE_TYPE_REUSE);
             $container_reference->create();
             $this->putInTree($container_reference);
 
@@ -36,7 +36,7 @@ class ContainerLink extends BaseObject
         return 0;
     }
 
-    private function putInTree(\ilContainerReference $obj): int
+    private function putInTree(ilContainerReference $obj): int
     {
         $ref_id = $obj->createReference();
         $obj->putInTree($this->getData()->getParentRefId());
@@ -48,6 +48,6 @@ class ContainerLink extends BaseObject
 
     public function update(): string
     {
-        throw new \RuntimeException('Not implemented yet');
+        throw new RuntimeException('Not implemented yet');
     }
 }

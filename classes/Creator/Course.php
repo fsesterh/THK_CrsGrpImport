@@ -7,7 +7,10 @@ use ilCourseConstants;
 use ilDate;
 use ilDateTime;
 use ilDateTimeException;
+use ilDidacticTemplateSetting;
+use ilDidacticTemplateSettings;
 use ilObjCourse;
+use ilObjUser;
 use ilParticipants;
 
 class Course extends BaseObject
@@ -27,9 +30,9 @@ class Course extends BaseObject
                 }
 
                 return (int) $ref_id;
-            } else {
-                $this->getData()->setImportResult(BaseObject::RESULT_NO_COURSE_IN_COURSE);
             }
+
+            $this->getData()->setImportResult(BaseObject::RESULT_NO_COURSE_IN_COURSE);
         }
         return 0;
     }
@@ -49,7 +52,7 @@ class Course extends BaseObject
             $this->getData()->getParentRefId(),
             'crs'
         );
-        if ($course_found_in_parent_tree === false || $course_found_in_parent_tree === 0) {
+        if ($course_found_in_parent_tree === 0) {
             $course = new ilObjCourse();
             $course->setTitle((string) $this->getData()->getTitleDe());
             $course->setDescription((string) $this->getData()->getDescriptionDe());
@@ -110,11 +113,15 @@ class Course extends BaseObject
             if (!$this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id)) {
                 $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_NOT_IN_SUBTREE);
                 return BaseObject::STATUS_FAILED;
-            } elseif ($type !== 'crs') {
+            }
+
+            if ($type !== 'crs') {
                 $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_HAS_DIFFERENT_TYPE);
                 return BaseObject::STATUS_FAILED;
             }
         }
+
+        return BaseObject::STATUS_IGNORED;
     }
 
     /**
@@ -122,9 +129,8 @@ class Course extends BaseObject
      */
     protected function writeCourseAdvancedData(ilObjCourse $course): int
     {
-        /** @var \ilDidacticTemplateSetting $template */
-        $templates = \ilDidacticTemplateSettings::getInstanceByObjectType($this->getData()->getType())->getTemplates();
-        $enabled_templates_by_id = [];
+        /** @var ilDidacticTemplateSetting $template */
+        $templates = ilDidacticTemplateSettings::getInstanceByObjectType($this->getData()->getType())->getTemplates();
         foreach ($templates as $template) {
             if ($template->isEnabled() && (int) $this->getData()->getTemplateIdNativeType() === (int) $template->getId()) {
                 $course->applyDidacticTemplate($template->getId());
@@ -165,7 +171,7 @@ class Course extends BaseObject
             }
         }
         $unsubscribe_value = $this->getData()->getUnsubscribeEnd();
-        if (strlen($unsubscribe_value) > 0) {
+        if ($unsubscribe_value !== '') {
             $unsubscribe_end = $this->checkAndParseDateStringToObject($this->getData()->getUnsubscribeEnd());
             if ($unsubscribe_end !== '') {
                 $course->setCancellationEnd(new ilDate($unsubscribe_end->getTimestamp(), IL_CAL_UNIX));
@@ -239,7 +245,7 @@ class Course extends BaseObject
 
     protected function addAdminsToCourse(ilObjCourse $course): bool
     {
-        $usr_ids = \ilObjUser::_lookupId($this->getData()->getValidatedAdmins());
+        $usr_ids = ilObjUser::_lookupId($this->getData()->getValidatedAdmins());
         if (is_array($usr_ids) && count($usr_ids) > 0) {
             foreach ($usr_ids as $usr_id) {
                 $success = $course->getMembersObject()->add($usr_id, ilParticipants::IL_CRS_ADMIN);

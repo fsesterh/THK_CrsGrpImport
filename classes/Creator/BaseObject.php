@@ -9,9 +9,12 @@ use ILIAS\DI\Container;
 use ILIAS\DI\Exceptions\Exception;
 use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
 use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
+use ilObjCourse;
 use ilObject;
 use ilObjectActivation;
 use ilObjectDataCache;
+use ilObjectTranslation;
+use ilObjGroup;
 
 class BaseObject implements ObjectImporter
 {
@@ -78,10 +81,9 @@ class BaseObject implements ObjectImporter
     }
 
     /**
-     * @throws ilDateTimeException
-     * @param \ilObjCourse|\ilObjGroup $crs_or_grp_object
+     *@throws ilDateTimeException
      */
-    protected function writeAvailability(int $ref_id, $crs_or_grp_object = null): bool
+    protected function writeAvailability(int $ref_id, ilObjGroup|ilObjCourse $crs_or_grp_object = null): bool
     {
         try {
             if ($this->getData()->getAvailabilityStart() !== '' && $this->getData()->getAvailabilityEnd() !== '') {
@@ -128,13 +130,10 @@ class BaseObject implements ObjectImporter
         }
     }
 
-    /**
-     * @param \ilObjCourse|\ilObjGroup $object
-     */
-    public function handleI18nTitleAndDescription($object, bool $is_update = false): void
+    public function handleI18nTitleAndDescription(ilObjGroup|ilObjCourse $object, bool $is_update = false): void
     {
         if (!$is_update && (is_string($this->getData()->getTitleEn()) && $this->getData()->getTitleEn() !== '')) {
-            $translation = \ilObjectTranslation::getInstance($object->getId());
+            $translation = ilObjectTranslation::getInstance($object->getId());
             $translation->setDefaultTitle((string) $this->getData()->getTitleDe());
             $translation->setDefaultDescription((string) $this->getData()->getDescriptionDe());
             $translation->setLanguages([]);
@@ -142,20 +141,18 @@ class BaseObject implements ObjectImporter
                 'de',
                 $this->getData()->getTitleDe(),
                 $this->getData()->getDescriptionDe(),
-                true,
-                false
+                true
             );
             $translation->addLanguage(
                 'en',
                 $this->getData()->getTitleEn(),
                 $this->getData()->getDescriptionEn(),
-                false,
                 false
             );
             $translation->setMasterLanguage('de');
             $translation->save();
         } elseif ($is_update) {
-            $translation = \ilObjectTranslation::getInstance($object->getId());
+            $translation = ilObjectTranslation::getInstance($object->getId());
             if (is_string($this->getData()->getTitleEn()) && $this->getData()->getTitleEn() !== '') {
                 if (isset($languages['en'])) {
                     $translation->removeLanguage('en');
@@ -165,7 +162,6 @@ class BaseObject implements ObjectImporter
                     'en',
                     $this->getData()->getTitleEn(),
                     $this->getData()->getDescriptionEn(),
-                    false,
                     false
                 );
                 $translation->save();
@@ -181,14 +177,16 @@ class BaseObject implements ObjectImporter
 
     public function update(): string
     {
+        return self::STATUS_OK;
     }
 
-    public function ignore()
+    public function ignore(): void
     {
     }
 
     public function insert(): int
     {
+        return 0;
     }
 
     public function checkPrerequisitesForInsert(): bool
@@ -212,17 +210,17 @@ class BaseObject implements ObjectImporter
                 if ($this->objectExists($ref_id)) {
                     if ($this->isCorrectObjectType($ref_id, $data->getType())) {
                         return true;
-                    } else {
-                        $data->setImportResult(self::RESULT_REF_ID_AND_TYPE_DO_NOT_MATCH);
                     }
+
+                    $data->setImportResult(self::RESULT_REF_ID_AND_TYPE_DO_NOT_MATCH);
                 } else {
-                    $data->setImportResult(BaseObject::RESULT_REF_ID_NOT_FOUND);
+                    $data->setImportResult(self::RESULT_REF_ID_NOT_FOUND);
                 }
             } else {
-                $data->setImportResult(BaseObject::RESULT_OBJECT_IN_TRASH_IGNORE);
+                $data->setImportResult(self::RESULT_OBJECT_IN_TRASH_IGNORE);
             }
         } else {
-            $data->setImportResult(BaseObject::RESULT_NO_REF_ID_GIVEN_FOR_UPDATE);
+            $data->setImportResult(self::RESULT_NO_REF_ID_GIVEN_FOR_UPDATE);
         }
         return false;
     }
@@ -243,10 +241,7 @@ class BaseObject implements ObjectImporter
         return $obj_type === $type;
     }
 
-    /**
-     * @return DateTimeImmutable|string
-     */
-    protected function checkAndParseDateStringToObject(string $date)
+    protected function checkAndParseDateStringToObject(string $date): DateTimeImmutable|string
     {
         $date_immutable = '';
         if (!preg_match("/(\d{2}).(\d{2}).(\d{2}) (\d{2}):(\d{2})/", $date, $d_parts)) {

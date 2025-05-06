@@ -24,7 +24,7 @@ class ilCrsGrpImportConfigGUI extends ilPluginConfigGUI
     public ilCrsGrpImportPlugin $pluginObj;
     private ilCtrl $ctrl;
     private ilLanguage $lng;
-    private ilGlobalPageTemplate $mainTpl;
+    private ilGlobalTemplateInterface $mainTpl;
     private Renderer $uiRenderer;
     private Factory $uiFactory;
     private UiUtil $uiUtil;
@@ -47,7 +47,7 @@ class ilCrsGrpImportConfigGUI extends ilPluginConfigGUI
 
             $local_role_ids_post = $DIC->http()->request()->getParsedBody()['default_local_role_ids'];
             $local_role_ids_post = str_replace(' ', '', $local_role_ids_post);
-            if ($local_role_ids_post == '') {
+            if ($local_role_ids_post === '') {
                 $this->dic->settings()->delete('crs_grp_import_default_local_role_ids');
             } else {
                 $this->dic->settings()->set('crs_grp_import_default_local_role_ids', $local_role_ids_post);
@@ -83,10 +83,6 @@ class ilCrsGrpImportConfigGUI extends ilPluginConfigGUI
         $this->dic = $DIC;
         $this->pluginObj = ilCrsGrpImportPlugin::getInstance();
 
-        switch ($cmd) {
-            default:
-                $this->$cmd();
-                break;
-        }
+        $this->$cmd();
     }
 }

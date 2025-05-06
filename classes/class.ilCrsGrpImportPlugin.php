@@ -11,30 +11,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
  */
 class ilCrsGrpImportPlugin extends ilUserInterfaceHookPlugin implements ilCronJobProvider
 {
-    /**
-     * @var string
-     */
+    public const ID = 'crsgrpimport';
     public const PLUGIN_CMD_DETECTION_PARAMETER = 'isCrsGrpImport';
-
-    /**
-     * @var string
-     */
-    public const CTYPE = 'Services';
-
-    /**
-     * @var string
-     */
-    public const CNAME = 'UIComponent';
-
-    /**
-     * @var string
-     */
-    public const SLOT_ID = 'uihk';
-
-    /**
-     * @var string
-     */
-    public const PNAME = 'CrsGrpImport';
 
     private static ?self $instance = null;
 
@@ -48,13 +26,8 @@ class ilCrsGrpImportPlugin extends ilUserInterfaceHookPlugin implements ilCronJo
 
         /** @var ilComponentFactory $componentFactory */
         $componentFactory = $DIC['component.factory'];
-        self::$instance = $componentFactory->getPlugin('crsgrpimport');
+        self::$instance = $componentFactory->getPlugin(self::ID);
         return self::$instance;
-    }
-
-    final public function getPluginName(): string
-    {
-        return self::PNAME;
     }
 
     public function run(): ilCronJobResult

@@ -76,30 +76,27 @@ class Dispatcher
 
     protected function getController(string $cmd): string
     {
-        $parts = \explode('.', $cmd);
+        $parts = explode('.', $cmd);
 
-        if (\count($parts) == 2) {
+        if (count($parts) === 2) {
             return $parts[0];
         }
 
-        return $this->defaultController ? $this->defaultController : 'Error';
+        return $this->defaultController ?: 'Error';
     }
 
     protected function getCommand(string $cmd): string
     {
-        $parts = \explode('.', $cmd);
+        $parts = explode('.', $cmd);
 
-        if (\count($parts) == 2) {
+        if (count($parts) == 2) {
             return $parts[1];
         }
 
         return '';
     }
 
-    /**
-     * @return mixed
-     */
-    protected function instantiateController(string $controller)
+    protected function instantiateController(string $controller): mixed
     {
         $class = "ILIAS\\Plugin\\CrsGrpImport\\Frontend\\Controller\\$controller";
 

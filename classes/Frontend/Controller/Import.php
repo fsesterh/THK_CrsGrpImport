@@ -27,52 +27,46 @@ class Import extends Base
 
     private const CSV_HEADERS = [
         "Action",
-		"Type",
-		"RefId",
-		"Template",
-		"TitleDE",
-		"TitleEN",
-		"DescriptionDE",
-		"DescriptionEN",
-		"EventStart",
-		"EventEnd",
-		"Online",
-		"AvailabilityStart",
-		"AvailabilityEnd",
-		"AvailabilityVisible",
-		"Registration",
-		"RegistrationPass",
-		"AdmissionLink",
-		"RegistrationStart",
-		"RegistrationEnd",
-		"UnsubscribeEnd",
-		"LimitMembers",
-		"MinMembers",
-		"MaxMembers",
-		"WaitingList",
-		"News",
+        "Type",
+        "RefId",
+        "Template",
+        "TitleDE",
+        "TitleEN",
+        "DescriptionDE",
+        "DescriptionEN",
+        "EventStart",
+        "EventEnd",
+        "Online",
+        "AvailabilityStart",
+        "AvailabilityEnd",
+        "AvailabilityVisible",
+        "Registration",
+        "RegistrationPass",
+        "AdmissionLink",
+        "RegistrationStart",
+        "RegistrationEnd",
+        "UnsubscribeEnd",
+        "LimitMembers",
+        "MinMembers",
+        "MaxMembers",
+        "WaitingList",
+        "News",
         "NewsBlock",
-		"NewsDefaultAccess",
-		"NewsRSSFeed",
-		"NewsTimeline",
-		"NewsTimeAutoEntry",
-		"NewsTimeLanding",
-		"NewsStartDate",
-		"Admins"
+        "NewsDefaultAccess",
+        "NewsRSSFeed",
+        "NewsTimeline",
+        "NewsTimeAutoEntry",
+        "NewsTimeLanding",
+        "NewsStartDate",
+        "Admins"
     ];
 
-    /**
-     * @inheritdoc
-     */
     protected function init(): void
     {
         parent::init();
         $this->queuedRepo = QueuedRepository::getInstance();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getDefaultCommand(): string
     {
         return 'Import.cancel';
@@ -88,8 +82,6 @@ class Import extends Base
         $plugin = ilCrsGrpImportPlugin::getInstance();
 
         $request_body = $DIC->http()->request()->getParsedBody();
-        if (!array_key_exists('parent_ref_id', $request_body)) {
-        }
         $parent_ref_id = $request_body['parent_ref_id'];
         if (false === $DIC->upload()->hasBeenProcessed()) {
             $DIC->upload()->process();

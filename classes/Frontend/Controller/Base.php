@@ -7,6 +7,7 @@ namespace ILIAS\Plugin\CrsGrpImport\Frontend\Controller;
 use ilCrsGrpImportUIHookGUI;
 use ILIAS\DI\Container;
 use ILIAS\Plugin\CrsGrpImport\Utils\UiUtil;
+use ReflectionClass;
 
 /**
  * @author Michael Jansen <mjansen@databay.de>
@@ -47,16 +48,16 @@ abstract class Base
         switch ($a_context) {
             case self::CTX_IS_BASE_CLASS:
             case self::CTX_IS_COMMAND_CLASS:
-                $class = isset($_GET[$a_context]) ? $_GET[$a_context] : '';
-                return strlen($class) > 0 && \in_array(
+                $class = $_GET[$a_context] ?? '';
+                return $class !== '' && in_array(
                     strtolower($class),
                     array_map('strtolower', (array) $a_value_a),
                     true
                 );
 
             case self::CTX_IS_COMMAND:
-                $cmd = isset($_GET[$a_context]) ? $_GET[$a_context] : '';
-                return strlen($cmd) > 0 && in_array(
+                $cmd = $_GET[$a_context] ?? '';
+                return $cmd !== '' && in_array(
                     strtolower($cmd),
                     array_map('strtolower', (array) $a_value_a),
                     true
@@ -68,6 +69,6 @@ abstract class Base
 
     final public function getControllerName(): string
     {
-        return (new \ReflectionClass($this))->getShortName();
+        return (new ReflectionClass($this))->getShortName();
     }
 }

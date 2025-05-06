@@ -66,7 +66,6 @@ class CrsGrpImportJob extends ilCronJob
         global $DIC;
         $this->logger = $DIC->logger()->root();
         $this->dic = $DIC;
-        /** @var  $componentFactory */
         $this->componentFactory = $DIC['component.factory'];
         $this->queuedRepo = QueuedRepository::getInstance();
         $this->plugin = ilCrsGrpImportPlugin::getInstance();

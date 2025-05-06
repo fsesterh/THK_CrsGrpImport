@@ -4,21 +4,12 @@ namespace ILIAS\Plugin\CrsGrpImport\Data;
 
 class Conversions
 {
-    /**
-     * @param mixed $value
-     */
-    public function ensureStringType($value): string
+    public function ensureStringType(mixed $value): string
     {
-        if ($value === null) {
-            return '';
-        }
-        return $value;
+        return $value ?? '';
     }
 
-    /**
-     * @param mixed $value
-     */
-    public function ensureIntType($value): int
+    public function ensureIntType(mixed $value): int
     {
         if ($value === null) {
             return -1;
