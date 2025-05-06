@@ -81,7 +81,7 @@ class BaseObject implements ObjectImporter
     }
 
     /**
-     *@throws ilDateTimeException
+     * @throws ilDateTimeException
      */
     protected function writeAvailability(int $ref_id, ilObjGroup|ilObjCourse $crs_or_grp_object = null): bool
     {

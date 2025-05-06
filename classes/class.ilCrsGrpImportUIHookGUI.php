@@ -25,7 +25,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once 'Services/UIComponent/classes/class.ilUIHookPluginGUI.php';
 
 /**
-  *
+ *
  * @ilCtrl_Calls      ilCrsGrpImportUIHookGUI: ilPropertyFormGUI
  * @ilCtrl_isCalledBy ilCrsGrpImportUIHookGUI: ilObjCourseGUI, ilObjGroupGUI
  * @ilCtrl_isCalledBy ilCrsGrpImportUIHookGUI: ilUIPluginRouterGUI
