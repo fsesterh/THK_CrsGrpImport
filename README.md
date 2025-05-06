@@ -22,9 +22,12 @@ in this document are to be interpreted as described in
 
 ## Requirements
 
-* PHP: [![Minimum PHP Version](https://img.shields.io/badge/Minimum_PHP-7.4-blue.svg)](https://php.net/) [![Maximum PHP Version](https://img.shields.io/badge/Maximum_PHP-8.0-blue.svg)](https://php.net/)
-* ILIAS: [![Minimum ILIAS Version](https://img.shields.io/badge/Minimum_ILIAS-8.0-orange.svg)](https://ilias.de/) [![Maximum ILIAS Version](https://img.shields.io/badge/Maximum_ILIAS-8.999-orange.svg)](https://ilias.de/)
+| Component | Version(s)                                                                                    | Link                      |
+|-----------|-----------------------------------------------------------------------------------------------|---------------------------|
+| PHP       | ![](https://img.shields.io/badge/8.1-blue.svg) ![](https://img.shields.io/badge/8.2-blue.svg) | [PHP](https://php.net)    |
+| ILIAS     | ![](https://img.shields.io/badge/9-orange.svg)                                                | [ILIAS](https://ilias.de) |
 
+---
 
 ## Installation
 
