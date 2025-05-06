@@ -65,8 +65,8 @@ class ilCrsGrpImportPlugin extends ilUserInterfaceHookPlugin implements ilCronJo
 
     public function getLinkTarget($cmd, $parameters = [], $prevent_xhtml_style = false): string
     {
-        /** @var $ilCtrl ilCtrl */
-        global $ilCtrl;
+        global $DIC;
+        $ilCtrl = $DIC->ctrl();
 
         foreach ($parameters as $key => $val) {
             $ilCtrl->setParameterByClass('ilCrsGrpImportUIHookGUI', $key, $val);
