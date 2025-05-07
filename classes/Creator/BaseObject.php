@@ -64,10 +64,11 @@ class BaseObject implements ObjectImporter
 
     public function __construct(ImportCsvObject $data, CSVLog $csv_log, Container $dic)
     {
+        global $ilObjDataCache;
         $this->data = $data;
         $this->csv_log = $csv_log;
         $this->dic = $dic;
-        $this->dataCache = $this->dic['ilObjectDataCache'];
+        $this->dataCache = $ilObjDataCache;
     }
 
     protected function getEffectiveActorTimeZone(): string
