@@ -19,7 +19,9 @@
 declare(strict_types=1);
 
 use ILIAS\DI\Container;
+use ILIAS\HTTP\Wrapper\WrapperFactory;
 use ILIAS\Plugin\CrsGrpImport\Frontend;
+use ILIAS\Refinery\Factory;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once 'Services/UIComponent/classes/class.ilUIHookPluginGUI.php';
@@ -37,12 +39,16 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
     protected static bool $handled = false;
 
     protected Container $dic;
+    private WrapperFactory $httpWrapper;
+    private Factory $refinery;
 
     public function __construct()
     {
         global $DIC;
 
         $this->dic = $DIC;
+        $this->refinery = $this->dic->refinery();
+        $this->httpWrapper = $this->dic->http()->wrapper();
     }
 
     public function executeCommand(): void
@@ -69,12 +75,33 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
             return ['mode' => ilUIHookPluginGUI::KEEP];
         }
 
-        $queryParams = $this->dic->http()->request()->getQueryParams();
+        $cmd = $this->httpWrapper->query()->retrieve(
+            'cmd',
+            $this->refinery->byTrying([
+                $this->refinery->kindlyTo()->string(),
+                $this->refinery->always(null)
+            ])
+        );
+        $newType = $this->httpWrapper->query()->retrieve(
+            'new_type',
+            $this->refinery->byTrying([
+                $this->refinery->kindlyTo()->string(),
+                $this->refinery->always(null)
+            ])
+        );
 
-        if ($this->isAllowedUser() && array_key_exists('cmd', $queryParams) && $queryParams['cmd'] === 'create' &&
+        $refId = $this->httpWrapper->query()->retrieve(
+            'ref_id',
+            $this->refinery->byTrying([
+                $this->refinery->kindlyTo()->int(),
+                $this->refinery->always(null)
+            ])
+        );
+
+        if ($this->isAllowedUser() && $cmd === 'create' &&
             (
-                (array_key_exists('new_type', $queryParams) && $queryParams['new_type'] === 'grp') ||
-                (array_key_exists('new_type', $queryParams) && $queryParams['new_type'] === 'crs')
+                $newType === 'grp' ||
+                $newType === 'crs'
             )
         ) {
             if (self::$handled === false && is_array($a_par) && $a_par['tpl_id'] === 'Services/Accordion/tpl.accordion.html' && $a_part === 'template_get') {
@@ -93,7 +120,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
                     "//div[contains(concat(' ', normalize-space(@class), ' '), ' il_VAccordionInnerContainer ')]"
                 );
 
-                $form = $this->getImportForm($queryParams['ref_id']);
+                $form = $this->getImportForm($refId);
 
                 $counter = $accordion_sections->count() + 1;
                 /** @var DOMNode|null $previous_sibling */
@@ -235,7 +262,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
                 );
                 $acc->addItem(
                     $htpl->get(),
-                    $this->getImportForm($queryParams['ref_id'])->getHTML()
+                    $this->getImportForm($refId)->getHTML()
                 );
 
                 return ['mode' => ilUIHookPluginGUI::REPLACE, 'html' => $acc->getHTML()];
@@ -259,7 +286,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
     /**
      * @throws ilCtrlException
      */
-    private function getImportForm(string $ref_id): ilPropertyFormGUI
+    private function getImportForm(int $ref_id): ilPropertyFormGUI
     {
         $form = new ilPropertyFormGUI();
         $url = $this->dic->ctrl()->getFormActionByClass(
@@ -271,7 +298,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
         $file->setRequired(true);
         $form->addItem($file);
         $parent_ref_id = new ilHiddenInputGUI('parent_ref_id');
-        $parent_ref_id->setValue($ref_id);
+        $parent_ref_id->setValue((string) $ref_id);
         $form->addItem($parent_ref_id);
         $form->addCommandButton('Import.import', $this->plugin_object->txt('grp' . '_add'));
         $form->addCommandButton('Import.cancel', $this->dic->language()->txt('cancel'));

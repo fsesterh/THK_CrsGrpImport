@@ -22,7 +22,9 @@ namespace ILIAS\Plugin\CrsGrpImport\Frontend\Controller;
 
 use ilCrsGrpImportUIHookGUI;
 use ILIAS\DI\Container;
+use ILIAS\HTTP\Wrapper\WrapperFactory;
 use ILIAS\Plugin\CrsGrpImport\Utils\UiUtil;
+use ILIAS\Refinery\Factory;
 use ReflectionClass;
 
 abstract class Base
@@ -35,12 +37,16 @@ abstract class Base
     protected array $parameters = [];
     public ilCrsGrpImportUIHookGUI $coreController;
     protected UiUtil $uiUtil;
+    protected WrapperFactory $httpWrapper;
+    protected Factory $refinery;
 
     final public function __construct(ilCrsGrpImportUIHookGUI $controller, Container $dic)
     {
         $this->coreController = $controller;
         $this->dic = $dic;
         $this->uiUtil = new UiUtil();
+        $this->httpWrapper = $this->dic->http()->wrapper();
+        $this->refinery = $this->dic->refinery();
 
         $this->init();
     }

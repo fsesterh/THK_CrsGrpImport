@@ -91,8 +91,14 @@ class Import extends Base
 
         $plugin = ilCrsGrpImportPlugin::getInstance();
 
-        $request_body = $DIC->http()->request()->getParsedBody();
-        $parent_ref_id = $request_body['parent_ref_id'];
+        $parent_ref_id = $this->httpWrapper->post()->retrieve(
+            'parent_ref_id',
+            $this->refinery->byTrying([
+                $this->refinery->kindlyTo()->int(),
+                $this->refinery->always(null)
+            ])
+        );
+
         if (false === $DIC->upload()->hasBeenProcessed()) {
             $DIC->upload()->process();
         }
