@@ -18,8 +18,6 @@
 
 declare(strict_types=1);
 
-use ILIAS\Filesystem\Stream\Streams;
-
 chdir(dirname(__FILE__));
 $iliasRootDir = './';
 while (!file_exists($iliasRootDir . 'ilias.ini.php')) {
@@ -27,18 +25,16 @@ while (!file_exists($iliasRootDir . 'ilias.ini.php')) {
 }
 chdir($iliasRootDir);
 
-require_once './Services/Cron/classes/class.ilCronStartUp.php';
 
 if (PHP_SAPI !== 'cli') {
     die("Cronjob can only be run from the command line.\n");
 }
 
-
 if ($_SERVER['argc'] < 3) {
     die("Usage:  " . basename(__FILE__) . " username client \n");
 }
 
-include_once './Services/Cron/classes/class.ilCronStartUp.php';
+require_once './Services/Cron/classes/class.ilCronStartUp.php';
 require_once __DIR__ . '/vendor/autoload.php';
 
 $cron = new ilCronStartUp($_SERVER['argv'][2], $_SERVER['argv'][1]);
