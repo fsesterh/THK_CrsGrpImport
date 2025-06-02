@@ -29,6 +29,11 @@ chdir($iliasRootDir);
 
 require_once './Services/Cron/classes/class.ilCronStartUp.php';
 
+if (PHP_SAPI !== 'cli') {
+    die("Cronjob can only be run from the command line.\n");
+}
+
+
 if ($_SERVER['argc'] < 3) {
     die("Usage:  " . basename(__FILE__) . " username client \n");
 }
