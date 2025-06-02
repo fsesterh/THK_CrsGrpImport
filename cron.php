@@ -33,11 +33,6 @@ if ($_SERVER['argc'] < 3) {
     die("Usage:  " . basename(__FILE__) . " username client \n");
 }
 
-if ($_SERVER['argc'] < 4) {
-    echo "Usage: cron.php username password client\n";
-    exit(1);
-}
-
 include_once './Services/Cron/classes/class.ilCronStartUp.php';
 require_once __DIR__ . '/vendor/autoload.php';
 
