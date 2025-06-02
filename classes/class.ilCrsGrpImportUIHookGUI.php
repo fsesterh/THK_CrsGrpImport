@@ -75,28 +75,17 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
             return ['mode' => ilUIHookPluginGUI::KEEP];
         }
 
-        $cmd = $this->httpWrapper->query()->retrieve(
-            'cmd',
+        $getFromQuery = fn(string $key, string $type) => $this->httpWrapper->query()->retrieve(
+            $key,
             $this->refinery->byTrying([
-                $this->refinery->kindlyTo()->string(),
-                $this->refinery->always(null)
-            ])
-        );
-        $newType = $this->httpWrapper->query()->retrieve(
-            'new_type',
-            $this->refinery->byTrying([
-                $this->refinery->kindlyTo()->string(),
+                $this->refinery->kindlyTo()->$type(),
                 $this->refinery->always(null)
             ])
         );
 
-        $refId = $this->httpWrapper->query()->retrieve(
-            'ref_id',
-            $this->refinery->byTrying([
-                $this->refinery->kindlyTo()->int(),
-                $this->refinery->always(null)
-            ])
-        );
+        $cmd = $getFromQuery('cmd', 'string');
+        $newType = $getFromQuery('new_type', 'string');
+        $refId = $getFromQuery('ref_id', 'int');
 
         if ($this->isAllowedUser() && $cmd === 'create' &&
             (
