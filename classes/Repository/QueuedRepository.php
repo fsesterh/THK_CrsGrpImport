@@ -24,21 +24,13 @@ use DateTime;
 use ilDBInterface;
 use ILIAS\Plugin\CrsGrpImport\Model\QueuedImport;
 
-/**
- * Class QueuedRepository
- *
- * @package ILIAS\Plugin\CrsGrpImport\Repository
- * @author  Marvin Beym <mbeym@databay.de>
- */
 class QueuedRepository
 {
+    protected const TABLE_NAME = "crsgrp_import_queue";
+
     private static ?QueuedRepository $instance = null;
 
     protected ilDBInterface $db;
-    /**
-     * @var string
-     */
-    protected const TABLE_NAME = "crsgrp_import_queue";
 
     public function __construct(ilDBInterface $db = null)
     {
@@ -76,13 +68,13 @@ class QueuedRepository
     public function queueImport(string $csvData, int $userId): bool
     {
         $queuedImport = new QueuedImport(
-            (int) $this->db->nextId(self::TABLE_NAME),
+            $this->db->nextId(self::TABLE_NAME),
             $csvData,
             $userId,
             new DateTime()
         );
 
-        return (int) $this->db->insert(self::TABLE_NAME, [
+        return $this->db->insert(self::TABLE_NAME, [
                 "id" => ["integer", $queuedImport->getId()],
                 "data" => ["clob", $queuedImport->getCsvData()],
                 "created_timestamp" => ["integer", $queuedImport->getCreationDate()->getTimestamp()],
@@ -92,7 +84,7 @@ class QueuedRepository
 
     public function removeQueuedImport(QueuedImport $queuedImport): bool
     {
-        return (int) $this->db->manipulateF(
+        return $this->db->manipulateF(
             "DELETE FROM " . self::TABLE_NAME . " WHERE id = %s",
             ["integer"],
             [$queuedImport->getId()]

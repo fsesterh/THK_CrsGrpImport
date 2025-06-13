@@ -4,9 +4,9 @@ namespace ILIAS\Plugin\CrsGrpImport\Creator;
 
 interface ObjectImporter
 {
-    public function ignore();
+    public function ignore(): void;
 
-    public function update();
+    public function update(): string;
 
     public function insert(): int;
 

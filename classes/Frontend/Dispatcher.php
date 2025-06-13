@@ -1,6 +1,22 @@
 <?php
 
-/* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\Plugin\CrsGrpImport\Frontend;
 
@@ -76,30 +92,27 @@ class Dispatcher
 
     protected function getController(string $cmd): string
     {
-        $parts = \explode('.', $cmd);
+        $parts = explode('.', $cmd);
 
-        if (\count($parts) == 2) {
+        if (count($parts) === 2) {
             return $parts[0];
         }
 
-        return $this->defaultController ? $this->defaultController : 'Error';
+        return $this->defaultController ?: 'Error';
     }
 
     protected function getCommand(string $cmd): string
     {
-        $parts = \explode('.', $cmd);
+        $parts = explode('.', $cmd);
 
-        if (\count($parts) == 2) {
+        if (count($parts) == 2) {
             return $parts[1];
         }
 
         return '';
     }
 
-    /**
-     * @return mixed
-     */
-    protected function instantiateController(string $controller)
+    protected function instantiateController(string $controller): mixed
     {
         $class = "ILIAS\\Plugin\\CrsGrpImport\\Frontend\\Controller\\$controller";
 

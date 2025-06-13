@@ -30,7 +30,6 @@ if (!$ilDB->tableExists($tableName)) {
         ]
     ];
 
-
     $ilDB->createTable($tableName, $fields);
     $ilDB->addPrimaryKey($tableName, ["id"]);
     $ilDB->createSequence($tableName);

@@ -25,8 +25,11 @@ use ilCronJob;
 use ilCronJobResult;
 use ilCrsGrpImportPlugin;
 use ilDateTimeException;
+use ilDidacticTemplateSetting;
+use ilDidacticTemplateSettings;
 use ilFileDataMail;
 use ilFileUtils;
+use ILIAS\Cron\Schedule\CronJobScheduleType;
 use ILIAS\DI\Container;
 use ILIAS\Plugin\CrsGrpImport\Creator\BaseObject;
 use ILIAS\Plugin\CrsGrpImport\Creator\ContainerLink;
@@ -37,15 +40,10 @@ use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
 use ILIAS\Plugin\CrsGrpImport\Repository\QueuedRepository;
 use ilLogger;
 use ilMail;
+use ilObject;
 use ilObjUser;
 use ReflectionClass;
 
-/**
- * Class CrsGrpImportJob
- *
- * @package Job
- * @author  Marvin Beym <mbeym@databay.de>
- */
 class CrsGrpImportJob extends ilCronJob
 {
     public const COURSE = 'crs';
@@ -65,7 +63,6 @@ class CrsGrpImportJob extends ilCronJob
         global $DIC;
         $this->logger = $DIC->logger()->root();
         $this->dic = $DIC;
-        /** @var  $componentFactory */
         $this->componentFactory = $DIC['component.factory'];
         $this->queuedRepo = QueuedRepository::getInstance();
         $this->plugin = ilCrsGrpImportPlugin::getInstance();
@@ -96,9 +93,9 @@ class CrsGrpImportJob extends ilCronJob
         return true;
     }
 
-    public function getDefaultScheduleType(): int
+    public function getDefaultScheduleType(): CronJobScheduleType
     {
-        return self::SCHEDULE_TYPE_IN_HOURS;
+        return CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS;
     }
 
     /**
@@ -107,9 +104,9 @@ class CrsGrpImportJob extends ilCronJob
     public function getAllScheduleTypes(): array
     {
         return [
-            self::SCHEDULE_TYPE_IN_MINUTES,
-            self::SCHEDULE_TYPE_IN_HOURS,
-            self::SCHEDULE_TYPE_DAILY,
+            CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES,
+            CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS,
+            CronJobScheduleType::SCHEDULE_TYPE_DAILY,
         ];
     }
 
@@ -241,30 +238,27 @@ class CrsGrpImportJob extends ilCronJob
     }
 
     /**
-     * @param mixed $data
      * @throws ilDateTimeException
      */
-    protected function buildGroupObject($data, CSVLog $csvLog): string
+    protected function buildGroupObject(mixed $data, CSVLog $csvLog): string
     {
         $new_group = new Group($data, $csvLog, $this->dic);
         return $this->buildObject($new_group, $data);
     }
 
     /**
-     * @param mixed $data
      * @throws ilDateTimeException
      */
-    protected function buildCourseObject($data, CSVLog $csvLog): string
+    protected function buildCourseObject(mixed $data, CSVLog $csvLog): string
     {
         $new_course = new Course($data, $csvLog, $this->dic);
         return $this->buildObject($new_course, $data);
     }
 
     /**
-     * @param Course|Group|ContainerLink $new_object
      * @throws ilDateTimeException
      */
-    protected function buildObject($new_object, ImportCsvObject $data): string
+    protected function buildObject(Course|ContainerLink|Group $new_object, ImportCsvObject $data): string
     {
         $base_status = BaseObject::STATUS_OK;
         if ($this->ensureDataIsValid($data)) {
@@ -292,7 +286,6 @@ class CrsGrpImportJob extends ilCronJob
 
         return $base_status;
     }
-
 
     protected function ensureDataIsValid(ImportCsvObject $data): bool
     {
@@ -323,8 +316,8 @@ class CrsGrpImportJob extends ilCronJob
                 }
             }
 
-            /** @var \ilDidacticTemplateSetting $template */
-            $templates = \ilDidacticTemplateSettings::getInstanceByObjectType($data->getType())->getTemplates();
+            /** @var ilDidacticTemplateSetting $template */
+            $templates = ilDidacticTemplateSettings::getInstanceByObjectType($data->getType())->getTemplates();
             $enabled_templates_by_id = [];
             foreach ($templates as $template) {
                 if ($template->isEnabled()) {
@@ -377,18 +370,18 @@ class CrsGrpImportJob extends ilCronJob
                 return false;
             }
 
-            $obj_id = \ilObject::_lookupObjId($data->getRefId());
+            $obj_id = ilObject::_lookupObjId($data->getRefId());
             if (!$obj_id) {
                 $data->setImportResult(BaseObject::RESULT_INVALID_REF_ID_FOR_LINK);
                 return false;
             }
 
-            if ($data->getType() === self::COURSE_LINK && \ilObject::_lookupType($obj_id) !== self::COURSE) {
+            if ($data->getType() === self::COURSE_LINK && ilObject::_lookupType($obj_id) !== self::COURSE) {
                 $data->setImportResult(BaseObject::RESULT_TYPE_MISMATCH_FOR_LINK);
                 return false;
             }
 
-            if ($data->getType() === self::GROUP_LINK && \ilObject::_lookupType($obj_id) !== self::GROUP) {
+            if ($data->getType() === self::GROUP_LINK && ilObject::_lookupType($obj_id) !== self::GROUP) {
                 $data->setImportResult(BaseObject::RESULT_TYPE_MISMATCH_FOR_LINK);
                 return false;
             }

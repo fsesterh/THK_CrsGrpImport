@@ -1,6 +1,22 @@
 <?php
 
-/* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\Plugin\CrsGrpImport\Frontend\Controller;
 
@@ -15,64 +31,52 @@ use ilLink;
 use ilObject;
 use ilRepositoryGUI;
 
-/**
- * Class Index
- *
- * @package ILIAS\Plugin\CrsGrpImport\Frontend\Controller
- * @author  Michael Jansen <mjansen@databay.de>
- */
 class Import extends Base
 {
     private QueuedRepository $queuedRepo;
 
     private const CSV_HEADERS = [
         "Action",
-		"Type",
-		"RefId",
-		"Template",
-		"TitleDE",
-		"TitleEN",
-		"DescriptionDE",
-		"DescriptionEN",
-		"EventStart",
-		"EventEnd",
-		"Online",
-		"AvailabilityStart",
-		"AvailabilityEnd",
-		"AvailabilityVisible",
-		"Registration",
-		"RegistrationPass",
-		"AdmissionLink",
-		"RegistrationStart",
-		"RegistrationEnd",
-		"UnsubscribeEnd",
-		"LimitMembers",
-		"MinMembers",
-		"MaxMembers",
-		"WaitingList",
-		"News",
+        "Type",
+        "RefId",
+        "Template",
+        "TitleDE",
+        "TitleEN",
+        "DescriptionDE",
+        "DescriptionEN",
+        "EventStart",
+        "EventEnd",
+        "Online",
+        "AvailabilityStart",
+        "AvailabilityEnd",
+        "AvailabilityVisible",
+        "Registration",
+        "RegistrationPass",
+        "AdmissionLink",
+        "RegistrationStart",
+        "RegistrationEnd",
+        "UnsubscribeEnd",
+        "LimitMembers",
+        "MinMembers",
+        "MaxMembers",
+        "WaitingList",
+        "News",
         "NewsBlock",
-		"NewsDefaultAccess",
-		"NewsRSSFeed",
-		"NewsTimeline",
-		"NewsTimeAutoEntry",
-		"NewsTimeLanding",
-		"NewsStartDate",
-		"Admins"
+        "NewsDefaultAccess",
+        "NewsRSSFeed",
+        "NewsTimeline",
+        "NewsTimeAutoEntry",
+        "NewsTimeLanding",
+        "NewsStartDate",
+        "Admins"
     ];
 
-    /**
-     * @inheritdoc
-     */
     protected function init(): void
     {
         parent::init();
         $this->queuedRepo = QueuedRepository::getInstance();
     }
 
-    /**
-     * @inheritdoc
-     */
     public function getDefaultCommand(): string
     {
         return 'Import.cancel';
@@ -87,10 +91,14 @@ class Import extends Base
 
         $plugin = ilCrsGrpImportPlugin::getInstance();
 
-        $request_body = $DIC->http()->request()->getParsedBody();
-        if (!array_key_exists('parent_ref_id', $request_body)) {
-        }
-        $parent_ref_id = $request_body['parent_ref_id'];
+        $parent_ref_id = $this->httpWrapper->post()->retrieve(
+            'parent_ref_id',
+            $this->refinery->byTrying([
+                $this->refinery->kindlyTo()->int(),
+                $this->refinery->always(null)
+            ])
+        );
+
         if (false === $DIC->upload()->hasBeenProcessed()) {
             $DIC->upload()->process();
         }

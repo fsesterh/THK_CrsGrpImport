@@ -1,16 +1,32 @@
 <?php
 
-/* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
 
 namespace ILIAS\Plugin\CrsGrpImport\Frontend\Controller;
 
 use ilCrsGrpImportUIHookGUI;
 use ILIAS\DI\Container;
+use ILIAS\HTTP\Wrapper\WrapperFactory;
 use ILIAS\Plugin\CrsGrpImport\Utils\UiUtil;
+use ILIAS\Refinery\Factory;
+use ReflectionClass;
 
-/**
- * @author Michael Jansen <mjansen@databay.de>
- */
 abstract class Base
 {
     public const CTX_IS_BASE_CLASS = 'baseClass';
@@ -21,12 +37,16 @@ abstract class Base
     protected array $parameters = [];
     public ilCrsGrpImportUIHookGUI $coreController;
     protected UiUtil $uiUtil;
+    protected WrapperFactory $httpWrapper;
+    protected Factory $refinery;
 
     final public function __construct(ilCrsGrpImportUIHookGUI $controller, Container $dic)
     {
         $this->coreController = $controller;
         $this->dic = $dic;
         $this->uiUtil = new UiUtil();
+        $this->httpWrapper = $this->dic->http()->wrapper();
+        $this->refinery = $this->dic->refinery();
 
         $this->init();
     }
@@ -47,16 +67,16 @@ abstract class Base
         switch ($a_context) {
             case self::CTX_IS_BASE_CLASS:
             case self::CTX_IS_COMMAND_CLASS:
-                $class = isset($_GET[$a_context]) ? $_GET[$a_context] : '';
-                return strlen($class) > 0 && \in_array(
+                $class = $_GET[$a_context] ?? '';
+                return $class !== '' && in_array(
                     strtolower($class),
                     array_map('strtolower', (array) $a_value_a),
                     true
                 );
 
             case self::CTX_IS_COMMAND:
-                $cmd = isset($_GET[$a_context]) ? $_GET[$a_context] : '';
-                return strlen($cmd) > 0 && in_array(
+                $cmd = $_GET[$a_context] ?? '';
+                return $cmd !== '' && in_array(
                     strtolower($cmd),
                     array_map('strtolower', (array) $a_value_a),
                     true
@@ -68,6 +88,6 @@ abstract class Base
 
     final public function getControllerName(): string
     {
-        return (new \ReflectionClass($this))->getShortName();
+        return (new ReflectionClass($this))->getShortName();
     }
 }

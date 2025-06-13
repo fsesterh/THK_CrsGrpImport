@@ -9,43 +9,44 @@ The key words "MUST", "MUST NOT", "REQUIRED", "SHALL", "SHALL NOT", "SHOULD",
 in this document are to be interpreted as described in
 [RFC 2119](https://www.ietf.org/rfc/rfc2119.txt).
 
+## Requirements
+
+| Component | Version(s)                                                                                    | Link                      |
+|-----------|-----------------------------------------------------------------------------------------------|---------------------------|
+| PHP       | ![](https://img.shields.io/badge/8.1-blue.svg) ![](https://img.shields.io/badge/8.2-blue.svg) | [PHP](https://php.net)    |
+| ILIAS     | ![](https://img.shields.io/badge/9-orange.svg)                                                | [ILIAS](https://ilias.de) |
+
+---
+
+## Table of contents
+
 <!-- TOC -->
 * [CrsGrpImport](#crsgrpimport)
   * [Requirements](#requirements)
+  * [Table of contents](#table-of-contents)
   * [Installation](#installation)
-    * [Composer](#composer)
   * [Configuration](#configuration)
   * [Settings](#settings)
-  * [Example CSV file](#example-csv-file)
+    * [Example Files:](#example-files)
   * [License](#license)
 <!-- TOC -->
 
-## Requirements
-
-* PHP: [![Minimum PHP Version](https://img.shields.io/badge/Minimum_PHP-7.4-blue.svg)](https://php.net/) [![Maximum PHP Version](https://img.shields.io/badge/Maximum_PHP-8.0-blue.svg)](https://php.net/)
-* ILIAS: [![Minimum ILIAS Version](https://img.shields.io/badge/Minimum_ILIAS-8.0-orange.svg)](https://ilias.de/) [![Maximum ILIAS Version](https://img.shields.io/badge/Maximum_ILIAS-8.999-orange.svg)](https://ilias.de/)
-
+---
 
 ## Installation
 
-This plugin MUST be installed as a UIHook Plugin.
-
-	<ILIAS>/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/CrsGrpImport
-
-Correct file and folder permissions MUST be
-ensured by the responsible system administrator.
-
-### Composer
-
-After the plugin files have been installed as described above,
-please install the [`composer`](https://getcomposer.org/) dependencies:
-
-```bash
-cd Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/CrsGrpImport
-composer install --no-dev
-```
-
-Developers MUST omit the `--no-dev` argument.
+1. Clone this repository to **Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/CrsGrpImport**
+2. Install the Composer dependencies
+   ```bash
+   cd Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/CrsGrpImport
+   composer install --no-dev
+   ```
+   Developers **MUST** omit the `--no-dev` argument.
+3. Run ``composer install --no-dev`` in the ilias root directory!
+4. Login to ILIAS with an administrator account (e.g. root)
+5. Select **Plugins** in **Extending ILIAS** inside the **Administration** main menu.
+6. Search for the **CrsGrpImport** plugin in the list of plugin and choose **Install** from the **Actions** drop-down.
+7. Choose **Activate** from the **Actions** dropdown.
 
 ## Configuration
 
@@ -103,5 +104,6 @@ example_files/crsgrp_importtemplate_v8_1_0.xlsx
 example_files/test_csv_8-1-0.csv
 
 ```
+
 ## License
 See [LICENSE](./LICENSE) file in this repository.

@@ -1,41 +1,31 @@
 <?php
 
-/* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
 
+declare(strict_types=1);
 
 use ILIAS\Plugin\CrsGrpImport\Job\CrsGrpImportJob;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-/**
- * Class ilCrsGrpImportPlugin
- */
 class ilCrsGrpImportPlugin extends ilUserInterfaceHookPlugin implements ilCronJobProvider
 {
-    /**
-     * @var string
-     */
+    public const ID = 'crsgrpimport';
     public const PLUGIN_CMD_DETECTION_PARAMETER = 'isCrsGrpImport';
-
-    /**
-     * @var string
-     */
-    public const CTYPE = 'Services';
-
-    /**
-     * @var string
-     */
-    public const CNAME = 'UIComponent';
-
-    /**
-     * @var string
-     */
-    public const SLOT_ID = 'uihk';
-
-    /**
-     * @var string
-     */
-    public const PNAME = 'CrsGrpImport';
 
     private static ?self $instance = null;
 
@@ -49,13 +39,8 @@ class ilCrsGrpImportPlugin extends ilUserInterfaceHookPlugin implements ilCronJo
 
         /** @var ilComponentFactory $componentFactory */
         $componentFactory = $DIC['component.factory'];
-        self::$instance = $componentFactory->getPlugin('crsgrpimport');
+        self::$instance = $componentFactory->getPlugin(self::ID);
         return self::$instance;
-    }
-
-    final public function getPluginName(): string
-    {
-        return self::PNAME;
     }
 
     public function run(): ilCronJobResult
@@ -65,8 +50,8 @@ class ilCrsGrpImportPlugin extends ilUserInterfaceHookPlugin implements ilCronJo
 
     public function getLinkTarget($cmd, $parameters = [], $prevent_xhtml_style = false): string
     {
-        /** @var $ilCtrl ilCtrl */
-        global $ilCtrl;
+        global $DIC;
+        $ilCtrl = $DIC->ctrl();
 
         foreach ($parameters as $key => $val) {
             $ilCtrl->setParameterByClass('ilCrsGrpImportUIHookGUI', $key, $val);

@@ -1,15 +1,32 @@
 <?php
 
-/* Copyright (c) 1998-2017 ILIAS open source, Extended GPL, see docs/LICENSE */
+/**
+ * This file is part of ILIAS, a powerful learning management system
+ * published by ILIAS open source e-Learning e.V.
+ *
+ * ILIAS is licensed with the GPL-3.0,
+ * see https://www.gnu.org/licenses/gpl-3.0.en.html
+ * You should have received a copy of said license along with the
+ * source code, too.
+ *
+ * If this is not the case or you just want to try ILIAS, you'll find
+ * us at:
+ * https://www.ilias.de
+ * https://github.com/ILIAS-eLearning
+ *
+ *********************************************************************/
+
+declare(strict_types=1);
 
 use ILIAS\DI\Container;
+use ILIAS\HTTP\Wrapper\WrapperFactory;
 use ILIAS\Plugin\CrsGrpImport\Frontend;
+use ILIAS\Refinery\Factory;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once 'Services/UIComponent/classes/class.ilUIHookPluginGUI.php';
 
 /**
- * Class ilCrsGrpImportUIHookGUI
  *
  * @ilCtrl_Calls      ilCrsGrpImportUIHookGUI: ilPropertyFormGUI
  * @ilCtrl_isCalledBy ilCrsGrpImportUIHookGUI: ilObjCourseGUI, ilObjGroupGUI
@@ -22,25 +39,21 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
     protected static bool $handled = false;
 
     protected Container $dic;
+    private WrapperFactory $httpWrapper;
+    private Factory $refinery;
 
-    /**
-     * ilCrsGrpImportUIHookGUI constructor.
-     */
     public function __construct()
     {
         global $DIC;
 
         $this->dic = $DIC;
+        $this->refinery = $this->dic->refinery();
+        $this->httpWrapper = $this->dic->http()->wrapper();
     }
 
-    /**
-     *
-     */
-    public function executeCommand()
+    public function executeCommand(): void
     {
         $this->setPluginObject(ilCrsGrpImportPlugin::getInstance());
-
-        #$this->dic->ui()->mainTemplate()->getStandardTemplate();
 
         $next_class = $this->dic->ctrl()->getNextClass();
         switch (strtolower($next_class)) {
@@ -62,12 +75,22 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
             return ['mode' => ilUIHookPluginGUI::KEEP];
         }
 
-        $queryParams = $this->dic->http()->request()->getQueryParams();
+        $getFromQuery = fn(string $key, string $type) => $this->httpWrapper->query()->retrieve(
+            $key,
+            $this->refinery->byTrying([
+                $this->refinery->kindlyTo()->$type(),
+                $this->refinery->always(null)
+            ])
+        );
 
-        if ($this->isAllowedUser() && array_key_exists('cmd', $queryParams) && $queryParams['cmd'] === 'create' &&
+        $cmd = $getFromQuery('cmd', 'string');
+        $newType = $getFromQuery('new_type', 'string');
+        $refId = $getFromQuery('ref_id', 'int');
+
+        if ($this->isAllowedUser() && $cmd === 'create' &&
             (
-                (array_key_exists('new_type', $queryParams) && $queryParams['new_type'] === 'grp') ||
-                (array_key_exists('new_type', $queryParams) && $queryParams['new_type'] === 'crs')
+                $newType === 'grp' ||
+                $newType === 'crs'
             )
         ) {
             if (self::$handled === false && is_array($a_par) && $a_par['tpl_id'] === 'Services/Accordion/tpl.accordion.html' && $a_part === 'template_get') {
@@ -86,7 +109,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
                     "//div[contains(concat(' ', normalize-space(@class), ' '), ' il_VAccordionInnerContainer ')]"
                 );
 
-                $form = $this->getImportForm($queryParams['ref_id']);
+                $form = $this->getImportForm($refId);
 
                 $counter = $accordion_sections->count() + 1;
                 /** @var DOMNode|null $previous_sibling */
@@ -228,7 +251,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
                 );
                 $acc->addItem(
                     $htpl->get(),
-                    $this->getImportForm($queryParams['ref_id'])->getHTML()
+                    $this->getImportForm($refId)->getHTML()
                 );
 
                 return ['mode' => ilUIHookPluginGUI::REPLACE, 'html' => $acc->getHTML()];
@@ -252,7 +275,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
     /**
      * @throws ilCtrlException
      */
-    private function getImportForm(string $ref_id): ilPropertyFormGUI
+    private function getImportForm(int $ref_id): ilPropertyFormGUI
     {
         $form = new ilPropertyFormGUI();
         $url = $this->dic->ctrl()->getFormActionByClass(
@@ -264,7 +287,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
         $file->setRequired(true);
         $form->addItem($file);
         $parent_ref_id = new ilHiddenInputGUI('parent_ref_id');
-        $parent_ref_id->setValue($ref_id);
+        $parent_ref_id->setValue((string) $ref_id);
         $form->addItem($parent_ref_id);
         $form->addCommandButton('Import.import', $this->plugin_object->txt('grp' . '_add'));
         $form->addCommandButton('Import.cancel', $this->dic->language()->txt('cancel'));

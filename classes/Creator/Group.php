@@ -6,8 +6,12 @@ use ilBlockSetting;
 use ilDate;
 use ilDateTime;
 use ilDateTimeException;
+use ilDidacticTemplateSetting;
+use ilDidacticTemplateSettings;
 use ilObjGroup;
+use ilObjUser;
 use ilParticipants;
+use ilTimeZone;
 
 class Group extends BaseObject
 {
@@ -24,7 +28,7 @@ class Group extends BaseObject
                 $this->getData()->setImportResult(BaseObject::RESULT_CREATED_SUCCESSFULLY);
             }
 
-            return (int) $ref_id;
+            return $ref_id;
         }
         return 0;
     }
@@ -97,11 +101,14 @@ class Group extends BaseObject
             if (!$this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id)) {
                 $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_NOT_IN_SUBTREE);
                 return BaseObject::STATUS_FAILED;
-            } elseif ($type != 'grp') {
+            }
+
+            if ($type !== 'grp') {
                 $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_HAS_DIFFERENT_TYPE);
                 return BaseObject::STATUS_FAILED;
             }
         }
+        return BaseObject::STATUS_IGNORED;
     }
 
     /**
@@ -109,9 +116,8 @@ class Group extends BaseObject
      */
     protected function writeGroupAdvancedData(ilObjGroup $group): int
     {
-        /** @var \ilDidacticTemplateSetting $template */
-        $templates = \ilDidacticTemplateSettings::getInstanceByObjectType($this->getData()->getType())->getTemplates();
-        $enabled_templates_by_id = [];
+        /** @var ilDidacticTemplateSetting $template */
+        $templates = ilDidacticTemplateSettings::getInstanceByObjectType($this->getData()->getType())->getTemplates();
         foreach ($templates as $template) {
             if ($template->isEnabled() && (int) $this->getData()->getTemplateIdNativeType() === (int) $template->getId()) {
                 $group->applyDidacticTemplate($template->getId());
@@ -126,8 +132,8 @@ class Group extends BaseObject
             $start = $this->checkAndParseDateStringToObject($this->getData()->getEventStart());
             $end = $this->checkAndParseDateStringToObject($this->getData()->getEventEnd());
             if ($start !== '' && $end !== '') {
-                $start_time = new \ilDateTime($start->getTimestamp(), IL_CAL_UNIX, \ilTimeZone::UTC);
-                $end_time = new \ilDateTime($end->getTimestamp(), IL_CAL_UNIX, \ilTimeZone::UTC);
+                $start_time = new ilDateTime($start->getTimestamp(), IL_CAL_UNIX, ilTimeZone::UTC);
+                $end_time = new ilDateTime($end->getTimestamp(), IL_CAL_UNIX, ilTimeZone::UTC);
                 $group->setPeriod($start_time, $end_time);
             }
         }
@@ -149,7 +155,7 @@ class Group extends BaseObject
         }
 
         $unsubscribe_value = $this->getData()->getUnsubscribeEnd();
-        if (strlen($unsubscribe_value) > 0) {
+        if ($unsubscribe_value !== '') {
             $unsubscribe_end = $this->checkAndParseDateStringToObject($this->getData()->getUnsubscribeEnd());
             $group->setCancellationEnd(new ilDate($unsubscribe_end));
         }
@@ -197,7 +203,6 @@ class Group extends BaseObject
             $group->getId()
         );
 
-
         // News Timeline
         $group->setNewsTimeline($this->getData()->getNewsTimeline());
         $group->setNewsTimelineAutoEntries($this->getData()->getNewsTimeAutoEntry());
@@ -222,7 +227,7 @@ class Group extends BaseObject
 
     protected function addAdminsToGroup(ilObjGroup $group): bool
     {
-        $usr_ids = \ilObjUser::_lookupId($this->getData()->getValidatedAdmins());
+        $usr_ids = ilObjUser::_lookupId($this->getData()->getValidatedAdmins());
         if (is_array($usr_ids) && count($usr_ids) > 0) {
             foreach ($usr_ids as $usr_id) {
                 $success = $group->getMembersObject()->add($usr_id, ilParticipants::IL_GRP_ADMIN);

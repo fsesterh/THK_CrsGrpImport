@@ -3,48 +3,37 @@
 namespace ILIAS\Plugin\CrsGrpImport\Data;
 
 use ilCourseConstants;
-use ilGroupConstants;
 
 class ImportCsvObject
 {
-    private $action = '';
-    private $type = '';
-    private $ref_id = 0;
-    /** @var int|null */
-    private $template_id = null;
-    /** @var null|string */
-    private $title_de = null;
-    /** @var null|string */
-    private $title_en = null;
-    /** @var null|string */
-    private $description_de = null;
-    /** @var null|string */
-    private $description_en = null;
-    private $event_start = null;
-    private $event_end = null;
-    private $online = 0;
-    private $availability_start = null;
-    private $availability_end = null;
-    /** @var null|int */
-    private $availability_visible = null;
-    private $registration = 0;
-    private $registration_pass = '';
-    private $admission_link = 0;
-    private $registration_start = null;
-    private $registration_end = null;
-    private $unsubscribe_end = null;
-    private $admins = '';
-    private $parent_ref_id = null;
-    private $import_result;
-    private $actor_timezone = null;
-    /** @var int|null */
-    private $limit_members;
-    /** @var int|null */
-    private $min_members;
-    /** @var int|null */
-    private $max_members;
-    /** @var int|null */
-    private $waiting_list;
+    private string $action;
+    private string $type;
+    private int $ref_id;
+    private ?int $template_id;
+    private ?string $title_de;
+    private ?string $title_en;
+    private ?string $description_de;
+    private ?string $description_en;
+    private ?string $event_start;
+    private ?string $event_end;
+    private int $online;
+    private ?string $availability_start;
+    private ?string $availability_end;
+    private ?int $availability_visible;
+    private int $registration;
+    private string $registration_pass;
+    private int $admission_link;
+    private ?string $registration_start;
+    private ?string $registration_end;
+    private ?string $unsubscribe_end;
+    private string $admins;
+    private ?int $parent_ref_id;
+    private string $import_result;
+    private ?string $actor_timezone;
+    private ?int $limit_members;
+    private ?int $min_members;
+    private ?int $max_members;
+    private ?int $waiting_list;
     private bool $news;
     private bool $news_block;
     private bool $news_default_access;
@@ -201,17 +190,12 @@ class ImportCsvObject
 
     public function getRegistrationTypeForCourse(): int
     {
-        if ($this->registration === 0) {
-            return ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED;
-        } elseif ($this->registration === 1) {
-            return ilCourseConstants::IL_CRS_SUBSCRIPTION_DIRECT;
-        } elseif ($this->registration === 2) {
-            return ilCourseConstants::IL_CRS_SUBSCRIPTION_PASSWORD;
-        } elseif ($this->registration === 3) {
-            return ilCourseConstants::IL_CRS_SUBSCRIPTION_CONFIRMATION;
-        } else {
-            return ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED;
-        }
+        return match ($this->registration) {
+            1 => ilCourseConstants::IL_CRS_SUBSCRIPTION_DIRECT,
+            2 => ilCourseConstants::IL_CRS_SUBSCRIPTION_PASSWORD,
+            3 => ilCourseConstants::IL_CRS_SUBSCRIPTION_CONFIRMATION,
+            default => ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED,
+        };
     }
 
     public function getRegistrationType(): int
@@ -246,10 +230,9 @@ class ImportCsvObject
 
     public function getValidatedAdmins(): array
     {
-        if (strlen($this->getAdmins()) > 0) {
+        if ($this->getAdmins() !== '') {
             $logins = explode(',', $this->admins);
-            $logins = array_map('trim', $logins);
-            return $logins;
+            return array_map('trim', $logins);
         }
         return [];
     }
