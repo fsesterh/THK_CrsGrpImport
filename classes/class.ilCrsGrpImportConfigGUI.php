@@ -92,7 +92,7 @@ class ilCrsGrpImportConfigGUI extends ilPluginConfigGUI
         $form->setFormAction($this->dic->ctrl()->getFormAction($this, 'saveConfigurationForm'));
 
         $role = new ilTextInputGUI($this->getPluginObject()->txt('role_select'), 'default_local_role_ids');
-        $selected_role = $this->dic->settings()->get('crs_grp_import_default_local_role_ids');
+        $selected_role = $this->dic->settings()->get('crs_grp_import_default_local_role_ids', '');
         $role->setValue($selected_role);
         $role->setInfo($this->getPluginObject()->txt('role_select_info'));
         $role->setRequired(false);

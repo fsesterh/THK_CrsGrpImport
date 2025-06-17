@@ -263,7 +263,9 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
 
     private function isAllowedUser(): bool
     {
-        $selected_role = explode(',', $this->dic->settings()->get('crs_grp_import_default_local_role_ids'));
+        $roleIds = $this->dic->settings()->get('crs_grp_import_default_local_role_ids');
+
+        $selected_role = $roleIds ? explode(',', $roleIds) : [];
         $user_roles = $this->dic->rbac()->review()->assignedRoles($this->dic->user()->getId());
 
         if (count(array_intersect($user_roles, $selected_role)) > 0) {
