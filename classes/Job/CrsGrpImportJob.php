@@ -20,6 +20,7 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\CrsGrpImport\Job;
 
+use Exception;
 use ilComponentFactory;
 use ilCronJob;
 use ilCronJobResult;
@@ -43,6 +44,7 @@ use ilMail;
 use ilObject;
 use ilObjUser;
 use ReflectionClass;
+use Throwable;
 
 class CrsGrpImportJob extends ilCronJob
 {
@@ -122,105 +124,112 @@ class CrsGrpImportJob extends ilCronJob
     {
         $cronResult = new ilCronJobResult();
 
-        $failedMailDeliveries = 0;
 
-        $queuedImports = $this->queuedRepo->readAll();
-        foreach ($queuedImports as $queuedImport) {
-            $csvLog = new CSVLog();
+        try {
+            $failedMailDeliveries = 0;
+            $queuedImports = $this->queuedRepo->readAll();
+            foreach ($queuedImports as $queuedImport) {
+                $csvLog = new CSVLog();
 
-            $csv_deserialized = unserialize(
-                $queuedImport->getCsvData(),
-                ['allowed_classes' => [ImportCsvObject::class]]
-            );
-            /**
-             * @var  $key
-             * @var ImportCsvObject $data
-             */
-            foreach ($csv_deserialized as $key => $data) {
-                $base_status = BaseObject::STATUS_OK;
+                $csv_deserialized = unserialize(
+                    $queuedImport->getCsvData(),
+                    ['allowed_classes' => [ImportCsvObject::class]]
+                );
+                /**
+                 * @var  $key
+                 * @var ImportCsvObject $data
+                 */
+                foreach ($csv_deserialized as $key => $data) {
+                    $base_status = BaseObject::STATUS_OK;
 
-                if ($data->getType() === self::COURSE) {
-                    $base_status = $this->buildCourseObject($data, $csvLog);
-                } elseif ($data->getType() === self::GROUP) {
-                    $base_status = $this->buildGroupObject($data, $csvLog);
-                } elseif ($data->getType() === self::COURSE_LINK) {
-                    $base_status = $this->buildCourseLinkObject($data, $csvLog);
-                } elseif ($data->getType() === self::GROUP_LINK) {
-                    $base_status = $this->buildGroupLinkObject($data, $csvLog);
-                } else {
-                    $base_status = BaseObject::STATUS_FAILED;
-                    $data->setImportResult(BaseObject::RESULT_UNKNOWN_OBJECT_TYPE);
+                    if ($data->getType() === self::COURSE) {
+                        $base_status = $this->buildCourseObject($data, $csvLog);
+                    } elseif ($data->getType() === self::GROUP) {
+                        $base_status = $this->buildGroupObject($data, $csvLog);
+                    } elseif ($data->getType() === self::COURSE_LINK) {
+                        $base_status = $this->buildCourseLinkObject($data, $csvLog);
+                    } elseif ($data->getType() === self::GROUP_LINK) {
+                        $base_status = $this->buildGroupLinkObject($data, $csvLog);
+                    } else {
+                        $base_status = BaseObject::STATUS_FAILED;
+                        $data->setImportResult(BaseObject::RESULT_UNKNOWN_OBJECT_TYPE);
+                    }
+                    $csvLog->addEntryToLog(
+                        $base_status,
+                        $data->getRefId(),
+                        $data->getTitleDe(),
+                        $data->getValidatedAdmins(),
+                        $data->getImportResult()
+                    );
                 }
-                $csvLog->addEntryToLog(
-                    $base_status,
-                    $data->getRefId(),
-                    $data->getTitleDe(),
-                    $data->getValidatedAdmins(),
-                    $data->getImportResult()
+
+                $tempFile = ilFileUtils::ilTempnam() . '.csv';
+                file_put_contents($tempFile, $csvLog->getCSVLog());
+
+                $fileName = 'import_log.csv';
+
+                if (!ilObjUser::_exists($queuedImport->getUserId())) {
+                    $user = null;
+                } else {
+                    $user = new ilObjUser($queuedImport->getUserId());
+                }
+
+                if (!$user) {
+                    $this->logger->error("Unable to deliver csv result to executive user with id '{$queuedImport->getUserId()}'. User does not exist");
+                    $this->queuedRepo->removeQueuedImport($queuedImport);
+                    continue;
+                }
+
+                $pluginLngModule = "ui_uihk_crsgrpimport";
+
+                $fileDataMail = new ilFileDataMail(ANONYMOUS_USER_ID);
+                $fileDataMail->copyAttachmentFile($tempFile, $fileName);
+                $mail = new ilMail(ANONYMOUS_USER_ID);
+                $errors = $mail->enqueue(
+                    $user->getLogin(),
+                    "",
+                    "",
+                    $this->dic->language()->txtlng(
+                        $pluginLngModule,
+                        "{$pluginLngModule}_mail.message.title",
+                        $user->getLanguage()
+                    ),
+                    $this->dic->language()->txtlng(
+                        $pluginLngModule,
+                        "{$pluginLngModule}_mail.message.text",
+                        $user->getLanguage()
+                    ),
+                    [$fileName],
+                    false
                 );
-            }
 
-            $tempFile = ilFileUtils::ilTempnam() . '.csv';
-            file_put_contents($tempFile, $csvLog->getCSVLog());
-
-            $fileName = 'import_log.csv';
-
-            if (!ilObjUser::_exists($queuedImport->getUserId())) {
-                $user = null;
-            } else {
-                $user = new ilObjUser($queuedImport->getUserId());
-            }
-
-            if (!$user) {
-                $this->logger->error("Unable to deliver csv result to executive user with id '{$queuedImport->getUserId()}'. User does not exist");
+                if (count($errors) !== 0) {
+                    $this->logger->error(
+                        sprintf(
+                            "Mail delivery of import results failed. ID of import: %s, ID of receiving user: %s",
+                            $queuedImport->getId(),
+                            $queuedImport->getUserId()
+                        )
+                    );
+                    $failedMailDeliveries++;
+                }
                 $this->queuedRepo->removeQueuedImport($queuedImport);
-                continue;
             }
 
-            $pluginLngModule = "ui_uihk_crsgrpimport";
-
-            $fileDataMail = new ilFileDataMail(ANONYMOUS_USER_ID);
-            $fileDataMail->copyAttachmentFile($tempFile, $fileName);
-            $mail = new ilMail(ANONYMOUS_USER_ID);
-            $errors = $mail->enqueue(
-                $user->getLogin(),
-                "",
-                "",
-                $this->dic->language()->txtlng(
-                    $pluginLngModule,
-                    "{$pluginLngModule}_mail.message.title",
-                    $user->getLanguage()
-                ),
-                $this->dic->language()->txtlng(
-                    $pluginLngModule,
-                    "{$pluginLngModule}_mail.message.text",
-                    $user->getLanguage()
-                ),
-                [$fileName],
-                false
+            $cronResult->setStatus(ilCronJobResult::STATUS_OK);
+            $cronResult->setMessage(
+                sprintf(
+                    $this->plugin->txt("cronResult"),
+                    count($queuedImports),
+                    $failedMailDeliveries
+                )
             );
-
-            if (count($errors) !== 0) {
-                $this->logger->error(
-                    sprintf(
-                        "Mail delivery of import results failed. ID of import: %s, ID of receiving user: %s",
-                        $queuedImport->getId(),
-                        $queuedImport->getUserId()
-                    )
-                );
-                $failedMailDeliveries++;
-            }
-            $this->queuedRepo->removeQueuedImport($queuedImport);
+        } catch (Throwable $ex) {
+            $this->logger->error("An error occurred while processing the import queue. The cronjob has been deactivated. Ex.: {$ex->getMessage()}. Stacktrace: \n{$ex->getTraceAsString()}");
+            $cronResult->setStatus(ilCronJobResult::STATUS_CRASHED);
+            $cronResult->setMessage($this->plugin->txt("cronResult.crashed"));
+            $this->dic->cron()->manager()->deactivateJob($this, $this->dic->user());
         }
-
-        $cronResult->setStatus(ilCronJobResult::STATUS_OK);
-        $cronResult->setMessage(
-            sprintf(
-                $this->plugin->txt("cronResult"),
-                count($queuedImports),
-                $failedMailDeliveries
-            )
-        );
 
         return $cronResult;
     }

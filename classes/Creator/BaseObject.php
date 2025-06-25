@@ -57,6 +57,17 @@ class BaseObject implements ObjectImporter
     public const RESULT_INVALID_REF_ID_FOR_LINK = 'Dataset invalid, the provided ref_id for the reference/link could not be found';
     public const RESULT_TYPE_MISMATCH_FOR_LINK = 'Dataset invalid, the object type of the provided ref_id for the reference/link does not match the object type of the container';
 
+    public const DATE_COLUMNS = [
+        "EventStart",
+        "EventEnd",
+        "AvailabilityStart",
+        "AvailabilityEnd",
+        "RegistrationStart",
+        "RegistrationEnd",
+        "UnsubscribeEnd",
+        "NewsStartDate"
+    ];
+
     private ImportCsvObject $data;
     private CSVLog $csv_log;
     public Container $dic;
@@ -196,7 +207,45 @@ class BaseObject implements ObjectImporter
             $this->getData()->setImportResult(self::RESULT_DATASET_INCOMPLETE);
             return false;
         }
+
+        return $this->checkDateColumnsBeforeUnix();
+    }
+
+    public function checkDateColumnsBeforeUnix(): bool
+    {
+        $invalidColumns = $this->getColumnsBeforeUnix($this->getData());
+
+        if ($invalidColumns !== []) {
+            foreach ($invalidColumns as $columnName => $value) {
+                $this->dic->logger()->root()->error(sprintf(
+                    "Date in column '%s' is before the unix timestamp, unable to import. Value: '%s'",
+                    $columnName,
+                    $value
+                ));
+            }
+            $this->getData()->setImportResult(self::RESULT_DATASET_INVALID);
+            return false;
+        }
         return true;
+    }
+
+    /**
+     * @param ImportCsvObject $data
+     * @return array<string, string>
+     */
+    public function getColumnsBeforeUnix(ImportCsvObject $data): array
+    {
+        $invalidColumns = [];
+        foreach (self::DATE_COLUMNS as $columnName) {
+            $getter = "get" . ucfirst($columnName);
+            $value = $data->$getter();
+
+            $timestamp = strtotime($value);
+            if ($value !== "" && (!$timestamp || $timestamp < 0)) {
+                $invalidColumns[ucfirst($columnName)] = $value;
+            }
+        }
+        return $invalidColumns;
     }
 
     public function getData(): ImportCsvObject
@@ -210,7 +259,7 @@ class BaseObject implements ObjectImporter
             if (!$this->isInTrash($ref_id)) {
                 if ($this->objectExists($ref_id)) {
                     if ($this->isCorrectObjectType($ref_id, $data->getType())) {
-                        return true;
+                        return $this->checkDateColumnsBeforeUnix();
                     }
 
                     $data->setImportResult(self::RESULT_REF_ID_AND_TYPE_DO_NOT_MATCH);

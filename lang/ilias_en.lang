@@ -15,6 +15,7 @@ creation_accordion_header#:#Import Course/Group List
 
 cronResult#:#Processed %s imports. %s e-mails could not be send.
 cronResult.noImports#:#No imports to process.
+cronResult.crashed#:#The cronjob crashed while processing th queued imports. Please check the ILIAS logs for further information.
 
 import.queued.success#:#Your request has been added to the queue. You will receive an email when your request has been processed.
 import.queued.failure#:#Your request could not be added to the queue.
