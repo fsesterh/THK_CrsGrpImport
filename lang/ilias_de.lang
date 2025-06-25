@@ -15,6 +15,7 @@ creation_accordion_header#:#Kurs-/Gruppen-Liste importieren
 
 cronResult#:#%s Imports verarbeitet. %s E-Mails konnten nicht versand werden.
 cronResult.noImports#:#Keine Imports zu verarbeiten.
+cronResult.crashed#:#Der Cronjob ist während der Verarbeitung der Importe in der Warteschlange abgestürzt. Bitte prüfen Sie die ILIAS-Protokolle für weitere Informationen.
 
 import.queued.success#:#Ihre Anfrage wurde zur Warteschlange hinzugefügt. Sie erhalten eine E-Mail wenn ihre Anfrage bearbeitet wurde.
 import.queued.failure#:#Ihre Anfrage konnte nicht zur Warteschlange hinzugefügt werden.
