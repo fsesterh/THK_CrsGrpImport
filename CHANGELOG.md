@@ -1,5 +1,12 @@
 # Change-Log
 
+## 9.0.0
+
+* Added support for ILIAS 9
+* Fixed: Cron-Job crashes when importfile contains dates prior to 01.01.1970
+* Cron-Task will now stop when it detects a crash preventing looping of imports
+* Replaced/clarified meaning of "NULL" in example files
+
 ## 8.1.0
 
 * Improved file format checks
