@@ -142,6 +142,7 @@ class Group extends BaseObject
         $group->setRegistrationType($this->getData()->getRegistrationType());
 
         $group->setPassword($this->getData()->getRegistrationPass());
+        $group->enableRegistrationAccessCode($this->getData()->getAdmissionLink());
 
         if ($this->getData()->getRegistrationStart() !== "" &&
             $this->getData()->getRegistrationEnd() !== "") {
