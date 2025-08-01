@@ -142,7 +142,6 @@ class Group extends BaseObject
         $group->setRegistrationType($this->getData()->getRegistrationType());
 
         $group->setPassword($this->getData()->getRegistrationPass());
-        $group->enableRegistrationAccessCode($this->getData()->getAdmissionLink());
 
         if ($this->getData()->getRegistrationStart() !== "" &&
             $this->getData()->getRegistrationEnd() !== "") {
@@ -152,6 +151,13 @@ class Group extends BaseObject
                 $group->setRegistrationStart(new ilDateTime($subscription_start->getTimestamp(), IL_CAL_UNIX));
                 $group->setRegistrationEnd(new ilDateTime($subscription_end->getTimestamp(), IL_CAL_UNIX));
             }
+        }
+
+        if ($group->getRegistrationStart() instanceof ilDateTime &&
+            $group->getRegistrationEnd() instanceof ilDateTime) {
+            $group->enableUnlimitedRegistration(false);
+        } else {
+            $group->enableUnlimitedRegistration(true);
         }
 
         $unsubscribe_value = $this->getData()->getUnsubscribeEnd();
