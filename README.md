@@ -50,11 +50,11 @@ in this document are to be interpreted as described in
 
 ## Configuration
 
-* You SHOULD configure the roles in the configuration of the plugin.
+* You SHOULD configure the roles (by ID) in the configuration of the plugin.
 * You MUST activate the cronjob in order to process import files.
 
 ## Settings
-There are some values which must be set in a specific way, to create courses an groups, these values are as following:
+There are some values which must be set in a specific way, to create courses and groups, these values are as following:
 * Action
   * Insert | Update | Ignore
 * Type
@@ -99,9 +99,9 @@ There are some values which must be set in a specific way, to create courses an 
 
 ### Example Files:
 ```
-example_files/crsgrp_importtemplate_v8_1_0.ods
-example_files/crsgrp_importtemplate_v8_1_0.xlsx
-example_files/test_csv_8-1-0.csv
+example_files/crsgrp_importtemplate_v9_0_0.ods
+example_files/crsgrp_importtemplate_v9_0_0.xlsx
+example_files/test_csv_9-0-0.csv
 
 ```
 

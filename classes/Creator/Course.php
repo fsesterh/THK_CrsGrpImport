@@ -153,10 +153,6 @@ class Course extends BaseObject
         }
 
         $course->setOfflineStatus(!(bool) $this->getData()->getOnline());
-        $course->setSubscriptionType($this->getData()->getRegistrationTypeForCourse());
-        if ((int) $this->getData()->getRegistrationTypeForCourse() !== 0) {
-            $course->setSubscriptionLimitationType(ilCourseConstants::IL_CRS_SUBSCRIPTION_UNLIMITED);
-        }
 
         $course->setSubscriptionPassword($this->getData()->getRegistrationPass());
         $course->enableRegistrationAccessCode($this->getData()->getAdmissionLink());
@@ -170,6 +166,18 @@ class Course extends BaseObject
                 $course->setSubscriptionEnd($subscription_end->getTimestamp());
             }
         }
+
+        if ($this->getData()->getRegistrationTypeForCourse() === ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED) {
+            $course->setSubscriptionLimitationType(ilCourseConstants::IL_CRS_SUBSCRIPTION_DEACTIVATED);
+            $course->setSubscriptionType(ilCourseConstants::IL_CRS_SUBSCRIPTION_DIRECT);
+        } else {
+            $course->setSubscriptionLimitationType(ilCourseConstants::IL_CRS_SUBSCRIPTION_UNLIMITED);
+            $course->setSubscriptionType($this->getData()->getRegistrationTypeForCourse());
+            if ($course->getSubscriptionStart() && $course->getSubscriptionEnd()) {
+                $course->setSubscriptionLimitationType(ilCourseConstants::IL_CRS_SUBSCRIPTION_LIMITED);
+            }
+        }
+
         $unsubscribe_value = $this->getData()->getUnsubscribeEnd();
         if ($unsubscribe_value !== '') {
             $unsubscribe_end = $this->checkAndParseDateStringToObject($this->getData()->getUnsubscribeEnd());

@@ -154,6 +154,13 @@ class Group extends BaseObject
             }
         }
 
+        if ($group->getRegistrationStart() instanceof ilDateTime &&
+            $group->getRegistrationEnd() instanceof ilDateTime) {
+            $group->enableUnlimitedRegistration(false);
+        } else {
+            $group->enableUnlimitedRegistration(true);
+        }
+
         $unsubscribe_value = $this->getData()->getUnsubscribeEnd();
         if ($unsubscribe_value !== '') {
             $unsubscribe_end = $this->checkAndParseDateStringToObject($this->getData()->getUnsubscribeEnd());
