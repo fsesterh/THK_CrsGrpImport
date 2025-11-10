@@ -228,6 +228,10 @@ class Group extends BaseObject
             );
         }
 
+        $group->setShowMembers(
+            !($this->getData()->getMemberGallery() === 0)
+        );
+
         $group->update();
         return $group->getRefId();
     }

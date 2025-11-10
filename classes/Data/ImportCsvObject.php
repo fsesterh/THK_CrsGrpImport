@@ -26,6 +26,7 @@ class ImportCsvObject
     private ?string $registration_start;
     private ?string $registration_end;
     private ?string $unsubscribe_end;
+    private ?int $member_gallery;
     private string $admins;
     private ?int $parent_ref_id;
     private string $import_result;
@@ -76,6 +77,7 @@ class ImportCsvObject
         bool $news_time_auto_entry,
         bool $news_time_landing,
         string $news_start_date,
+        ?int $member_gallery,
         string $admins,
         ?int $parent_ref_id,
         ?string $actor_timezone
@@ -112,6 +114,7 @@ class ImportCsvObject
         $this->news_time_auto_entry = $news_time_auto_entry;
         $this->news_time_landing = $news_time_landing;
         $this->news_start_date = $news_start_date;
+        $this->member_gallery = $member_gallery;
         $this->admins = $admins;
         $this->parent_ref_id = $parent_ref_id;
         $this->import_result = '';
@@ -240,6 +243,11 @@ class ImportCsvObject
     public function getAdmins(): string
     {
         return $this->admins;
+    }
+
+    public function getMemberGallery(): ?int
+    {
+        return $this->member_gallery;
     }
 
     public function getParentRefId(): ?int
