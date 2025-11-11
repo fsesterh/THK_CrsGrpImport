@@ -95,7 +95,7 @@ There are some values which must be set in a specific way, to create courses and
 * NewsTimeAutoEntry: 0 | 1
 * NewsTimeLanding: 0 | 1
 * NewsStartDate: DD.MM.YYYY HH:mm
-* MemberGallery
+* MemberGallery: 0 | 1
 * Admins: username,username,username
 
 ### Example Files:
