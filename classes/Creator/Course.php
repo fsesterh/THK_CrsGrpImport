@@ -247,6 +247,10 @@ class Course extends BaseObject
             );
         }
 
+        $course->setShowMembers(
+            !($this->getData()->getMemberGallery() === 0)
+        );
+
         $course->update();
         return $course->getRefId();
     }

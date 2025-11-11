@@ -1,5 +1,9 @@
 # Change-Log
 
+## 9.1.0
+
+* Added support for Member Gallery
+
 ## 9.0.0
 
 * Added support for ILIAS 9

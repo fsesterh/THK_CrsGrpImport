@@ -68,6 +68,7 @@ class Import extends Base
         "NewsTimeAutoEntry",
         "NewsTimeLanding",
         "NewsStartDate",
+        "MemberGallery",
         "Admins"
     ];
 
@@ -240,7 +241,8 @@ class Import extends Base
                     $news_time_auto_entry = $conversion->ensureIntOrNullType($data[$i++]); // 29
                     $news_time_landing = $conversion->ensureIntOrNullType($data[$i++]); // 30
                     $news_start_date = $conversion->ensureStringType($data[$i++]); // 31
-                    $admins = $conversion->ensureStringType($data[$i++]); // 32
+                    $member_gallery = $conversion->ensureIntOrNullType($data[$i++]); // 32
+                    $admins = $conversion->ensureStringType($data[$i++]); // 33
 
                     $import_row = new ImportCsvObject(
                         $action,
@@ -275,6 +277,7 @@ class Import extends Base
                         (bool) $news_time_auto_entry,
                         (bool) $news_time_landing,
                         $news_start_date,
+                        $member_gallery,
                         $admins,
                         $parent_ref_id,
                         $this->dic->user()->getTimeZone()
