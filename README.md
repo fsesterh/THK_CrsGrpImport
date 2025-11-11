@@ -95,13 +95,14 @@ There are some values which must be set in a specific way, to create courses and
 * NewsTimeAutoEntry: 0 | 1
 * NewsTimeLanding: 0 | 1
 * NewsStartDate: DD.MM.YYYY HH:mm
+* MemberGallery
 * Admins: username,username,username
 
 ### Example Files:
 ```
-example_files/crsgrp_importtemplate_v9_0_0.ods
-example_files/crsgrp_importtemplate_v9_0_0.xlsx
-example_files/test_csv_9-0-0.csv
+example_files/crsgrp_importtemplate_v9_1_0.ods
+example_files/crsgrp_importtemplate_v9_1_0.xlsx
+example_files/test_csv_9-1-0.csv
 
 ```
 
