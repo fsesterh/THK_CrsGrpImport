@@ -97,7 +97,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
                 $newType === 'crs'
             )
         ) {
-            if (self::$handled === false && is_array($a_par) && $a_par['tpl_id'] === 'Services/Accordion/tpl.accordion.html' && $a_part === 'template_get') {
+            if (self::$handled === false && $a_par['tpl_id'] === 'Services/Accordion/tpl.accordion.html' && $a_part === 'template_get') {
                 self::$has_accordion = true;
                 self::$handled = true;
                 self::$stop_recursion = true;
@@ -217,11 +217,11 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
                 return $this->uiHookResponse(self::REPLACE, $processed_html);
             }
 
-            if (self::$handled === false && self::$has_accordion === false && is_array($a_par) && $a_par['tpl_id'] === 'Services/Object/tpl.creation_acc_head.html' && $a_part === 'template_load') {
+            if (self::$handled === false && self::$has_accordion === false && $a_par['tpl_id'] === 'Services/Object/tpl.creation_acc_head.html' && $a_part === 'template_load') {
                 self::$has_accordion = true;
             }
 
-            if (self::$handled === false && self::$has_accordion === false && is_array($a_par) && $a_par['tpl_id'] === 'Services/Form/tpl.form.html' && $a_part === 'template_get') {
+            if (self::$handled === false && self::$has_accordion === false && $a_par['tpl_id'] === 'Services/Form/tpl.form.html' && $a_part === 'template_get') {
                 self::$handled = true;
 
                 $core_doc = new DOMDocument("1.0", "utf-8");
