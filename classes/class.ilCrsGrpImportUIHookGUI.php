@@ -107,7 +107,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
             self::$stop_recursion = true;
 
             $core_doc = new DOMDocument("1.0", "utf-8");
-            if (!@$core_doc->loadHTML('<?xml encoding="utf-8" ?><html><body>' . $a_par['html'] . '</body></html>')) {
+            if (!@$core_doc->loadHTML('<?xml encoding="utf-8" ?><html lang="en"><body>' . $a_par['html'] . '</body></html>')) {
                 return $this->uiHookResponse();
             }
             $core_doc->encoding = 'UTF-8';
@@ -160,7 +160,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
             );
 
             $additional_accordion_doc = new DOMDocument("1.0", "utf-8");
-            if (!@$additional_accordion_doc->loadHTML('<?xml encoding="utf-8" ?><html><body>' . $acc->getHTML() . '</body></html>')) {
+            if (!@$additional_accordion_doc->loadHTML('<?xml encoding="utf-8" ?><html lang="en"><body>' . $acc->getHTML() . '</body></html>')) {
                 return $this->uiHookResponse();
             }
             $additional_accordion_doc_xpath = new DOMXPath($additional_accordion_doc);
@@ -241,7 +241,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
             self::$handled = true;
 
             $core_doc = new DOMDocument("1.0", "utf-8");
-            if (!@$core_doc->loadHTML('<?xml encoding="utf-8" ?><html><body>' . $a_par['html'] . '</body></html>')) {
+            if (!@$core_doc->loadHTML('<?xml encoding="utf-8" ?><html lang="en"><body>' . $a_par['html'] . '</body></html>')) {
                 return $this->uiHookResponse();
             }
             $core_doc->encoding = 'UTF-8';
