@@ -71,7 +71,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
 
     public function getHTML(string $a_comp, string $a_part, array $a_par = []): array
     {
-        if (!isset($a_par["tpl_id"], $a_par["html"]) || !$a_par["tpl_id"] || !$a_par["html"]) {
+        if (!isset($a_par['tpl_id'], $a_par['html']) || !$a_par['tpl_id'] || !$a_par['html']) {
             return $this->uiHookResponse();
         }
 
@@ -106,7 +106,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
             self::$handled = true;
             self::$stop_recursion = true;
 
-            $core_doc = new DOMDocument("1.0", "utf-8");
+            $core_doc = new DOMDocument('1.0', 'utf-8');
             if (!@$core_doc->loadHTML('<?xml encoding="utf-8" ?><html lang="en"><body>' . $a_par['html'] . '</body></html>')) {
                 return $this->uiHookResponse();
             }
@@ -159,7 +159,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
                 $form->getHTML()
             );
 
-            $additional_accordion_doc = new DOMDocument("1.0", "utf-8");
+            $additional_accordion_doc = new DOMDocument('1.0', 'utf-8');
             if (!@$additional_accordion_doc->loadHTML('<?xml encoding="utf-8" ?><html lang="en"><body>' . $acc->getHTML() . '</body></html>')) {
                 return $this->uiHookResponse();
             }
@@ -240,7 +240,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
         ) {
             self::$handled = true;
 
-            $core_doc = new DOMDocument("1.0", "utf-8");
+            $core_doc = new DOMDocument('1.0', 'utf-8');
             if (!@$core_doc->loadHTML('<?xml encoding="utf-8" ?><html lang="en"><body>' . $a_par['html'] . '</body></html>')) {
                 return $this->uiHookResponse();
             }
