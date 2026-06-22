@@ -72,7 +72,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
     public function getHTML($a_comp, $a_part, $a_par = []): array
     {
         if (self::$stop_recursion === true) {
-            return ['mode' => ilUIHookPluginGUI::KEEP];
+            return $this->uiHookResponse();
         }
 
         $getFromQuery = fn(string $key, string $type) => $this->httpWrapper->query()->retrieve(
@@ -100,7 +100,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
 
                 $core_doc = new DOMDocument("1.0", "utf-8");
                 if (!@$core_doc->loadHTML('<?xml encoding="utf-8" ?><html><body>' . $a_par['html'] . '</body></html>')) {
-                    return ['mode' => ilUIHookPluginGUI::KEEP, 'html' => ''];
+                    return $this->uiHookResponse();
                 }
                 $core_doc->encoding = 'UTF-8';
 
@@ -153,7 +153,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
 
                 $additional_accordion_doc = new DOMDocument("1.0", "utf-8");
                 if (!@$additional_accordion_doc->loadHTML('<?xml encoding="utf-8" ?><html><body>' . $acc->getHTML() . '</body></html>')) {
-                    return ['mode' => ilUIHookPluginGUI::KEEP, 'html' => ''];
+                    return $this->uiHookResponse();
                 }
                 $additional_accordion_doc_xpath = new DOMXPath($additional_accordion_doc);
                 $additional_accordion_doc->encoding = 'UTF-8';
@@ -210,7 +210,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
 
                 self::$stop_recursion = false;
 
-                return ['mode' => ilUIHookPluginGUI::REPLACE, 'html' => $processed_html];
+                return $this->uiHookResponse(self::REPLACE, $processed_html);
             }
 
             if (self::$handled === false && self::$has_accordion === false && is_array($a_par) && $a_par['tpl_id'] === 'Services/Object/tpl.creation_acc_head.html' && $a_part === 'template_load') {
@@ -222,7 +222,7 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
 
                 $core_doc = new DOMDocument("1.0", "utf-8");
                 if (!@$core_doc->loadHTML('<?xml encoding="utf-8" ?><html><body>' . $a_par['html'] . '</body></html>')) {
-                    return ['mode' => ilUIHookPluginGUI::KEEP, 'html' => ''];
+                    return $this->uiHookResponse();
                 }
                 $core_doc->encoding = 'UTF-8';
 
@@ -254,11 +254,11 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
                     $this->getImportForm($refId)->getHTML()
                 );
 
-                return ['mode' => ilUIHookPluginGUI::REPLACE, 'html' => $acc->getHTML()];
+                return $this->uiHookResponse(self::REPLACE, $acc->getHTML());
             }
         }
 
-        return ['mode' => ilUIHookPluginGUI::KEEP];
+        return $this->uiHookResponse();
     }
 
     private function isAllowedUser(): bool
@@ -294,5 +294,10 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
         $form->addCommandButton('Import.import', $this->plugin_object->txt('grp' . '_add'));
         $form->addCommandButton('Import.cancel', $this->dic->language()->txt('cancel'));
         return $form;
+    }
+
+    protected function uiHookResponse(string $mode = ilUIHookPluginGUI::KEEP, string $html = ''): array
+    {
+        return ['mode' => $mode, 'html' => $html];
     }
 }
