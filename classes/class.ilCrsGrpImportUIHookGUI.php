@@ -71,6 +71,10 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
 
     public function getHTML(string $a_comp, string $a_part, array $a_par = []): array
     {
+        if (!isset($a_par["tpl_id"], $a_par["html"]) || !$a_par["tpl_id"] || !$a_par["html"]) {
+            return $this->uiHookResponse();
+        }
+
         if (self::$stop_recursion === true) {
             return $this->uiHookResponse();
         }
