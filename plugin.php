@@ -4,7 +4,7 @@
 $id = 'crsgrpimport';
 
 // code version; must be changed for all code changes
-$version = '9.1.0';
+$version = '9.1.1';
 
 // ilias min and max version; must always reflect the versions that should
 // run with the plugin
