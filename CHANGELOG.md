@@ -1,5 +1,9 @@
 # Change-Log
 
+## 9.1.1
+
+* Improvement: Reduced number of permission checks
+
 ## 9.1.0
 
 * Added support for Member Gallery
