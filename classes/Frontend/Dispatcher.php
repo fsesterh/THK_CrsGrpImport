@@ -26,21 +26,15 @@ use ILIAS\DI\Container;
 class Dispatcher
 {
     private static ?self $instance = null;
-    protected ilCrsGrpImportUIHookGUI $coreController;
-    protected string $defaultController = '';
     protected Container $dic;
 
-    private function __construct(ilCrsGrpImportUIHookGUI $baseController, string $defaultController = '')
+    private function __construct(protected ilCrsGrpImportUIHookGUI $coreController, protected string $defaultController = '')
     {
-        $this->coreController = $baseController;
-        $this->defaultController = $defaultController;
     }
 
     public static function getInstance(ilCrsGrpImportUIHookGUI $base_controller): ?self
     {
-        if (self::$instance === null) {
-            self::$instance = new self($base_controller);
-        }
+        self::$instance ??= new self($base_controller);
 
         return self::$instance;
     }

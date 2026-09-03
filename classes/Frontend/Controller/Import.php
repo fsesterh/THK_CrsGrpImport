@@ -35,7 +35,7 @@ class Import extends Base
 {
     private QueuedRepository $queuedRepo;
 
-    private const CSV_HEADERS = [
+    private const array CSV_HEADERS = [
         "Action",
         "Type",
         "RefId",

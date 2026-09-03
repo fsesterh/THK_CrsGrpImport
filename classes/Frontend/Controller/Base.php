@@ -35,14 +35,12 @@ abstract class Base
 
     protected Container $dic;
     protected array $parameters = [];
-    public ilCrsGrpImportUIHookGUI $coreController;
     protected UiUtil $uiUtil;
     protected WrapperFactory $httpWrapper;
     protected Factory $refinery;
 
-    final public function __construct(ilCrsGrpImportUIHookGUI $controller, Container $dic)
+    final public function __construct(public ilCrsGrpImportUIHookGUI $coreController, Container $dic)
     {
-        $this->coreController = $controller;
         $this->dic = $dic;
         $this->uiUtil = new UiUtil();
         $this->httpWrapper = $this->dic->http()->wrapper();
@@ -70,7 +68,7 @@ abstract class Base
                 $class = $_GET[$a_context] ?? '';
                 return $class !== '' && in_array(
                     strtolower($class),
-                    array_map('strtolower', (array) $a_value_a),
+                    array_map(strtolower(...), (array) $a_value_a),
                     true
                 );
 
@@ -78,7 +76,7 @@ abstract class Base
                 $cmd = $_GET[$a_context] ?? '';
                 return $cmd !== '' && in_array(
                     strtolower($cmd),
-                    array_map('strtolower', (array) $a_value_a),
+                    array_map(strtolower(...), (array) $a_value_a),
                     true
                 );
         }

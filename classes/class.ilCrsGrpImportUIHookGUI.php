@@ -39,8 +39,8 @@ class ilCrsGrpImportUIHookGUI extends ilUIHookPluginGUI
     protected static bool $handled = false;
 
     protected Container $dic;
-    private WrapperFactory $httpWrapper;
-    private Factory $refinery;
+    private readonly WrapperFactory $httpWrapper;
+    private readonly Factory $refinery;
 
     public function __construct()
     {

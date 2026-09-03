@@ -67,17 +67,12 @@ class BaseObject implements ObjectImporter
         "UnsubscribeEnd",
         "NewsStartDate"
     ];
-
-    private ImportCsvObject $data;
-    private CSVLog $csv_log;
     public Container $dic;
     public ilObjectDataCache $dataCache;
 
-    public function __construct(ImportCsvObject $data, CSVLog $csv_log, Container $dic)
+    public function __construct(private readonly ImportCsvObject $data, private readonly CSVLog $csv_log, Container $dic)
     {
         global $ilObjDataCache;
-        $this->data = $data;
-        $this->csv_log = $csv_log;
         $this->dic = $dic;
         $this->dataCache = $ilObjDataCache;
     }

@@ -24,17 +24,8 @@ use DateTime;
 
 class QueuedImport
 {
-    private int $id;
-    private string $csvData;
-    private int $userId;
-    private DateTime $creationDate;
-
-    public function __construct(int $id, string $csvData, int $userId, DateTime $creationDate)
+    public function __construct(private readonly int $id, private readonly string $csvData, private readonly int $userId, private readonly DateTime $creationDate)
     {
-        $this->id = $id;
-        $this->csvData = $csvData;
-        $this->userId = $userId;
-        $this->creationDate = $creationDate;
     }
 
     public function getId(): int

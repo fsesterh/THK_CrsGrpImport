@@ -53,11 +53,11 @@ class CrsGrpImportJob extends ilCronJob
     public const GROUP_LINK = 'grpr';
     protected const VALID_TYPE = [0, 1, 2, 3];
 
-    private Container $dic;
-    private ilLogger $logger;
-    private QueuedRepository $queuedRepo;
-    private ilCrsGrpImportPlugin $plugin;
-    private ilComponentFactory $componentFactory;
+    private readonly Container $dic;
+    private readonly ilLogger $logger;
+    private readonly QueuedRepository $queuedRepo;
+    private readonly ilCrsGrpImportPlugin $plugin;
+    private readonly ilComponentFactory $componentFactory;
 
     public function __construct()
     {

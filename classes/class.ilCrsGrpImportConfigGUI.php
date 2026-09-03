@@ -39,14 +39,14 @@ class ilCrsGrpImportConfigGUI extends ilPluginConfigGUI
 {
     protected Container $dic;
     public ilCrsGrpImportPlugin $pluginObj;
-    private ilCtrl $ctrl;
-    private ilLanguage $lng;
-    private ilGlobalTemplateInterface $mainTpl;
-    private Renderer $uiRenderer;
-    private Factory $uiFactory;
-    private UiUtil $uiUtil;
-    private ILIAS\Refinery\Factory $refinery;
-    private WrapperFactory $httpWrapper;
+    private readonly ilCtrl $ctrl;
+    private readonly ilLanguage $lng;
+    private readonly ilGlobalTemplateInterface $mainTpl;
+    private readonly Renderer $uiRenderer;
+    private readonly Factory $uiFactory;
+    private readonly UiUtil $uiUtil;
+    private readonly ILIAS\Refinery\Factory $refinery;
+    private readonly WrapperFactory $httpWrapper;
 
     public function __construct()
     {
@@ -80,7 +80,7 @@ class ilCrsGrpImportConfigGUI extends ilPluginConfigGUI
 
             $this->uiUtil->sendSuccess($this->dic->language()->txt('saved_successfully'), true);
             $this->dic->ctrl()->redirect($this, 'configure');
-        } catch (ilException $e) {
+        } catch (ilException) {
             $this->uiUtil->sendFailure($this->dic->language()->txt('form_input_not_valid'));
         }
     }

@@ -6,119 +6,47 @@ use ilCourseConstants;
 
 class ImportCsvObject
 {
-    private string $action;
-    private string $type;
-    private int $ref_id;
-    private ?int $template_id;
-    private ?string $title_de;
-    private ?string $title_en;
-    private ?string $description_de;
-    private ?string $description_en;
-    private ?string $event_start;
-    private ?string $event_end;
-    private int $online;
-    private ?string $availability_start;
-    private ?string $availability_end;
-    private ?int $availability_visible;
-    private int $registration;
-    private string $registration_pass;
-    private int $admission_link;
-    private ?string $registration_start;
-    private ?string $registration_end;
-    private ?string $unsubscribe_end;
-    private ?int $member_gallery;
-    private string $admins;
-    private ?int $parent_ref_id;
     private string $import_result;
-    private ?string $actor_timezone;
-    private ?int $limit_members;
-    private ?int $min_members;
-    private ?int $max_members;
-    private ?int $waiting_list;
-    private bool $news;
-    private bool $news_block;
-    private bool $news_default_access;
-    private bool $news_rss_feed;
-    private bool $news_timeline;
-    private bool $news_time_auto_entry;
-    private bool $news_time_landing;
-    private string $news_start_date;
 
     public function __construct(
-        string $action,
-        string $type,
-        int $ref_id,
-        ?int $template_id,
-        ?string $title_de,
-        ?string $title_en,
-        ?string $description_de,
-        ?string $description_en,
-        ?string $event_start,
-        ?string $event_end,
-        int $online,
-        ?string $availability_start,
-        ?string $availability_end,
-        ?int $availability_visible,
-        int $registration,
-        string $registration_pass,
-        int $admission_link,
-        ?string $registration_start,
-        ?string $registration_end,
-        ?string $unsubscribe_end,
-        ?int $limit_members,
-        ?int $min_members,
-        ?int $max_members,
-        ?int $waiting_list,
-        bool $news,
-        bool $news_block,
-        bool $news_default_access,
-        bool $news_rss_feed,
-        bool $news_timeline,
-        bool $news_time_auto_entry,
-        bool $news_time_landing,
-        string $news_start_date,
-        ?int $member_gallery,
-        string $admins,
-        ?int $parent_ref_id,
-        ?string $actor_timezone
+        private readonly string $action,
+        private readonly string $type,
+        private int $ref_id,
+        private readonly ?int $template_id,
+        private readonly ?string $title_de,
+        private readonly ?string $title_en,
+        private readonly ?string $description_de,
+        private readonly ?string $description_en,
+        private readonly ?string $event_start,
+        private readonly ?string $event_end,
+        private readonly int $online,
+        private readonly ?string $availability_start,
+        private readonly ?string $availability_end,
+        private readonly ?int $availability_visible,
+        private readonly int $registration,
+        private readonly string $registration_pass,
+        private readonly int $admission_link,
+        private readonly ?string $registration_start,
+        private readonly ?string $registration_end,
+        private readonly ?string $unsubscribe_end,
+        private readonly ?int $limit_members,
+        private readonly ?int $min_members,
+        private readonly ?int $max_members,
+        private readonly ?int $waiting_list,
+        private readonly bool $news,
+        private readonly bool $news_block,
+        private readonly bool $news_default_access,
+        private readonly bool $news_rss_feed,
+        private readonly bool $news_timeline,
+        private readonly bool $news_time_auto_entry,
+        private readonly bool $news_time_landing,
+        private readonly string $news_start_date,
+        private readonly ?int $member_gallery,
+        private readonly string $admins,
+        private readonly ?int $parent_ref_id,
+        private readonly ?string $actor_timezone
     ) {
-        $this->action = $action;
-        $this->type = $type;
-        $this->ref_id = $ref_id;
-        $this->template_id = $template_id;
-        $this->title_de = $title_de;
-        $this->title_en = $title_en;
-        $this->description_de = $description_de;
-        $this->description_en = $description_en;
-        $this->event_start = $event_start;
-        $this->event_end = $event_end;
-        $this->online = $online;
-        $this->availability_start = $availability_start;
-        $this->availability_end = $availability_end;
-        $this->availability_visible = $availability_visible;
-        $this->registration = $registration;
-        $this->registration_pass = $registration_pass;
-        $this->admission_link = $admission_link;
-        $this->registration_start = $registration_start;
-        $this->registration_end = $registration_end;
-        $this->unsubscribe_end = $unsubscribe_end;
-        $this->limit_members = $limit_members;
-        $this->min_members = $min_members;
-        $this->max_members = $max_members;
-        $this->waiting_list = $waiting_list;
-        $this->news = $news;
-        $this->news_block = $news_block;
-        $this->news_default_access = $news_default_access;
-        $this->news_rss_feed = $news_rss_feed;
-        $this->news_timeline = $news_timeline;
-        $this->news_time_auto_entry = $news_time_auto_entry;
-        $this->news_time_landing = $news_time_landing;
-        $this->news_start_date = $news_start_date;
-        $this->member_gallery = $member_gallery;
-        $this->admins = $admins;
-        $this->parent_ref_id = $parent_ref_id;
         $this->import_result = '';
-        $this->actor_timezone = $actor_timezone;
     }
 
     public function getActorTimezone(): ?string
@@ -235,7 +163,7 @@ class ImportCsvObject
     {
         if ($this->getAdmins() !== '') {
             $logins = explode(',', $this->admins);
-            return array_map('trim', $logins);
+            return array_map(trim(...), $logins);
         }
         return [];
     }
