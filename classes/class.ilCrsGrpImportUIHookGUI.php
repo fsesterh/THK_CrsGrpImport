@@ -32,7 +32,7 @@ require_once 'Services/UIComponent/classes/class.ilUIHookPluginGUI.php';
  * @ilCtrl_isCalledBy ilCrsGrpImportUIHookGUI: ilObjCourseGUI, ilObjGroupGUI
  * @ilCtrl_isCalledBy ilCrsGrpImportUIHookGUI: ilUIPluginRouterGUI
  */
-class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
+class ilCrsGrpImportUIHookGUI extends ilUIHookPluginGUI
 {
     protected static bool $stop_recursion = false;
     protected static bool $has_accordion = false;
@@ -130,9 +130,9 @@ class ilCrsGrpImportUIHookGUI extends \ilUIHookPluginGUI
 
                 foreach ($import_sections as $import_section) {
                     $header = preg_quote(
-                            $this->dic->language()->txt('option'),
-                            '/'
-                        ) . ' (\d+): ' . preg_quote($import_section, '/');
+                        $this->dic->language()->txt('option'),
+                        '/'
+                    ) . ' (\d+): ' . preg_quote($import_section, '/');
                     if (preg_match('/' . $header . '/', $accordion_section->textContent, $matches)) {
                         $counter = (int) $matches[1] + 1;
                         $previous_sibling = $accordion_section;

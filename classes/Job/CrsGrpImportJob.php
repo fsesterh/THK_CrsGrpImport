@@ -20,7 +20,6 @@ declare(strict_types=1);
 
 namespace ILIAS\Plugin\CrsGrpImport\Job;
 
-use Exception;
 use ilComponentFactory;
 use ilCronJob;
 use ilCronJobResult;
@@ -344,7 +343,7 @@ class CrsGrpImportJob extends ilCronJob
                 return false;
             }
 
-            $usr_ids = \ilObjUser::_lookupId($data->getValidatedAdmins());
+            $usr_ids = ilObjUser::_lookupId($data->getValidatedAdmins());
             if (count($usr_ids) === 0) {
                 $data->setImportResult(BaseObject::RESULT_NO_ADMIN_USERS_COULD_BE_DETERMINED);
                 return false;

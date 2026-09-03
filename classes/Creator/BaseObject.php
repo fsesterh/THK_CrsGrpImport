@@ -230,7 +230,6 @@ class BaseObject implements ObjectImporter
     }
 
     /**
-     * @param ImportCsvObject $data
      * @return array<string, string>
      */
     public function getColumnsBeforeUnix(ImportCsvObject $data): array

@@ -45,7 +45,7 @@ class ilCrsGrpImportConfigGUI extends ilPluginConfigGUI
     private Renderer $uiRenderer;
     private Factory $uiFactory;
     private UiUtil $uiUtil;
-    private \ILIAS\Refinery\Factory $refinery;
+    private ILIAS\Refinery\Factory $refinery;
     private WrapperFactory $httpWrapper;
 
     public function __construct()
