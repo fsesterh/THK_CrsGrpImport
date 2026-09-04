@@ -7,13 +7,13 @@ use ilDateTime;
 use ilDateTimeException;
 use ILIAS\DI\Container;
 use ILIAS\DI\Exceptions\Exception;
+use ILIAS\ILIASObject\Properties\Translations\Language;
 use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
 use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
 use ilObjCourse;
 use ilObject;
 use ilObjectActivation;
 use ilObjectDataCache;
-use ilObjectTranslation;
 use ilObjGroup;
 
 class BaseObject implements ObjectImporter
@@ -140,43 +140,43 @@ class BaseObject implements ObjectImporter
     public function handleI18nTitleAndDescription(ilObjGroup|ilObjCourse $object, bool $is_update = false): void
     {
         if (!$is_update && (is_string($this->getData()->getTitleEn()) && $this->getData()->getTitleEn() !== '')) {
-            $translation = ilObjectTranslation::getInstance($object->getId());
-            $translation->setDefaultTitle((string) $this->getData()->getTitleDe());
-            $translation->setDefaultDescription((string) $this->getData()->getDescriptionDe());
-            $translation->setLanguages([]);
-            $translation->addLanguage(
-                'de',
-                $this->getData()->getTitleDe(),
-                $this->getData()->getDescriptionDe(),
-                true
-            );
-            $translation->addLanguage(
-                'en',
-                $this->getData()->getTitleEn(),
-                $this->getData()->getDescriptionEn(),
-                false
-            );
-            $translation->setMasterLanguage('de');
-            $translation->save();
-        } elseif ($is_update) {
-            $translation = ilObjectTranslation::getInstance($object->getId());
-            if (is_string($this->getData()->getTitleEn()) && $this->getData()->getTitleEn() !== '') {
-                if (isset($languages['en'])) {
-                    $translation->removeLanguage('en');
-                }
-
-                $translation->addLanguage(
+            $translation = ($object->getObjectProperties()->getPropertyTranslations())
+                ->withDefaultTitle((string) $this->getData()->getTitleDe())
+                ->withDefaultDescription((string) $this->getData()->getDescriptionDe())
+                ->withResetLanguages()
+                ->withLanguage(new Language(
+                    'de',
+                    $this->getData()->getTitleDe(),
+                    $this->getData()->getDescriptionDe(),
+                    true
+                ))->withLanguage(new Language(
                     'en',
                     $this->getData()->getTitleEn(),
                     $this->getData()->getDescriptionEn(),
                     false
-                );
-                $translation->save();
+                ))
+                ->withBaseLanguage('de');
+
+            $object->getObjectProperties()->storePropertyTranslations($translation);
+        } elseif ($is_update) {
+            $translation = $object->getObjectProperties()->getPropertyTranslations();
+            if (is_string($this->getData()->getTitleEn()) && $this->getData()->getTitleEn() !== '') {
+                if (isset($languages['en'])) {
+                    $translation = $translation->withoutLanguage('en');
+                }
+
+                $translation = $translation->withLanguage(new Language(
+                    'en',
+                    $this->getData()->getTitleEn(),
+                    $this->getData()->getDescriptionEn(),
+                    false
+                ));
+                $object->getObjectProperties()->storePropertyTranslations($translation);
             } else {
                 $languages = $translation->getLanguages();
                 if (isset($languages['en'])) {
-                    $translation->removeLanguage('en');
-                    $translation->save();
+                    $translation = $translation->withoutLanguage('en');
+                    $object->getObjectProperties()->storePropertyTranslations($translation);
                 }
             }
         }
