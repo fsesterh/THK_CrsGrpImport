@@ -26,8 +26,6 @@ use ILIAS\UI\Renderer;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-require_once 'Services/Component/classes/class.ilPluginConfigGUI.php';
-
 /**
  * @ilCtrl_Calls      ilCrsGrpImportConfigGUI: ilPropertyFormGUI
  * @ilCtrl_Calls      ilCrsGrpImportConfigGUI: ilExplorerSelectInputGUI

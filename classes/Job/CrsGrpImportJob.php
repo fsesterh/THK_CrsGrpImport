@@ -21,15 +21,15 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\CrsGrpImport\Job;
 
 use ilComponentFactory;
-use ilCronJob;
-use ilCronJobResult;
 use ilCrsGrpImportPlugin;
 use ilDateTimeException;
 use ilDidacticTemplateSetting;
 use ilDidacticTemplateSettings;
 use ilFileDataMail;
 use ilFileUtils;
-use ILIAS\Cron\Schedule\CronJobScheduleType;
+use ILIAS\Cron\CronJob;
+use ILIAS\Cron\Job\JobResult;
+use ILIAS\Cron\Job\Schedule\JobScheduleType;
 use ILIAS\DI\Container;
 use ILIAS\Plugin\CrsGrpImport\Creator\BaseObject;
 use ILIAS\Plugin\CrsGrpImport\Creator\ContainerLink;
@@ -45,7 +45,7 @@ use ilObjUser;
 use ReflectionClass;
 use Throwable;
 
-class CrsGrpImportJob extends ilCronJob
+class CrsGrpImportJob extends CronJob
 {
     public const COURSE = 'crs';
     public const GROUP = 'grp';
@@ -94,9 +94,9 @@ class CrsGrpImportJob extends ilCronJob
         return true;
     }
 
-    public function getDefaultScheduleType(): CronJobScheduleType
+    public function getDefaultScheduleType(): JobScheduleType
     {
-        return CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS;
+        return JobScheduleType::IN_HOURS;
     }
 
     /**
@@ -105,9 +105,9 @@ class CrsGrpImportJob extends ilCronJob
     public function getAllScheduleTypes(): array
     {
         return [
-            CronJobScheduleType::SCHEDULE_TYPE_IN_MINUTES,
-            CronJobScheduleType::SCHEDULE_TYPE_IN_HOURS,
-            CronJobScheduleType::SCHEDULE_TYPE_DAILY,
+            JobScheduleType::IN_MINUTES,
+            JobScheduleType::IN_HOURS,
+            JobScheduleType::DAILY,
         ];
     }
 
@@ -119,9 +119,9 @@ class CrsGrpImportJob extends ilCronJob
     /**
      * @throws ilDateTimeException
      */
-    public function run(): ilCronJobResult
+    public function run(): JobResult
     {
-        $cronResult = new ilCronJobResult();
+        $cronResult = new JobResult();
 
 
         try {
@@ -215,7 +215,7 @@ class CrsGrpImportJob extends ilCronJob
                 $this->queuedRepo->removeQueuedImport($queuedImport);
             }
 
-            $cronResult->setStatus(ilCronJobResult::STATUS_OK);
+            $cronResult->setStatus(JobResult::STATUS_OK);
             $cronResult->setMessage(
                 sprintf(
                     $this->plugin->txt("cronResult"),
@@ -225,7 +225,7 @@ class CrsGrpImportJob extends ilCronJob
             );
         } catch (Throwable $ex) {
             $this->logger->error("An error occurred while processing the import queue. The cronjob has been deactivated. Ex.: {$ex->getMessage()}. Stacktrace: \n{$ex->getTraceAsString()}");
-            $cronResult->setStatus(ilCronJobResult::STATUS_CRASHED);
+            $cronResult->setStatus(JobResult::STATUS_CRASHED);
             $cronResult->setMessage($this->plugin->txt("cronResult.crashed"));
             $this->dic->cron()->manager()->deactivateJob($this, $this->dic->user());
         }

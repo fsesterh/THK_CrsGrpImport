@@ -18,14 +18,6 @@
 
 declare(strict_types=1);
 
-chdir(dirname(__FILE__));
-$iliasRootDir = './';
-while (!file_exists($iliasRootDir . 'ilias.ini.php')) {
-    $iliasRootDir .= '../';
-}
-chdir($iliasRootDir);
-
-
 if (PHP_SAPI !== 'cli') {
     die("Cronjob can only be run from the command line.\n");
 }
@@ -34,32 +26,41 @@ if ($_SERVER['argc'] < 3) {
     die("Usage:  " . basename(__FILE__) . " username client \n");
 }
 
-require_once './Services/Cron/classes/class.ilCronStartUp.php';
-require_once __DIR__ . '/vendor/autoload.php';
+chdir(dirname(__FILE__));
+$iliasRootDir = './';
+while (!file_exists($iliasRootDir . 'ilias.ini.php')) {
+    $iliasRootDir .= '../';
+}
+chdir($iliasRootDir);
 
-$cron = new ilCronStartUp($_SERVER['argv'][2], $_SERVER['argv'][1]);
+require_once 'vendor/composer/vendor/autoload.php';
+
+use ILIAS\Cron\CLI\StartUp;
+use ILIAS\Cron\Job\JobResult;
+
+$cron = new StartUp($_SERVER['argv'][2], $_SERVER['argv'][1]);
 
 try {
     $cron->authenticate();
     $cronResult = ilCrsGrpImportPlugin::getInstance()->run();
     $cron->logout();
     switch ($cronResult->getStatus()) {
-        case ilCronJobResult::STATUS_INVALID_CONFIGURATION:
+        case JobResult::STATUS_INVALID_CONFIGURATION:
             $status = "INVALID CONFIGURATION";
             break;
-        case ilCronJobResult::STATUS_NO_ACTION:
+        case JobResult::STATUS_NO_ACTION:
             $status = "NO ACTION";
             break;
-        case ilCronJobResult::STATUS_OK:
+        case JobResult::STATUS_OK:
             $status = "OK";
             break;
-        case ilCronJobResult::STATUS_CRASHED:
+        case JobResult::STATUS_CRASHED:
             $status = "CRASHED";
             break;
-        case ilCronJobResult::STATUS_RESET:
+        case JobResult::STATUS_RESET:
             $status = "RESET";
             break;
-        case ilCronJobResult::STATUS_FAIL:
+        case JobResult::STATUS_FAIL:
         default:
             $status = "FAILED";
             break;
