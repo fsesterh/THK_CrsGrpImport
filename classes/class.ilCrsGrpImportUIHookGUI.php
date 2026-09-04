@@ -24,7 +24,6 @@ use ILIAS\Plugin\CrsGrpImport\Frontend;
 use ILIAS\Refinery\Factory;
 
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once 'Services/UIComponent/classes/class.ilUIHookPluginGUI.php';
 
 /**
  *
