@@ -145,18 +145,18 @@ class BaseObject implements ObjectImporter
                 ->withDefaultDescription((string) $this->getData()->getDescriptionDe())
                 ->withResetLanguages()
                 ->withLanguage(new Language(
-                    'de',
-                    $this->getData()->getTitleDe(),
-                    $this->getData()->getDescriptionDe(),
-                    true
-                ))->withLanguage(new Language(
                     'en',
                     $this->getData()->getTitleEn(),
                     $this->getData()->getDescriptionEn(),
                     false
                 ))
-                ->withBaseLanguage('de');
-
+                ->withLanguage(new Language(
+                    'de',
+                    $this->getData()->getTitleDe(),
+                    $this->getData()->getDescriptionDe(),
+                    true,
+                    true
+                ));
             $object->getObjectProperties()->storePropertyTranslations($translation);
         } elseif ($is_update) {
             $translation = $object->getObjectProperties()->getPropertyTranslations();
