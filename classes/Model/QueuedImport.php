@@ -22,9 +22,9 @@ namespace ILIAS\Plugin\CrsGrpImport\Model;
 
 use DateTime;
 
-class QueuedImport
+readonly class QueuedImport
 {
-    public function __construct(private readonly int $id, private readonly string $csvData, private readonly int $userId, private readonly DateTime $creationDate)
+    public function __construct(private int $id, private string $csvData, private int $userId, private DateTime $creationDate)
     {
     }
 

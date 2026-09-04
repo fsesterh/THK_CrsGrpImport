@@ -47,11 +47,11 @@ use Throwable;
 
 class CrsGrpImportJob extends CronJob
 {
-    public const COURSE = 'crs';
-    public const GROUP = 'grp';
-    public const COURSE_LINK = 'crsr';
-    public const GROUP_LINK = 'grpr';
-    protected const VALID_TYPE = [0, 1, 2, 3];
+    public const string COURSE = 'crs';
+    public const string GROUP = 'grp';
+    public const string COURSE_LINK = 'crsr';
+    public const string GROUP_LINK = 'grpr';
+    protected const array VALID_TYPE = [0, 1, 2, 3];
 
     private readonly Container $dic;
     private readonly ilLogger $logger;

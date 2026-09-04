@@ -27,8 +27,8 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 class ilCrsGrpImportPlugin extends ilUserInterfaceHookPlugin implements JobProvider
 {
-    public const ID = 'crsgrpimport';
-    public const PLUGIN_CMD_DETECTION_PARAMETER = 'isCrsGrpImport';
+    public const string ID = 'crsgrpimport';
+    public const string PLUGIN_CMD_DETECTION_PARAMETER = 'isCrsGrpImport';
 
     private static ?self $instance = null;
 

@@ -21,6 +21,7 @@ declare(strict_types=1);
 namespace ILIAS\Plugin\CrsGrpImport\Repository;
 
 use DateTime;
+use ilDBConstants;
 use ilDBInterface;
 use ILIAS\Plugin\CrsGrpImport\Model\QueuedImport;
 
@@ -75,10 +76,10 @@ class QueuedRepository
         );
 
         return $this->db->insert(self::TABLE_NAME, [
-                "id" => ["integer", $queuedImport->getId()],
-                "data" => ["clob", $queuedImport->getCsvData()],
-                "created_timestamp" => ["integer", $queuedImport->getCreationDate()->getTimestamp()],
-                "user" => ["integer", $queuedImport->getUserId()]
+                "id" => [ilDBConstants::T_INTEGER, $queuedImport->getId()],
+                "data" => [ilDBConstants::T_CLOB, $queuedImport->getCsvData()],
+                "created_timestamp" => [ilDBConstants::T_INTEGER, $queuedImport->getCreationDate()->getTimestamp()],
+                "user" => [ilDBConstants::T_INTEGER, $queuedImport->getUserId()]
             ]) === 1;
     }
 
@@ -86,7 +87,7 @@ class QueuedRepository
     {
         return $this->db->manipulateF(
             "DELETE FROM " . self::TABLE_NAME . " WHERE id = %s",
-            ["integer"],
+            [ilDBConstants::T_INTEGER],
             [$queuedImport->getId()]
         ) === 1;
     }
