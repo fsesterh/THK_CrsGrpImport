@@ -182,7 +182,7 @@ class ilCrsGrpImportUIHookGUI extends ilUIHookPluginGUI
                             );
                             $previous_sibling = $imported_accordion_section;
                         } elseif ($previous_sibling->parentNode) {
-                            $previous_sibling->parentNode->apppendChild($imported_accordion_section);
+                            $previous_sibling->parentNode->appendChild($imported_accordion_section);
                         } else {
                             $core_doc->getElementById('accordion__1')->appendChild($imported_accordion_section);
                         }
