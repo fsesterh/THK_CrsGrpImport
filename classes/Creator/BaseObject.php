@@ -9,6 +9,7 @@ use ILIAS\DI\Container;
 use ILIAS\DI\Exceptions\Exception;
 use ILIAS\ILIASObject\Properties\Translations\Language;
 use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
+use ILIAS\Plugin\CrsGrpImport\Enum\ImportType;
 use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
 use ilObjCourse;
 use ilObject;
@@ -112,14 +113,14 @@ class BaseObject implements ObjectImporter
                     if ($event_start !== '' && $event_end !== '') {
                         $period_start = $this->checkAndParseDateStringToObject($event_start);
                         $period_end = $this->checkAndParseDateStringToObject($event_end);
-                        if ($crs_or_grp_object->getType() === 'crs' && $period_start !== '' && $period_end !== '') {
+                        if ($crs_or_grp_object->getType() === ImportType::COURSE->value && $period_start !== '' && $period_end !== '') {
                             $crs_or_grp_object->setCoursePeriod(new ilDateTime(
                                 $period_start->getTimestamp(),
                                 IL_CAL_UNIX
                             ), new ilDateTime($period_end->getTimestamp(), IL_CAL_UNIX));
                         }
                     }
-                    if ($crs_or_grp_object->getType() === 'crs') {
+                    if ($crs_or_grp_object->getType() === ImportType::COURSE->value) {
                         if ($availability_start !== '' && $availability_end !== '') {
                             $crs_or_grp_object->setActivationStart($availability_start->getTimestamp());
                             $crs_or_grp_object->setActivationEnd($availability_end->getTimestamp());
@@ -252,7 +253,7 @@ class BaseObject implements ObjectImporter
         if ($ref_id > 0) {
             if (!$this->isInTrash($ref_id)) {
                 if ($this->objectExists($ref_id)) {
-                    if ($this->isCorrectObjectType($ref_id, $data->getType())) {
+                    if ($data->getType()->isCorrectObjType($ref_id)) {
                         return $this->checkDateColumnsBeforeUnix();
                     }
 
@@ -277,12 +278,6 @@ class BaseObject implements ObjectImporter
     protected function objectExists(int $ref_id): bool
     {
         return ilObject::_exists($ref_id, true);
-    }
-
-    protected function isCorrectObjectType(int $ref_id, string $type): bool
-    {
-        $obj_type = ilObject::_lookupType($ref_id, true);
-        return $obj_type === $type;
     }
 
     protected function checkAndParseDateStringToObject(string $date): DateTimeImmutable|string

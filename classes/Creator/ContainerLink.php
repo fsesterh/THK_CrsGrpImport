@@ -3,6 +3,7 @@
 namespace ILIAS\Plugin\CrsGrpImport\Creator;
 
 use ilContainerReference;
+use ILIAS\Plugin\CrsGrpImport\Enum\ImportType;
 use ILIAS\Plugin\CrsGrpImport\Job\CrsGrpImportJob;
 use ilObjCourseReference;
 use ilObject;
@@ -15,9 +16,9 @@ class ContainerLink extends BaseObject
     {
         if ($this->getData() !== null && $this->checkPrerequisitesForInsert()) {
             $container_reference = null;
-            if ($this->getData()->getType() === CrsGrpImportJob::COURSE_LINK) {
+            if ($this->getData()->getType() === ImportType::COURSE_LINK) {
                 $container_reference = new ilObjCourseReference();
-            } elseif ($this->getData()->getType() === CrsGrpImportJob::GROUP_LINK) {
+            } elseif ($this->getData()->getType() === ImportType::GROUP_LINK) {
                 $container_reference = new ilObjGroupReference();
             }
 

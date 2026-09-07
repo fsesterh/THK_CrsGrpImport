@@ -36,6 +36,7 @@ use ILIAS\Plugin\CrsGrpImport\Creator\ContainerLink;
 use ILIAS\Plugin\CrsGrpImport\Creator\Course;
 use ILIAS\Plugin\CrsGrpImport\Creator\Group;
 use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
+use ILIAS\Plugin\CrsGrpImport\Enum\ImportType;
 use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
 use ILIAS\Plugin\CrsGrpImport\Repository\QueuedRepository;
 use ilLogger;
@@ -47,10 +48,6 @@ use Throwable;
 
 class CrsGrpImportJob extends CronJob
 {
-    public const string COURSE = 'crs';
-    public const string GROUP = 'grp';
-    public const string COURSE_LINK = 'crsr';
-    public const string GROUP_LINK = 'grpr';
     protected const array VALID_TYPE = [0, 1, 2, 3];
 
     private readonly Container $dic;
@@ -141,13 +138,13 @@ class CrsGrpImportJob extends CronJob
                 foreach ($csv_deserialized as $key => $data) {
                     $base_status = BaseObject::STATUS_OK;
 
-                    if ($data->getType() === self::COURSE) {
+                    if ($data->getType() === ImportType::COURSE) {
                         $base_status = $this->buildCourseObject($data, $csvLog);
-                    } elseif ($data->getType() === self::GROUP) {
+                    } elseif ($data->getType() === ImportType::GROUP) {
                         $base_status = $this->buildGroupObject($data, $csvLog);
-                    } elseif ($data->getType() === self::COURSE_LINK) {
+                    } elseif ($data->getType() === ImportType::COURSE_LINK) {
                         $base_status = $this->buildCourseLinkObject($data, $csvLog);
-                    } elseif ($data->getType() === self::GROUP_LINK) {
+                    } elseif ($data->getType() === ImportType::GROUP_LINK) {
                         $base_status = $this->buildGroupLinkObject($data, $csvLog);
                     } else {
                         $base_status = BaseObject::STATUS_FAILED;
@@ -306,18 +303,18 @@ class CrsGrpImportJob extends CronJob
             return false;
         }
 
-        if (!in_array($data->getType(), [self::COURSE, self::GROUP, self::COURSE_LINK, self::GROUP_LINK], true)) {
+        if ($data->getType() === ImportType::UNSUPPORTED) {
             $data->setImportResult(BaseObject::RESULT_UNSUPPORTED_OBJECT_TYPE);
             return false;
         }
 
-        if (in_array($data->getType(), [self::COURSE, self::GROUP], true)) {
+        if (in_array($data->getType(), [ImportType::COURSE, ImportType::GROUP], true)) {
             if (!in_array($data->getRegistrationNative(), self::VALID_TYPE)) {
                 $data->setImportResult(BaseObject::RESULT_UNSUPPORTED_REGISTRATION_TYPE);
                 return false;
             }
 
-            if ($data->getType() === self::COURSE) {
+            if ($data->getType() === ImportType::COURSE) {
                 if ($data->getTemplateIdNativeType() === 1) {
                     $data->setImportResult(BaseObject::RESULT_DIDACTIC_TEMPLATE_ID_1_NOT_ALLOWED);
                     return false;
@@ -325,7 +322,7 @@ class CrsGrpImportJob extends CronJob
             }
 
             /** @var ilDidacticTemplateSetting $template */
-            $templates = ilDidacticTemplateSettings::getInstanceByObjectType($data->getType())->getTemplates();
+            $templates = ilDidacticTemplateSettings::getInstanceByObjectType($data->getType()->value)->getTemplates();
             $enabled_templates_by_id = [];
             foreach ($templates as $template) {
                 if ($template->isEnabled()) {
@@ -366,7 +363,7 @@ class CrsGrpImportJob extends CronJob
             }
         }
 
-        if (in_array($data->getType(), [self::COURSE_LINK, self::GROUP_LINK], true)) {
+        if (in_array($data->getType(), [ImportType::COURSE_LINK, ImportType::GROUP_LINK], true)) {
             if (!in_array(strtolower($data->getAction()), [BaseObject::INSERT, BaseObject::IGNORE], true)) {
                 // course links and group links don't support an `update` action
                 $data->setImportResult(BaseObject::RESULT_NO_UPDATE_ACTION_ALLOWED_FOR_LINKS);
@@ -384,12 +381,12 @@ class CrsGrpImportJob extends CronJob
                 return false;
             }
 
-            if ($data->getType() === self::COURSE_LINK && ilObject::_lookupType($obj_id) !== self::COURSE) {
+            if ($data->getType() === ImportType::COURSE_LINK && ilObject::_lookupType($obj_id) !== ImportType::COURSE->value) {
                 $data->setImportResult(BaseObject::RESULT_TYPE_MISMATCH_FOR_LINK);
                 return false;
             }
 
-            if ($data->getType() === self::GROUP_LINK && ilObject::_lookupType($obj_id) !== self::GROUP) {
+            if ($data->getType() === ImportType::GROUP_LINK && ilObject::_lookupType($obj_id) !== ImportType::GROUP->value) {
                 $data->setImportResult(BaseObject::RESULT_TYPE_MISMATCH_FOR_LINK);
                 return false;
             }

@@ -130,7 +130,7 @@ class Course extends BaseObject
     protected function writeCourseAdvancedData(ilObjCourse $course): int
     {
         /** @var ilDidacticTemplateSetting $template */
-        $templates = ilDidacticTemplateSettings::getInstanceByObjectType($this->getData()->getType())->getTemplates();
+        $templates = ilDidacticTemplateSettings::getInstanceByObjectType($this->getData()->getType()->value)->getTemplates();
         foreach ($templates as $template) {
             if ($template->isEnabled() && (int) $this->getData()->getTemplateIdNativeType() === (int) $template->getId()) {
                 $course->applyDidacticTemplate($template->getId());

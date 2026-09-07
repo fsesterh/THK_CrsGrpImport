@@ -3,6 +3,7 @@
 namespace ILIAS\Plugin\CrsGrpImport\Data;
 
 use ilCourseConstants;
+use ILIAS\Plugin\CrsGrpImport\Enum\ImportType;
 
 class ImportCsvObject
 {
@@ -10,7 +11,7 @@ class ImportCsvObject
 
     public function __construct(
         private readonly string $action,
-        private readonly string $type,
+        private readonly ImportType $type,
         private int $ref_id,
         private readonly ?int $template_id,
         private readonly ?string $title_de,
@@ -59,9 +60,9 @@ class ImportCsvObject
         return strtolower($this->action);
     }
 
-    public function getType(): string
+    public function getType(): ImportType
     {
-        return strtolower($this->type);
+        return $this->type;
     }
 
     public function getRefId(): int
