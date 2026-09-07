@@ -4,6 +4,7 @@ namespace ILIAS\Plugin\CrsGrpImport\Log;
 
 use ilCrsGrpImportPlugin;
 use ilCSVWriter;
+use ILIAS\Plugin\CrsGrpImport\Enum\ImportStatus;
 
 class CSVLog
 {
@@ -27,9 +28,9 @@ class CSVLog
         return $this->csv->getCSVString();
     }
 
-    public function addEntryToLog(string $status, ?int $ref_id, ?string $title, array $admins, string $result): void
+    public function addEntryToLog(ImportStatus $status, ?int $ref_id, ?string $title, array $admins, string $result): void
     {
-        $this->csv->addColumn($status);
+        $this->csv->addColumn($status->value);
         $this->csv->addColumn($ref_id);
         $this->csv->addColumn($title);
         $this->csv->addColumn(implode(',', $admins));

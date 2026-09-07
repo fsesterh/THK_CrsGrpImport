@@ -9,6 +9,7 @@ use ILIAS\DI\Container;
 use ILIAS\DI\Exceptions\Exception;
 use ILIAS\ILIASObject\Properties\Translations\Language;
 use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
+use ILIAS\Plugin\CrsGrpImport\Enum\ImportStatus;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportType;
 use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
 use ilObjCourse;
@@ -22,10 +23,6 @@ class BaseObject implements ObjectImporter
     public const string INSERT = 'insert';
     public const string UPDATE = 'update';
     public const string IGNORE = 'ignore';
-    public const string STATUS_IGNORED = 'Ignored';
-    public const string STATUS_UPDATED = 'Updated';
-    public const string STATUS_FAILED = 'Failed';
-    public const string STATUS_OK = 'OK';
     public const string RESULT_IGNORE = 'Entry has set ignore action, ignoring entry.';
     public const string RESULT_NO_VALID_ACTION = 'No valid action found, ignoring entry.';
     public const string RESULT_CREATED_SUCCESSFULLY = 'Object created successfully.';
@@ -183,9 +180,9 @@ class BaseObject implements ObjectImporter
         }
     }
 
-    public function update(): string
+    public function update(): ImportStatus
     {
-        return self::STATUS_OK;
+        return ImportStatus::OK;
     }
 
     public function ignore(): void

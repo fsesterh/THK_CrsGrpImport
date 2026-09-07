@@ -9,6 +9,7 @@ use ilDateTime;
 use ilDateTimeException;
 use ilDidacticTemplateSetting;
 use ilDidacticTemplateSettings;
+use ILIAS\Plugin\CrsGrpImport\Enum\ImportStatus;
 use ilObjCourse;
 use ilObjUser;
 use ilParticipants;
@@ -79,7 +80,7 @@ class Course extends BaseObject
     /**
      * @throws ilDateTimeException
      */
-    public function update(): string
+    public function update(): ImportStatus
     {
         $parentRefId = $this->getData()->getParentRefId();
         $ref_id = $this->getData()->getRefId();
@@ -95,33 +96,33 @@ class Course extends BaseObject
                 $this->writeCourseAdvancedData($obj);
                 $obj->read();
                 if ($this->writeAvailability($ref_id, $obj) === false) {
-                    return BaseObject::STATUS_FAILED;
+                    return ImportStatus::FAILED;
                 }
                 if ($this->addAdminsToCourse($obj) === true) {
                     $this->getData()->setImportResult(BaseObject::RESULT_UPDATED_SUCCESSFULLY);
-                    return BaseObject::STATUS_UPDATED;
+                    return ImportStatus::UPDATED;
                 }
             } else {
                 $this->getData()->setImportResult(BaseObject::RESULT_DATASET_INVALID);
-                return BaseObject::STATUS_FAILED;
+                return ImportStatus::FAILED;
             }
         } else {
             if ($ref_id === 0) {
                 $this->getData()->setImportResult(BaseObject::RESULT_NO_REF_ID_GIVEN_FOR_UPDATE);
-                return BaseObject::STATUS_FAILED;
+                return ImportStatus::FAILED;
             }
             if (!$this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id)) {
                 $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_NOT_IN_SUBTREE);
-                return BaseObject::STATUS_FAILED;
+                return ImportStatus::FAILED;
             }
 
             if ($type !== 'crs') {
                 $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_HAS_DIFFERENT_TYPE);
-                return BaseObject::STATUS_FAILED;
+                return ImportStatus::FAILED;
             }
         }
 
-        return BaseObject::STATUS_IGNORED;
+        return ImportStatus::IGNORED;
     }
 
     /**

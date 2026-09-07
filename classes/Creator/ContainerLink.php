@@ -4,7 +4,6 @@ namespace ILIAS\Plugin\CrsGrpImport\Creator;
 
 use ilContainerReference;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportType;
-use ILIAS\Plugin\CrsGrpImport\Job\CrsGrpImportJob;
 use ilObjCourseReference;
 use ilObject;
 use ilObjGroupReference;

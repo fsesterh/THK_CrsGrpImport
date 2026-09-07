@@ -36,6 +36,7 @@ use ILIAS\Plugin\CrsGrpImport\Creator\ContainerLink;
 use ILIAS\Plugin\CrsGrpImport\Creator\Course;
 use ILIAS\Plugin\CrsGrpImport\Creator\Group;
 use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
+use ILIAS\Plugin\CrsGrpImport\Enum\ImportStatus;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportType;
 use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
 use ILIAS\Plugin\CrsGrpImport\Repository\QueuedRepository;
@@ -136,7 +137,7 @@ class CrsGrpImportJob extends CronJob
                  * @var ImportCsvObject $data
                  */
                 foreach ($csv_deserialized as $key => $data) {
-                    $base_status = BaseObject::STATUS_OK;
+                    $base_status = ImportStatus::OK;
 
                     if ($data->getType() === ImportType::COURSE) {
                         $base_status = $this->buildCourseObject($data, $csvLog);
@@ -147,7 +148,7 @@ class CrsGrpImportJob extends CronJob
                     } elseif ($data->getType() === ImportType::GROUP_LINK) {
                         $base_status = $this->buildGroupLinkObject($data, $csvLog);
                     } else {
-                        $base_status = BaseObject::STATUS_FAILED;
+                        $base_status = ImportStatus::FAILED;
                         $data->setImportResult(BaseObject::RESULT_UNKNOWN_OBJECT_TYPE);
                     }
                     $csvLog->addEntryToLog(
@@ -230,13 +231,13 @@ class CrsGrpImportJob extends CronJob
         return $cronResult;
     }
 
-    protected function buildCourseLinkObject(ImportCsvObject $data, CSVLog $csvLog): string
+    protected function buildCourseLinkObject(ImportCsvObject $data, CSVLog $csvLog): ImportStatus
     {
         $container = new ContainerLink($data, $csvLog, $this->dic);
         return $this->buildObject($container, $data);
     }
 
-    protected function buildGroupLinkObject(ImportCsvObject $data, CSVLog $csvLog): string
+    protected function buildGroupLinkObject(ImportCsvObject $data, CSVLog $csvLog): ImportStatus
     {
         $container = new ContainerLink($data, $csvLog, $this->dic);
         return $this->buildObject($container, $data);
@@ -245,7 +246,7 @@ class CrsGrpImportJob extends CronJob
     /**
      * @throws ilDateTimeException
      */
-    protected function buildGroupObject(mixed $data, CSVLog $csvLog): string
+    protected function buildGroupObject(mixed $data, CSVLog $csvLog): ImportStatus
     {
         $new_group = new Group($data, $csvLog, $this->dic);
         return $this->buildObject($new_group, $data);
@@ -254,7 +255,7 @@ class CrsGrpImportJob extends CronJob
     /**
      * @throws ilDateTimeException
      */
-    protected function buildCourseObject(mixed $data, CSVLog $csvLog): string
+    protected function buildCourseObject(mixed $data, CSVLog $csvLog): ImportStatus
     {
         $new_course = new Course($data, $csvLog, $this->dic);
         return $this->buildObject($new_course, $data);
@@ -263,27 +264,27 @@ class CrsGrpImportJob extends CronJob
     /**
      * @throws ilDateTimeException
      */
-    protected function buildObject(Course|ContainerLink|Group $new_object, ImportCsvObject $data): string
+    protected function buildObject(Course|ContainerLink|Group $new_object, ImportCsvObject $data): ImportStatus
     {
-        $base_status = BaseObject::STATUS_OK;
+        $base_status = ImportStatus::OK;
         if ($this->ensureDataIsValid($data)) {
             if ($data->getAction() === BaseObject::INSERT) {
                 $ref_id = $new_object->insert();
                 $data->setRefId($ref_id);
                 if ($ref_id === 0) {
-                    $base_status = BaseObject::STATUS_FAILED;
+                    $base_status = ImportStatus::FAILED;
                 }
             } elseif ($data->getAction() === BaseObject::UPDATE) {
                 $base_status = $new_object->update();
             } elseif ($data->getAction() === BaseObject::IGNORE) {
                 $data->setImportResult(BaseObject::RESULT_IGNORE);
-                $base_status = BaseObject::STATUS_IGNORED;
+                $base_status = ImportStatus::IGNORED;
             } else {
                 $data->setImportResult(BaseObject::RESULT_NO_VALID_ACTION);
-                $base_status = BaseObject::STATUS_IGNORED;
+                $base_status = ImportStatus::IGNORED;
             }
         } else {
-            $base_status = BaseObject::STATUS_FAILED;
+            $base_status = ImportStatus::FAILED;
             if (!$data->getImportResult()) {
                 $data->setImportResult(BaseObject::RESULT_DATASET_INVALID);
             }
