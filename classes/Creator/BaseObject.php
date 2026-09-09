@@ -20,9 +20,6 @@ use ilObjGroup;
 
 class BaseObject implements ObjectImporter
 {
-    public const string INSERT = 'insert';
-    public const string UPDATE = 'update';
-    public const string IGNORE = 'ignore';
     public const string RESULT_IGNORE = 'Entry has set ignore action, ignoring entry.';
     public const string RESULT_NO_VALID_ACTION = 'No valid action found, ignoring entry.';
     public const string RESULT_CREATED_SUCCESSFULLY = 'Object created successfully.';

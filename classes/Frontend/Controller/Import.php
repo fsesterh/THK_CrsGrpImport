@@ -26,6 +26,7 @@ use ILIAS\FileUpload\DTO\UploadResult;
 use ILIAS\FileUpload\Exception\IllegalStateException;
 use ILIAS\Plugin\CrsGrpImport\Data\Conversions;
 use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
+use ILIAS\Plugin\CrsGrpImport\Enum\ImportAction;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportType;
 use ILIAS\Plugin\CrsGrpImport\Repository\QueuedRepository;
 use ilLink;
@@ -210,7 +211,7 @@ class Import extends Base
                     }
                     $i = 0;
 
-                    $action = $conversion->ensureStringType($data[$i++]); // 0
+                    $action = ImportAction::tryFrom(strtolower($conversion->ensureStringType($data[$i++]))) ?? ImportAction::UNSUPPORTED; // 0
                     $type = ImportType::tryFrom($conversion->ensureStringType($data[$i++])) ?? ImportType::UNSUPPORTED; // 1
                     $ref_id = $conversion->ensureIntType($data[$i++]); // 2
                     $template = $conversion->ensureIntOrNullType($data[$i++]); // 3

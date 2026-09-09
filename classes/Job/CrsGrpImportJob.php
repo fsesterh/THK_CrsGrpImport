@@ -36,6 +36,7 @@ use ILIAS\Plugin\CrsGrpImport\Creator\ContainerLink;
 use ILIAS\Plugin\CrsGrpImport\Creator\Course;
 use ILIAS\Plugin\CrsGrpImport\Creator\Group;
 use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
+use ILIAS\Plugin\CrsGrpImport\Enum\ImportAction;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportStatus;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportType;
 use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
@@ -268,15 +269,15 @@ class CrsGrpImportJob extends CronJob
     {
         $base_status = ImportStatus::OK;
         if ($this->ensureDataIsValid($data)) {
-            if ($data->getAction() === BaseObject::INSERT) {
+            if ($data->getAction() === ImportAction::INSERT) {
                 $ref_id = $new_object->insert();
                 $data->setRefId($ref_id);
                 if ($ref_id === 0) {
                     $base_status = ImportStatus::FAILED;
                 }
-            } elseif ($data->getAction() === BaseObject::UPDATE) {
+            } elseif ($data->getAction() === ImportAction::UPDATE) {
                 $base_status = $new_object->update();
-            } elseif ($data->getAction() === BaseObject::IGNORE) {
+            } elseif ($data->getAction() === ImportAction::IGNORE) {
                 $data->setImportResult(BaseObject::RESULT_IGNORE);
                 $base_status = ImportStatus::IGNORED;
             } else {
@@ -295,11 +296,7 @@ class CrsGrpImportJob extends CronJob
 
     protected function ensureDataIsValid(ImportCsvObject $data): bool
     {
-        if (!in_array(
-            strtolower($data->getAction()),
-            [BaseObject::INSERT, BaseObject::UPDATE, BaseObject::IGNORE],
-            true
-        )) {
+        if ($data->getAction() === ImportAction::UNSUPPORTED) {
             $data->setImportResult(BaseObject::RESULT_UNSUPPORTED_ACTION);
             return false;
         }
@@ -365,7 +362,7 @@ class CrsGrpImportJob extends CronJob
         }
 
         if (in_array($data->getType(), [ImportType::COURSE_LINK, ImportType::GROUP_LINK], true)) {
-            if (!in_array(strtolower($data->getAction()), [BaseObject::INSERT, BaseObject::IGNORE], true)) {
+            if (!in_array($data->getAction(), [ImportAction::INSERT, ImportAction::IGNORE], true)) {
                 // course links and group links don't support an `update` action
                 $data->setImportResult(BaseObject::RESULT_NO_UPDATE_ACTION_ALLOWED_FOR_LINKS);
                 return false;
