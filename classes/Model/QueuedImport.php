@@ -24,7 +24,7 @@ use DateTime;
 
 readonly class QueuedImport
 {
-    public function __construct(private int $id, private string $csvData, private int $userId, private DateTime $creationDate)
+    public function __construct(private int $id, private string $csv_data, private int $user_id, private DateTime $creation_date)
     {
     }
 
@@ -35,16 +35,16 @@ readonly class QueuedImport
 
     public function getCsvData(): string
     {
-        return $this->csvData;
+        return $this->csv_data;
     }
 
     public function getUserId(): int
     {
-        return $this->userId;
+        return $this->user_id;
     }
 
     public function getCreationDate(): DateTime
     {
-        return $this->creationDate;
+        return $this->creation_date;
     }
 }

@@ -37,7 +37,7 @@ class ilCrsGrpImportUIHookGUI extends ilUIHookPluginGUI
     protected static bool $handled = false;
 
     protected Container $dic;
-    private readonly WrapperFactory $httpWrapper;
+    private readonly WrapperFactory $http_wrapper;
     private readonly Factory $refinery;
 
     public function __construct()
@@ -46,7 +46,7 @@ class ilCrsGrpImportUIHookGUI extends ilUIHookPluginGUI
 
         $this->dic = $DIC;
         $this->refinery = $this->dic->refinery();
-        $this->httpWrapper = $this->dic->http()->wrapper();
+        $this->http_wrapper = $this->dic->http()->wrapper();
     }
 
     public function executeCommand(): void
@@ -77,7 +77,7 @@ class ilCrsGrpImportUIHookGUI extends ilUIHookPluginGUI
             return $this->uiHookResponse();
         }
 
-        $getFromQuery = fn(string $key, string $type) => $this->httpWrapper->query()->retrieve(
+        $get_from_query = fn(string $key, string $type) => $this->http_wrapper->query()->retrieve(
             $key,
             $this->refinery->byTrying([
                 $this->refinery->kindlyTo()->$type(),
@@ -86,11 +86,11 @@ class ilCrsGrpImportUIHookGUI extends ilUIHookPluginGUI
         );
 
 
-        $refId = $getFromQuery('ref_id', 'int');
-        $cmd = $getFromQuery('cmd', 'string');
-        $newType = $getFromQuery('new_type', 'string');
+        $ref_id = $get_from_query('ref_id', 'int');
+        $cmd = $get_from_query('cmd', 'string');
+        $new_type = $get_from_query('new_type', 'string');
 
-        if ($cmd !== 'create' || !in_array($newType, ['grp', 'crs'])) {
+        if ($cmd !== 'create' || !in_array($new_type, ['grp', 'crs'])) {
             return $this->uiHookResponse();
         }
 
@@ -106,7 +106,7 @@ class ilCrsGrpImportUIHookGUI extends ilUIHookPluginGUI
             $ui_factory = $this->dic->ui()->factory();
             $ui_renderer = $this->dic->ui()->renderer();
 
-            $form = $this->getImportForm($refId);
+            $form = $this->getImportForm($ref_id);
 
             $panel = $ui_factory->panel()->standard(
                 $this->plugin_object->txt('creation_accordion_header'),
@@ -124,9 +124,9 @@ class ilCrsGrpImportUIHookGUI extends ilUIHookPluginGUI
 
     private function isAllowedUser(): bool
     {
-        $roleIds = $this->dic->settings()->get('crs_grp_import_default_local_role_ids');
+        $role_ids = $this->dic->settings()->get('crs_grp_import_default_local_role_ids');
 
-        $selected_role = $roleIds ? explode(',', $roleIds) : [];
+        $selected_role = $role_ids ? explode(',', $role_ids) : [];
         $user_roles = $this->dic->rbac()->review()->assignedRoles($this->dic->user()->getId());
 
         if (count(array_intersect($user_roles, $selected_role)) > 0) {

@@ -32,13 +32,13 @@ class BaseObject implements ObjectImporter
         "NewsStartDate"
     ];
     public Container $dic;
-    public ilObjectDataCache $dataCache;
+    public ilObjectDataCache $data_cache;
 
     public function __construct(private readonly ImportCsvObject $data, private readonly CSVLog $csv_log, Container $dic)
     {
         global $ilObjDataCache;
         $this->dic = $dic;
-        $this->dataCache = $ilObjDataCache;
+        $this->data_cache = $ilObjDataCache;
     }
 
     protected function getEffectiveActorTimeZone(): string
@@ -172,13 +172,13 @@ class BaseObject implements ObjectImporter
 
     public function checkDateColumnsBeforeUnix(): bool
     {
-        $invalidColumns = $this->getColumnsBeforeUnix($this->getData());
+        $invalid_columns = $this->getColumnsBeforeUnix($this->getData());
 
-        if ($invalidColumns !== []) {
-            foreach ($invalidColumns as $columnName => $value) {
+        if ($invalid_columns !== []) {
+            foreach ($invalid_columns as $column_name => $value) {
                 $this->dic->logger()->root()->error(sprintf(
                     "Date in column '%s' is before the unix timestamp, unable to import. Value: '%s'",
-                    $columnName,
+                    $column_name,
                     $value
                 ));
             }
@@ -193,17 +193,17 @@ class BaseObject implements ObjectImporter
      */
     public function getColumnsBeforeUnix(ImportCsvObject $data): array
     {
-        $invalidColumns = [];
-        foreach (self::DATE_COLUMNS as $columnName) {
-            $getter = "get" . ucfirst($columnName);
+        $invalid_columns = [];
+        foreach (self::DATE_COLUMNS as $column_name) {
+            $getter = "get" . ucfirst($column_name);
             $value = $data->$getter();
 
             $timestamp = strtotime($value);
             if ($value !== "" && (!$timestamp || $timestamp < 0)) {
-                $invalidColumns[ucfirst($columnName)] = $value;
+                $invalid_columns[ucfirst($column_name)] = $value;
             }
         }
-        return $invalidColumns;
+        return $invalid_columns;
     }
 
     public function getData(): ImportCsvObject

@@ -35,7 +35,7 @@ use ilRepositoryGUI;
 
 class Import extends Base
 {
-    private QueuedRepository $queuedRepo;
+    private QueuedRepository $queued_repo;
 
     private const array CSV_HEADERS = [
         "Action",
@@ -77,7 +77,7 @@ class Import extends Base
     protected function init(): void
     {
         parent::init();
-        $this->queuedRepo = QueuedRepository::getInstance();
+        $this->queued_repo = QueuedRepository::getInstance();
     }
 
     public function getDefaultCommand(): string
@@ -94,7 +94,7 @@ class Import extends Base
 
         $plugin = ilCrsGrpImportPlugin::getInstance();
 
-        $parent_ref_id = $this->httpWrapper->post()->retrieve(
+        $parent_ref_id = $this->http_wrapper->post()->retrieve(
             'parent_ref_id',
             $this->refinery->byTrying([
                 $this->refinery->kindlyTo()->int(),
@@ -107,30 +107,30 @@ class Import extends Base
         }
 
         if (false === $DIC->upload()->hasUploads()) {
-            $this->uiUtil->sendFailure($plugin->txt('upload_error'), true);
+            $this->ui_util->sendFailure($plugin->txt('upload_error'), true);
             $this->redirectToRefId($parent_ref_id);
         }
 
-        $uploadResults = $DIC->upload()->getResults();
-        $uploadResult = array_values($uploadResults)[0];
-        if (!($uploadResult instanceof UploadResult)) {
-            $this->uiUtil->sendFailure($plugin->txt('upload_error'), true);
+        $upload_results = $DIC->upload()->getResults();
+        $upload_result = array_values($upload_results)[0];
+        if (!($upload_result instanceof UploadResult)) {
+            $this->ui_util->sendFailure($plugin->txt('upload_error'), true);
             $this->redirectToRefId($parent_ref_id);
         }
 
-        if ($uploadResult->getStatus()->getCode() === ProcessingStatus::REJECTED) {
-            $this->uiUtil->sendFailure($plugin->txt('upload_error'), true);
+        if ($upload_result->getStatus()->getCode() === ProcessingStatus::REJECTED) {
+            $this->ui_util->sendFailure($plugin->txt('upload_error'), true);
             $this->redirectToRefId($parent_ref_id);
         }
 
-        $csv_array = $this->convertCSVToArray($plugin, $uploadResult->getPath(), $parent_ref_id);
-        if ($this->queuedRepo->queueImport(serialize($csv_array), $this->dic->user()->getId())) {
-            $this->uiUtil->sendSuccess(
+        $csv_array = $this->convertCSVToArray($plugin, $upload_result->getPath(), $parent_ref_id);
+        if ($this->queued_repo->queueImport(serialize($csv_array), $this->dic->user()->getId())) {
+            $this->ui_util->sendSuccess(
                 $this->getCoreController()->getPluginObject()->txt("import.queued.success"),
                 true
             );
         } else {
-            $this->uiUtil->sendFailure(
+            $this->ui_util->sendFailure(
                 $this->getCoreController()->getPluginObject()->txt("import.queued.failure"),
                 true
             );
@@ -161,12 +161,12 @@ class Import extends Base
     /**
      * @return ImportCsvObject[]
      */
-    public function convertCSVToArray(ilCrsGrpImportPlugin $plugin, string $importFile, ?int $parent_ref_id = null): array
+    public function convertCSVToArray(ilCrsGrpImportPlugin $plugin, string $import_file, ?int $parent_ref_id = null): array
     {
         $conversion = new Conversions();
         $row = 0;
         $csv_array = [];
-        if (($handle = fopen($importFile, 'rb')) !== false) {
+        if (($handle = fopen($import_file, 'rb')) !== false) {
             while (($data = fgetcsv($handle, 1000, ";")) !== false) {
                 if (count($data) > 1) {
                     $row++;
@@ -174,33 +174,33 @@ class Import extends Base
                         //Header
                         $failures = [];
 
-                        foreach (self::CSV_HEADERS as $expectedPosition => $expectedColumnTitle) {
-                            $foundPosition = array_search($expectedColumnTitle, $data, true);
-                            if (is_int($foundPosition)) {
-                                if ($foundPosition !== $expectedPosition) {
+                        foreach (self::CSV_HEADERS as $expected_position => $expected_column_title) {
+                            $found_position = array_search($expected_column_title, $data, true);
+                            if (is_int($found_position)) {
+                                if ($found_position !== $expected_position) {
                                     $failures[] = sprintf(
                                         $plugin->txt("csv.verification.header.column.position.wrong"),
-                                        $expectedColumnTitle,
-                                        $expectedPosition,
-                                        $foundPosition
+                                        $expected_column_title,
+                                        $expected_position,
+                                        $found_position
                                     );
                                 }
                             } else {
                                 $failures[] = sprintf(
                                     $plugin->txt("csv.verification.header.column.missing"),
-                                    $expectedColumnTitle,
-                                    $expectedPosition
+                                    $expected_column_title,
+                                    $expected_position
                                 );
                             }
                         }
 
                         if ($failures !== []) {
-                            $errorMessage = "<ul>";
-                            foreach ($failures as $failureMessage) {
-                                $errorMessage .= "<li>$failureMessage</li>";
+                            $error_message = "<ul>";
+                            foreach ($failures as $failure_message) {
+                                $error_message .= "<li>$failure_message</li>";
                             }
-                            $errorMessage .= "</ul>";
-                            $this->uiUtil->sendFailure($errorMessage, true);
+                            $error_message .= "</ul>";
+                            $this->ui_util->sendFailure($error_message, true);
 
                             $this->dic->ctrl()->setParameterByClass(ilRepositoryGUI::class, "ref_id", $parent_ref_id);
                             $this->dic->ctrl()->setParameterByClass(ilRepositoryGUI::class, "new_type", "crs"); //What type shouldn't matter (either crs or grp)

@@ -66,29 +66,29 @@ class QueuedRepository
         return $data;
     }
 
-    public function queueImport(string $csvData, int $userId): bool
+    public function queueImport(string $csv_data, int $user_id): bool
     {
-        $queuedImport = new QueuedImport(
+        $queued_import = new QueuedImport(
             $this->db->nextId(self::TABLE_NAME),
-            $csvData,
-            $userId,
+            $csv_data,
+            $user_id,
             new DateTime()
         );
 
         return $this->db->insert(self::TABLE_NAME, [
-                "id" => [ilDBConstants::T_INTEGER, $queuedImport->getId()],
-                "data" => [ilDBConstants::T_CLOB, $queuedImport->getCsvData()],
-                "created_timestamp" => [ilDBConstants::T_INTEGER, $queuedImport->getCreationDate()->getTimestamp()],
-                "user" => [ilDBConstants::T_INTEGER, $queuedImport->getUserId()]
+                "id" => [ilDBConstants::T_INTEGER, $queued_import->getId()],
+                "data" => [ilDBConstants::T_CLOB, $queued_import->getCsvData()],
+                "created_timestamp" => [ilDBConstants::T_INTEGER, $queued_import->getCreationDate()->getTimestamp()],
+                "user" => [ilDBConstants::T_INTEGER, $queued_import->getUserId()]
             ]) === 1;
     }
 
-    public function removeQueuedImport(QueuedImport $queuedImport): bool
+    public function removeQueuedImport(QueuedImport $queued_import): bool
     {
         return $this->db->manipulateF(
             "DELETE FROM " . self::TABLE_NAME . " WHERE id = %s",
             [ilDBConstants::T_INTEGER],
-            [$queuedImport->getId()]
+            [$queued_import->getId()]
         ) === 1;
     }
 

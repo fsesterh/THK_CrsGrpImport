@@ -29,7 +29,7 @@ class Error extends Base
 
     public function showCmd(): string
     {
-        $this->uiUtil->sendFailure($this->getCoreController()->getPluginObject()->txt('controller_not_found'));
+        $this->ui_util->sendFailure($this->getCoreController()->getPluginObject()->txt('controller_not_found'));
 
         return '';
     }

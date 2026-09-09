@@ -54,17 +54,17 @@ class CrsGrpImportJob extends CronJob
 
     private readonly Container $dic;
     private readonly ilLogger $logger;
-    private readonly QueuedRepository $queuedRepo;
+    private readonly QueuedRepository $queued_repo;
     private readonly ilCrsGrpImportPlugin $plugin;
-    private readonly ilComponentFactory $componentFactory;
+    private readonly ilComponentFactory $component_factory;
 
     public function __construct()
     {
         global $DIC;
         $this->logger = $DIC->logger()->root();
         $this->dic = $DIC;
-        $this->componentFactory = $DIC['component.factory'];
-        $this->queuedRepo = QueuedRepository::getInstance();
+        $this->component_factory = $DIC['component.factory'];
+        $this->queued_repo = QueuedRepository::getInstance();
         $this->plugin = ilCrsGrpImportPlugin::getInstance();
     }
 
@@ -120,17 +120,17 @@ class CrsGrpImportJob extends CronJob
      */
     public function run(): JobResult
     {
-        $cronResult = new JobResult();
+        $cron_result = new JobResult();
 
 
         try {
-            $failedMailDeliveries = 0;
-            $queuedImports = $this->queuedRepo->readAll();
-            foreach ($queuedImports as $queuedImport) {
-                $csvLog = new CSVLog();
+            $failed_mail_deliveries = 0;
+            $queued_imports = $this->queued_repo->readAll();
+            foreach ($queued_imports as $queued_import) {
+                $csv_log = new CSVLog();
 
                 $csv_deserialized = unserialize(
-                    $queuedImport->getCsvData(),
+                    $queued_import->getCsvData(),
                     ['allowed_classes' => [ImportCsvObject::class]]
                 );
                 /**
@@ -141,18 +141,18 @@ class CrsGrpImportJob extends CronJob
                     $base_status = ImportStatus::OK;
 
                     if ($data->getType() === ImportType::COURSE) {
-                        $base_status = $this->buildCourseObject($data, $csvLog);
+                        $base_status = $this->buildCourseObject($data, $csv_log);
                     } elseif ($data->getType() === ImportType::GROUP) {
-                        $base_status = $this->buildGroupObject($data, $csvLog);
+                        $base_status = $this->buildGroupObject($data, $csv_log);
                     } elseif ($data->getType() === ImportType::COURSE_LINK) {
-                        $base_status = $this->buildCourseLinkObject($data, $csvLog);
+                        $base_status = $this->buildCourseLinkObject($data, $csv_log);
                     } elseif ($data->getType() === ImportType::GROUP_LINK) {
-                        $base_status = $this->buildGroupLinkObject($data, $csvLog);
+                        $base_status = $this->buildGroupLinkObject($data, $csv_log);
                     } else {
                         $base_status = ImportStatus::FAILED;
                         $data->setImportResult(ImportResult::UNKNOWN_OBJECT_TYPE);
                     }
-                    $csvLog->addEntryToLog(
+                    $csv_log->addEntryToLog(
                         $base_status,
                         $data->getRefId(),
                         $data->getTitleDe(),
@@ -162,43 +162,43 @@ class CrsGrpImportJob extends CronJob
                     );
                 }
 
-                $tempFile = ilFileUtils::ilTempnam() . '.csv';
-                file_put_contents($tempFile, $csvLog->getCSVLog());
+                $temp_file = ilFileUtils::ilTempnam() . '.csv';
+                file_put_contents($temp_file, $csv_log->getCSVLog());
 
-                $fileName = 'import_log.csv';
+                $file_name = 'import_log.csv';
 
-                if (!ilObjUser::_exists($queuedImport->getUserId())) {
+                if (!ilObjUser::_exists($queued_import->getUserId())) {
                     $user = null;
                 } else {
-                    $user = new ilObjUser($queuedImport->getUserId());
+                    $user = new ilObjUser($queued_import->getUserId());
                 }
 
                 if (!$user) {
-                    $this->logger->error("Unable to deliver csv result to executive user with id '{$queuedImport->getUserId()}'. User does not exist");
-                    $this->queuedRepo->removeQueuedImport($queuedImport);
+                    $this->logger->error("Unable to deliver csv result to executive user with id '{$queued_import->getUserId()}'. User does not exist");
+                    $this->queued_repo->removeQueuedImport($queued_import);
                     continue;
                 }
 
-                $pluginLngModule = "ui_uihk_crsgrpimport";
+                $plugin_lng_module = "ui_uihk_crsgrpimport";
 
-                $fileDataMail = new ilFileDataMail(ANONYMOUS_USER_ID);
-                $fileDataMail->copyAttachmentFile($tempFile, $fileName);
+                $file_data_mail = new ilFileDataMail(ANONYMOUS_USER_ID);
+                $file_data_mail->copyAttachmentFile($temp_file, $file_name);
                 $mail = new ilMail(ANONYMOUS_USER_ID);
                 $errors = $mail->enqueue(
                     $user->getLogin(),
                     "",
                     "",
                     $this->dic->language()->txtlng(
-                        $pluginLngModule,
-                        "{$pluginLngModule}_mail.message.title",
+                        $plugin_lng_module,
+                        "{$plugin_lng_module}_mail.message.title",
                         $user->getLanguage()
                     ),
                     $this->dic->language()->txtlng(
-                        $pluginLngModule,
-                        "{$pluginLngModule}_mail.message.text",
+                        $plugin_lng_module,
+                        "{$plugin_lng_module}_mail.message.text",
                         $user->getLanguage()
                     ),
-                    [$fileName],
+                    [$file_name],
                     false
                 );
 
@@ -206,60 +206,60 @@ class CrsGrpImportJob extends CronJob
                     $this->logger->error(
                         sprintf(
                             "Mail delivery of import results failed. ID of import: %s, ID of receiving user: %s",
-                            $queuedImport->getId(),
-                            $queuedImport->getUserId()
+                            $queued_import->getId(),
+                            $queued_import->getUserId()
                         )
                     );
-                    $failedMailDeliveries++;
+                    $failed_mail_deliveries++;
                 }
-                $this->queuedRepo->removeQueuedImport($queuedImport);
+                $this->queued_repo->removeQueuedImport($queued_import);
             }
 
-            $cronResult->setStatus(JobResult::STATUS_OK);
-            $cronResult->setMessage(
+            $cron_result->setStatus(JobResult::STATUS_OK);
+            $cron_result->setMessage(
                 sprintf(
                     $this->plugin->txt("cronResult"),
-                    count($queuedImports),
-                    $failedMailDeliveries
+                    count($queued_imports),
+                    $failed_mail_deliveries
                 )
             );
         } catch (Throwable $ex) {
             $this->logger->error("An error occurred while processing the import queue. The cronjob has been deactivated. Ex.: {$ex->getMessage()}. Stacktrace: \n{$ex->getTraceAsString()}");
-            $cronResult->setStatus(JobResult::STATUS_CRASHED);
-            $cronResult->setMessage($this->plugin->txt("cronResult.crashed"));
+            $cron_result->setStatus(JobResult::STATUS_CRASHED);
+            $cron_result->setMessage($this->plugin->txt("cronResult.crashed"));
             $this->dic->cron()->manager()->deactivateJob($this, $this->dic->user());
         }
 
-        return $cronResult;
+        return $cron_result;
     }
 
-    protected function buildCourseLinkObject(ImportCsvObject $data, CSVLog $csvLog): ImportStatus
+    protected function buildCourseLinkObject(ImportCsvObject $data, CSVLog $csv_log): ImportStatus
     {
-        $container = new ContainerLink($data, $csvLog, $this->dic);
+        $container = new ContainerLink($data, $csv_log, $this->dic);
         return $this->buildObject($container, $data);
     }
 
-    protected function buildGroupLinkObject(ImportCsvObject $data, CSVLog $csvLog): ImportStatus
+    protected function buildGroupLinkObject(ImportCsvObject $data, CSVLog $csv_log): ImportStatus
     {
-        $container = new ContainerLink($data, $csvLog, $this->dic);
+        $container = new ContainerLink($data, $csv_log, $this->dic);
         return $this->buildObject($container, $data);
     }
 
     /**
      * @throws ilDateTimeException
      */
-    protected function buildGroupObject(mixed $data, CSVLog $csvLog): ImportStatus
+    protected function buildGroupObject(mixed $data, CSVLog $csv_log): ImportStatus
     {
-        $new_group = new Group($data, $csvLog, $this->dic);
+        $new_group = new Group($data, $csv_log, $this->dic);
         return $this->buildObject($new_group, $data);
     }
 
     /**
      * @throws ilDateTimeException
      */
-    protected function buildCourseObject(mixed $data, CSVLog $csvLog): ImportStatus
+    protected function buildCourseObject(mixed $data, CSVLog $csv_log): ImportStatus
     {
-        $new_course = new Course($data, $csvLog, $this->dic);
+        $new_course = new Course($data, $csv_log, $this->dic);
         return $this->buildObject($new_course, $data);
     }
 

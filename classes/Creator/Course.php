@@ -83,11 +83,11 @@ class Course extends BaseObject
      */
     public function update(): ImportStatus
     {
-        $parentRefId = $this->getData()->getParentRefId();
+        $parent_ref_id = $this->getData()->getParentRefId();
         $ref_id = $this->getData()->getRefId();
-        $obj_id = $this->dataCache->lookupObjId($ref_id);
-        $type = $this->dataCache->lookupType($obj_id);
-        if ($ref_id !== 0 && $this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id) && $type === 'crs') {
+        $obj_id = $this->data_cache->lookupObjId($ref_id);
+        $type = $this->data_cache->lookupType($obj_id);
+        if ($ref_id !== 0 && $this->dic->repositoryTree()->isGrandChild($parent_ref_id, $ref_id) && $type === 'crs') {
             if ($this->checkPrerequisitesForUpdate($ref_id, $this->getData())) {
                 $obj = new ilObjCourse($ref_id, true);
                 $obj->setTitle((string) $this->getData()->getTitleDe());
@@ -112,7 +112,7 @@ class Course extends BaseObject
                 $this->getData()->setImportResult(ImportResult::NO_REF_ID_GIVEN_FOR_UPDATE);
                 return ImportStatus::FAILED;
             }
-            if (!$this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id)) {
+            if (!$this->dic->repositoryTree()->isGrandChild($parent_ref_id, $ref_id)) {
                 $this->getData()->setImportResult(ImportResult::UPDATE_OBJECT_NOT_IN_SUBTREE);
                 return ImportStatus::FAILED;
             }
@@ -237,13 +237,13 @@ class Course extends BaseObject
         $course->setNewsTimelineLandingPage($this->getData()->getNewsTimeLanding());
 
         //Show News Starting From
-        $newsStartDate = $this->checkAndParseDateStringToObject($this->getData()->getNewsStartDate());
-        if ($newsStartDate !== '') {
+        $news_start_date = $this->checkAndParseDateStringToObject($this->getData()->getNewsStartDate());
+        if ($news_start_date !== '') {
             ilBlockSetting::_write("news", "hide_news_per_date", "1", 0, $course->getId());
             ilBlockSetting::_write(
                 "news",
                 "hide_news_date",
-                (new ilDateTime($newsStartDate->getTimestamp(), IL_CAL_UNIX))->get(IL_CAL_DATETIME),
+                (new ilDateTime($news_start_date->getTimestamp(), IL_CAL_UNIX))->get(IL_CAL_DATETIME),
                 0,
                 $course->getId()
             );

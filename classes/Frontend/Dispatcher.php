@@ -28,7 +28,7 @@ class Dispatcher
     private static ?self $instance = null;
     protected Container $dic;
 
-    private function __construct(protected ilCrsGrpImportUIHookGUI $coreController, protected string $defaultController = '')
+    private function __construct(protected ilCrsGrpImportUIHookGUI $core_controller, protected string $default_controller = '')
     {
     }
 
@@ -62,12 +62,12 @@ class Dispatcher
 
     public function getCoreController(): ilCrsGrpImportUIHookGUI
     {
-        return $this->coreController;
+        return $this->core_controller;
     }
 
-    public function setCoreController(ilCrsGrpImportUIHookGUI $coreController)
+    public function setCoreController(ilCrsGrpImportUIHookGUI $core_controller)
     {
-        $this->coreController = $coreController;
+        $this->core_controller = $core_controller;
     }
 
     public function setDic(Container $dic): void
@@ -92,7 +92,7 @@ class Dispatcher
             return $parts[0];
         }
 
-        return $this->defaultController ?: 'Error';
+        return $this->default_controller ?: 'Error';
     }
 
     protected function getCommand(string $cmd): string

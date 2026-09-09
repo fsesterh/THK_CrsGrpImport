@@ -36,33 +36,33 @@ require_once __DIR__ . '/../vendor/autoload.php';
 class ilCrsGrpImportConfigGUI extends ilPluginConfigGUI
 {
     protected Container $dic;
-    public ilCrsGrpImportPlugin $pluginObj;
+    public ilCrsGrpImportPlugin $plugin_obj;
     private readonly ilCtrl $ctrl;
     private readonly ilLanguage $lng;
-    private readonly ilGlobalTemplateInterface $mainTpl;
-    private readonly Renderer $uiRenderer;
-    private readonly Factory $uiFactory;
-    private readonly UiUtil $uiUtil;
+    private readonly ilGlobalTemplateInterface $main_tpl;
+    private readonly Renderer $ui_renderer;
+    private readonly Factory $ui_factory;
+    private readonly UiUtil $ui_util;
     private readonly ILIAS\Refinery\Factory $refinery;
-    private readonly WrapperFactory $httpWrapper;
+    private readonly WrapperFactory $http_wrapper;
 
     public function __construct()
     {
         global $DIC;
         $this->ctrl = $DIC->ctrl();
         $this->lng = $DIC->language();
-        $this->mainTpl = $DIC->ui()->mainTemplate();
-        $this->uiFactory = $DIC->ui()->factory();
-        $this->uiRenderer = $DIC->ui()->renderer();
-        $this->uiUtil = new UiUtil();
-        $this->httpWrapper = $DIC->http()->wrapper();
+        $this->main_tpl = $DIC->ui()->mainTemplate();
+        $this->ui_factory = $DIC->ui()->factory();
+        $this->ui_renderer = $DIC->ui()->renderer();
+        $this->ui_util = new UiUtil();
+        $this->http_wrapper = $DIC->http()->wrapper();
         $this->refinery = $DIC->refinery();
     }
 
     private function saveConfigurationForm(): void
     {
         try {
-            $local_role_ids_post = $this->httpWrapper->post()->retrieve(
+            $local_role_ids_post = $this->http_wrapper->post()->retrieve(
                 'default_local_role_ids',
                 $this->refinery->byTrying([
                     $this->refinery->kindlyTo()->string(),
@@ -76,10 +76,10 @@ class ilCrsGrpImportConfigGUI extends ilPluginConfigGUI
                 $this->dic->settings()->set('crs_grp_import_default_local_role_ids', $local_role_ids_post);
             }
 
-            $this->uiUtil->sendSuccess($this->dic->language()->txt('saved_successfully'), true);
+            $this->ui_util->sendSuccess($this->dic->language()->txt('saved_successfully'), true);
             $this->dic->ctrl()->redirect($this, 'configure');
         } catch (ilException) {
-            $this->uiUtil->sendFailure($this->dic->language()->txt('form_input_not_valid'));
+            $this->ui_util->sendFailure($this->dic->language()->txt('form_input_not_valid'));
         }
     }
 
@@ -96,7 +96,7 @@ class ilCrsGrpImportConfigGUI extends ilPluginConfigGUI
         $role->setRequired(false);
         $form->addItem($role);
         $form->addCommandButton('saveConfigurationForm', $this->dic->language()->txt('save'));
-        $this->mainTpl->setContent($form->getHTML());
+        $this->main_tpl->setContent($form->getHTML());
     }
 
     public function performCommand(string $cmd): void
@@ -104,7 +104,7 @@ class ilCrsGrpImportConfigGUI extends ilPluginConfigGUI
         global $DIC;
 
         $this->dic = $DIC;
-        $this->pluginObj = ilCrsGrpImportPlugin::getInstance();
+        $this->plugin_obj = ilCrsGrpImportPlugin::getInstance();
 
         $this->$cmd();
     }

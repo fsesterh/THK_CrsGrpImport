@@ -35,15 +35,15 @@ abstract class Base
 
     protected Container $dic;
     protected array $parameters = [];
-    protected UiUtil $uiUtil;
-    protected WrapperFactory $httpWrapper;
+    protected UiUtil $ui_util;
+    protected WrapperFactory $http_wrapper;
     protected Factory $refinery;
 
-    final public function __construct(public ilCrsGrpImportUIHookGUI $coreController, Container $dic)
+    final public function __construct(public ilCrsGrpImportUIHookGUI $core_controller, Container $dic)
     {
         $this->dic = $dic;
-        $this->uiUtil = new UiUtil();
-        $this->httpWrapper = $this->dic->http()->wrapper();
+        $this->ui_util = new UiUtil();
+        $this->http_wrapper = $this->dic->http()->wrapper();
         $this->refinery = $this->dic->refinery();
 
         $this->init();
@@ -57,7 +57,7 @@ abstract class Base
 
     public function getCoreController(): ilCrsGrpImportUIHookGUI
     {
-        return $this->coreController;
+        return $this->core_controller;
     }
 
     final public function isContext(string $a_context, string $a_value_a = '', string $a_value_b = ''): bool
