@@ -8,6 +8,7 @@ use ilDateTime;
 use ilDateTimeException;
 use ilDidacticTemplateSetting;
 use ilDidacticTemplateSettings;
+use ILIAS\Plugin\CrsGrpImport\Enum\ImportResult;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportStatus;
 use ilObjGroup;
 use ilObjUser;
@@ -26,7 +27,7 @@ class Group extends BaseObject
             $ref_id = $this->writeGroupAdvancedData($group);
             $this->writeAvailability($ref_id, $group);
             if ($this->addAdminsToGroup($group) === true) {
-                $this->getData()->setImportResult(BaseObject::RESULT_CREATED_SUCCESSFULLY);
+                $this->getData()->setImportResult(ImportResult::CREATED_SUCCESSFULLY);
             }
 
             return $ref_id;
@@ -87,25 +88,25 @@ class Group extends BaseObject
                     return ImportStatus::FAILED;
                 }
                 if ($this->addAdminsToGroup($obj) === true) {
-                    $this->getData()->setImportResult(BaseObject::RESULT_UPDATED_SUCCESSFULLY);
+                    $this->getData()->setImportResult(ImportResult::UPDATED_SUCCESSFULLY);
                     return ImportStatus::UPDATED;
                 }
             } else {
-                $this->getData()->setImportResult(BaseObject::RESULT_DATASET_INVALID);
+                $this->getData()->setImportResult(ImportResult::DATASET_INVALID);
                 return ImportStatus::FAILED;
             }
         } else {
             if ($ref_id === 0) {
-                $this->getData()->setImportResult(BaseObject::RESULT_NO_REF_ID_GIVEN_FOR_UPDATE);
+                $this->getData()->setImportResult(ImportResult::NO_REF_ID_GIVEN_FOR_UPDATE);
                 return ImportStatus::FAILED;
             }
             if (!$this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id)) {
-                $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_NOT_IN_SUBTREE);
+                $this->getData()->setImportResult(ImportResult::UPDATE_OBJECT_NOT_IN_SUBTREE);
                 return ImportStatus::FAILED;
             }
 
             if ($type !== 'grp') {
-                $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_HAS_DIFFERENT_TYPE);
+                $this->getData()->setImportResult(ImportResult::UPDATE_OBJECT_HAS_DIFFERENT_TYPE);
                 return ImportStatus::FAILED;
             }
         }
@@ -244,7 +245,7 @@ class Group extends BaseObject
             foreach ($usr_ids as $usr_id) {
                 $success = $group->getMembersObject()->add($usr_id, ilParticipants::IL_GRP_ADMIN);
                 if ($success === false) {
-                    $this->getData()->setImportResult('One or all of the user accounts for admins not found. Data not processed.');
+                    $this->getData()->setImportResult(ImportResult::UNUSABLE_ADMIN_FOUND);
                 }
             }
             return true;

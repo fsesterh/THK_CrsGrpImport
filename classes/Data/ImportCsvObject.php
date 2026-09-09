@@ -4,11 +4,13 @@ namespace ILIAS\Plugin\CrsGrpImport\Data;
 
 use ilCourseConstants;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportAction;
+use ILIAS\Plugin\CrsGrpImport\Enum\ImportResult;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportType;
 
 class ImportCsvObject
 {
-    private string $import_result;
+    private ImportResult $import_result;
+    private string $additional_import_result_info;
 
     public function __construct(
         private readonly ImportAction $action,
@@ -48,7 +50,7 @@ class ImportCsvObject
         private readonly ?int $parent_ref_id,
         private readonly ?string $actor_timezone
     ) {
-        $this->import_result = '';
+        $this->import_result = ImportResult::NONE;
     }
 
     public function getActorTimezone(): ?string
@@ -185,14 +187,20 @@ class ImportCsvObject
         return $this->parent_ref_id;
     }
 
-    public function getImportResult(): ?string
+    public function getImportResult(): ImportResult
     {
         return $this->import_result;
     }
 
-    public function setImportResult(?string $import_result): void
+    public function setImportResult(ImportResult $import_result, string $additional_import_result_info = ""): void
     {
         $this->import_result = $import_result;
+        $this->additional_import_result_info = $additional_import_result_info;
+    }
+
+    public function getAdditionalImportResultInfo(): string
+    {
+        return $this->additional_import_result_info;
     }
 
     public function getTitleEn(): ?string

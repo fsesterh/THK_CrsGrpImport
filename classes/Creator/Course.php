@@ -9,6 +9,7 @@ use ilDateTime;
 use ilDateTimeException;
 use ilDidacticTemplateSetting;
 use ilDidacticTemplateSettings;
+use ILIAS\Plugin\CrsGrpImport\Enum\ImportResult;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportStatus;
 use ilObjCourse;
 use ilObjUser;
@@ -27,13 +28,13 @@ class Course extends BaseObject
                 $ref_id = $this->writeCourseAdvancedData($course);
                 $this->writeAvailability($ref_id, $course);
                 if ($this->addAdminsToCourse($course) === true) {
-                    $this->getData()->setImportResult(BaseObject::RESULT_CREATED_SUCCESSFULLY);
+                    $this->getData()->setImportResult(ImportResult::CREATED_SUCCESSFULLY);
                 }
 
                 return (int) $ref_id;
             }
 
-            $this->getData()->setImportResult(BaseObject::RESULT_NO_COURSE_IN_COURSE);
+            $this->getData()->setImportResult(ImportResult::NO_COURSE_IN_COURSE);
         }
         return 0;
     }
@@ -99,25 +100,25 @@ class Course extends BaseObject
                     return ImportStatus::FAILED;
                 }
                 if ($this->addAdminsToCourse($obj) === true) {
-                    $this->getData()->setImportResult(BaseObject::RESULT_UPDATED_SUCCESSFULLY);
+                    $this->getData()->setImportResult(ImportResult::UPDATED_SUCCESSFULLY);
                     return ImportStatus::UPDATED;
                 }
             } else {
-                $this->getData()->setImportResult(BaseObject::RESULT_DATASET_INVALID);
+                $this->getData()->setImportResult(ImportResult::DATASET_INVALID);
                 return ImportStatus::FAILED;
             }
         } else {
             if ($ref_id === 0) {
-                $this->getData()->setImportResult(BaseObject::RESULT_NO_REF_ID_GIVEN_FOR_UPDATE);
+                $this->getData()->setImportResult(ImportResult::NO_REF_ID_GIVEN_FOR_UPDATE);
                 return ImportStatus::FAILED;
             }
             if (!$this->dic->repositoryTree()->isGrandChild($parentRefId, $ref_id)) {
-                $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_NOT_IN_SUBTREE);
+                $this->getData()->setImportResult(ImportResult::UPDATE_OBJECT_NOT_IN_SUBTREE);
                 return ImportStatus::FAILED;
             }
 
             if ($type !== 'crs') {
-                $this->getData()->setImportResult(BaseObject::RESULT_UPDATE_OBJECT_HAS_DIFFERENT_TYPE);
+                $this->getData()->setImportResult(ImportResult::UPDATE_OBJECT_HAS_DIFFERENT_TYPE);
                 return ImportStatus::FAILED;
             }
         }
@@ -263,7 +264,7 @@ class Course extends BaseObject
             foreach ($usr_ids as $usr_id) {
                 $success = $course->getMembersObject()->add($usr_id, ilParticipants::IL_CRS_ADMIN);
                 if ($success === false) {
-                    $this->getData()->setImportResult('One or all of the user accounts for admins not found. Data not processed.');
+                    $this->getData()->setImportResult(ImportResult::UNUSABLE_ADMIN_FOUND);
                 }
             }
             return true;

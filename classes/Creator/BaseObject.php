@@ -9,6 +9,7 @@ use ILIAS\DI\Container;
 use ILIAS\DI\Exceptions\Exception;
 use ILIAS\ILIASObject\Properties\Translations\Language;
 use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
+use ILIAS\Plugin\CrsGrpImport\Enum\ImportResult;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportStatus;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportType;
 use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
@@ -20,38 +21,6 @@ use ilObjGroup;
 
 class BaseObject implements ObjectImporter
 {
-    public const string RESULT_IGNORE = 'Entry has set ignore action, ignoring entry.';
-    public const string RESULT_NO_VALID_ACTION = 'No valid action found, ignoring entry.';
-    public const string RESULT_CREATED_SUCCESSFULLY = 'Object created successfully.';
-    public const string RESULT_UPDATED_SUCCESSFULLY = 'Object updated successfully.';
-    public const string RESULT_DATASET_IGNORED = 'Dataset ignored.';
-    public const string RESULT_REF_ID_NOT_FOUND = 'RefId not found. Data not processed.';
-    public const string RESULT_NO_REF_ID_GIVEN_FOR_UPDATE = 'No RefId specified for update. Data not processed.';
-    public const string RESULT_REF_ID_AND_TYPE_DO_NOT_MATCH = 'RefId does not match object-type. Data not processed.';
-    public const string RESULT_NO_PASSWORD_GIVEN_FOR_TYPE_TWO = 'No registration password specified. Data not processed.';
-    public const string RESULT_UNUSABLE_ADMIN_FOUND = 'One or all of the user accounts for admins not found. Data not processed.';
-    public const string RESULT_NO_COURSE_IN_COURSE = 'Creation of course in course not possible.';
-    public const string RESULT_UNKNOWN_OBJECT_TYPE = 'Object type is not known, Data not processed.';
-    public const string RESULT_DATASET_INCOMPLETE = 'Dataset incomplete. Data not processed.';
-    public const string RESULT_DATASET_INVALID = 'Dataset invalid. Data not processed.';
-    public const string RESULT_UPDATE_OBJECT_NOT_IN_SUBTREE = 'Dataset invalid. Object for update is not in sub tree.';
-    public const string RESULT_UPDATE_OBJECT_HAS_DIFFERENT_TYPE = 'Dataset invalid. Object for update has not the right object type.';
-    public const string RESULT_OBJECT_IN_TRASH_IGNORE = 'Object is in trash, ignoring.';
-    public const string RESULT_AVAILABILITY = 'Setting Availability not successful.';
-    public const string RESULT_UNSUPPORTED_ACTION = 'Dataset invalid, the provided action is not supported';
-    public const string RESULT_UNSUPPORTED_OBJECT_TYPE = 'Dataset invalid, the provided object type is not supported';
-    public const string RESULT_UNSUPPORTED_REGISTRATION_TYPE = 'Dataset invalid, the provided registration type is not supported';
-    public const string RESULT_DIDACTIC_TEMPLATE_ID_1_NOT_ALLOWED = 'Dataset invalid, the didactic template ID 1 is not allowed';
-    public const string RESULT_DIDACTIC_TEMPLATE_ID_NOT_SUPPORTED_OR_NOT_ENABLED = 'Dataset invalid, the provided didactic template ID is not supported by the object type or the template is disabled';
-    public const string RESULT_NO_ADMINS_PROVIDED = 'Dataset invalid, no admins provided';
-    public const string RESULT_NO_ADMIN_USERS_COULD_BE_DETERMINED = 'Dataset invalid, no admin user accounts could be determined from the provided string';
-    public const string RESULT_MISSING_GERMAN_TITLE = 'Dataset invalid, no German object title provided';
-    public const string RESULT_MIN_MEMBERS_GREATER_THAN_MAX_MEMBERS = 'Dataset invalid, the amount of min members is greater than the amount of max members';
-    public const string RESULT_NO_UPDATE_ACTION_ALLOWED_FOR_LINKS = 'Dataset invalid, container reference object do not support an update action';
-    public const string RESULT_MISSING_REF_ID_FOR_LINK = 'Dataset invalid, a ref_id has to be provided for course or group references/links';
-    public const string RESULT_INVALID_REF_ID_FOR_LINK = 'Dataset invalid, the provided ref_id for the reference/link could not be found';
-    public const string RESULT_TYPE_MISMATCH_FOR_LINK = 'Dataset invalid, the object type of the provided ref_id for the reference/link does not match the object type of the container';
-
     public const array DATE_COLUMNS = [
         "EventStart",
         "EventEnd",
@@ -127,7 +96,7 @@ class BaseObject implements ObjectImporter
             }
             return true;
         } catch (Exception $e) {
-            $this->getData()->setImportResult(self::RESULT_AVAILABILITY . '( ' . $e->getMessage() . ')');
+            $this->getData()->setImportResult(ImportResult::AVAILABILITY, $e->getMessage());
             return false;
         }
     }
@@ -194,7 +163,7 @@ class BaseObject implements ObjectImporter
     public function checkPrerequisitesForInsert(): bool
     {
         if ($this->getData()->getTitleDe() === '') {
-            $this->getData()->setImportResult(self::RESULT_DATASET_INCOMPLETE);
+            $this->getData()->setImportResult(ImportResult::DATASET_INCOMPLETE);
             return false;
         }
 
@@ -213,7 +182,7 @@ class BaseObject implements ObjectImporter
                     $value
                 ));
             }
-            $this->getData()->setImportResult(self::RESULT_DATASET_INVALID);
+            $this->getData()->setImportResult(ImportResult::DATASET_INVALID);
             return false;
         }
         return true;
@@ -251,15 +220,15 @@ class BaseObject implements ObjectImporter
                         return $this->checkDateColumnsBeforeUnix();
                     }
 
-                    $data->setImportResult(self::RESULT_REF_ID_AND_TYPE_DO_NOT_MATCH);
+                    $data->setImportResult(ImportResult::REF_ID_AND_TYPE_DO_NOT_MATCH);
                 } else {
-                    $data->setImportResult(self::RESULT_REF_ID_NOT_FOUND);
+                    $data->setImportResult(ImportResult::REF_ID_NOT_FOUND);
                 }
             } else {
-                $data->setImportResult(self::RESULT_OBJECT_IN_TRASH_IGNORE);
+                $data->setImportResult(ImportResult::OBJECT_IN_TRASH_IGNORE);
             }
         } else {
-            $data->setImportResult(self::RESULT_NO_REF_ID_GIVEN_FOR_UPDATE);
+            $data->setImportResult(ImportResult::NO_REF_ID_GIVEN_FOR_UPDATE);
         }
         return false;
     }

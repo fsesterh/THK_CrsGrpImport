@@ -31,12 +31,12 @@ use ILIAS\Cron\CronJob;
 use ILIAS\Cron\Job\JobResult;
 use ILIAS\Cron\Job\Schedule\JobScheduleType;
 use ILIAS\DI\Container;
-use ILIAS\Plugin\CrsGrpImport\Creator\BaseObject;
 use ILIAS\Plugin\CrsGrpImport\Creator\ContainerLink;
 use ILIAS\Plugin\CrsGrpImport\Creator\Course;
 use ILIAS\Plugin\CrsGrpImport\Creator\Group;
 use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportAction;
+use ILIAS\Plugin\CrsGrpImport\Enum\ImportResult;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportStatus;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportType;
 use ILIAS\Plugin\CrsGrpImport\Log\CSVLog;
@@ -150,14 +150,15 @@ class CrsGrpImportJob extends CronJob
                         $base_status = $this->buildGroupLinkObject($data, $csvLog);
                     } else {
                         $base_status = ImportStatus::FAILED;
-                        $data->setImportResult(BaseObject::RESULT_UNKNOWN_OBJECT_TYPE);
+                        $data->setImportResult(ImportResult::UNKNOWN_OBJECT_TYPE);
                     }
                     $csvLog->addEntryToLog(
                         $base_status,
                         $data->getRefId(),
                         $data->getTitleDe(),
                         $data->getValidatedAdmins(),
-                        $data->getImportResult()
+                        $data->getImportResult(),
+                        $data->getAdditionalImportResultInfo(),
                     );
                 }
 
@@ -278,16 +279,16 @@ class CrsGrpImportJob extends CronJob
             } elseif ($data->getAction() === ImportAction::UPDATE) {
                 $base_status = $new_object->update();
             } elseif ($data->getAction() === ImportAction::IGNORE) {
-                $data->setImportResult(BaseObject::RESULT_IGNORE);
+                $data->setImportResult(ImportResult::IGNORE);
                 $base_status = ImportStatus::IGNORED;
             } else {
-                $data->setImportResult(BaseObject::RESULT_NO_VALID_ACTION);
+                $data->setImportResult(ImportResult::NO_VALID_ACTION);
                 $base_status = ImportStatus::IGNORED;
             }
         } else {
             $base_status = ImportStatus::FAILED;
-            if (!$data->getImportResult()) {
-                $data->setImportResult(BaseObject::RESULT_DATASET_INVALID);
+            if ($data->getImportResult() === ImportResult::NONE) {
+                $data->setImportResult(ImportResult::DATASET_INVALID);
             }
         }
 
@@ -297,24 +298,24 @@ class CrsGrpImportJob extends CronJob
     protected function ensureDataIsValid(ImportCsvObject $data): bool
     {
         if ($data->getAction() === ImportAction::UNSUPPORTED) {
-            $data->setImportResult(BaseObject::RESULT_UNSUPPORTED_ACTION);
+            $data->setImportResult(ImportResult::UNSUPPORTED_ACTION);
             return false;
         }
 
         if ($data->getType() === ImportType::UNSUPPORTED) {
-            $data->setImportResult(BaseObject::RESULT_UNSUPPORTED_OBJECT_TYPE);
+            $data->setImportResult(ImportResult::UNSUPPORTED_OBJECT_TYPE);
             return false;
         }
 
         if (in_array($data->getType(), [ImportType::COURSE, ImportType::GROUP], true)) {
             if (!in_array($data->getRegistrationNative(), self::VALID_TYPE)) {
-                $data->setImportResult(BaseObject::RESULT_UNSUPPORTED_REGISTRATION_TYPE);
+                $data->setImportResult(ImportResult::UNSUPPORTED_REGISTRATION_TYPE);
                 return false;
             }
 
             if ($data->getType() === ImportType::COURSE) {
                 if ($data->getTemplateIdNativeType() === 1) {
-                    $data->setImportResult(BaseObject::RESULT_DIDACTIC_TEMPLATE_ID_1_NOT_ALLOWED);
+                    $data->setImportResult(ImportResult::DIDACTIC_TEMPLATE_ID_1_NOT_ALLOWED);
                     return false;
                 }
             }
@@ -329,18 +330,18 @@ class CrsGrpImportJob extends CronJob
             }
 
             if ($data->getTemplateIdNativeType() > 0 && !isset($enabled_templates_by_id[$data->getTemplateIdNativeType()])) {
-                $data->setImportResult(BaseObject::RESULT_DIDACTIC_TEMPLATE_ID_NOT_SUPPORTED_OR_NOT_ENABLED);
+                $data->setImportResult(ImportResult::DIDACTIC_TEMPLATE_ID_NOT_SUPPORTED_OR_NOT_ENABLED);
                 return false;
             }
 
             if ($data->getAdmins() === '') {
-                $data->setImportResult(BaseObject::RESULT_NO_ADMINS_PROVIDED);
+                $data->setImportResult(ImportResult::NO_ADMINS_PROVIDED);
                 return false;
             }
 
             $usr_ids = ilObjUser::_lookupId($data->getValidatedAdmins());
             if (count($usr_ids) === 0) {
-                $data->setImportResult(BaseObject::RESULT_NO_ADMIN_USERS_COULD_BE_DETERMINED);
+                $data->setImportResult(ImportResult::NO_ADMIN_USERS_COULD_BE_DETERMINED);
                 return false;
             }
 
@@ -349,14 +350,14 @@ class CrsGrpImportJob extends CronJob
             }
 
             if ($data->getTitleDe() === '') {
-                $data->setImportResult(BaseObject::RESULT_MISSING_GERMAN_TITLE);
+                $data->setImportResult(ImportResult::MISSING_GERMAN_TITLE);
                 return false;
             }
 
             if ($data->getMinMembers() !== null &&
                 $data->getMaxMembers() !== null &&
                 $data->getMinMembers() > $data->getMaxMembers()) {
-                $data->setImportResult(BaseObject::RESULT_MIN_MEMBERS_GREATER_THAN_MAX_MEMBERS);
+                $data->setImportResult(ImportResult::MIN_MEMBERS_GREATER_THAN_MAX_MEMBERS);
                 return false;
             }
         }
@@ -364,28 +365,28 @@ class CrsGrpImportJob extends CronJob
         if (in_array($data->getType(), [ImportType::COURSE_LINK, ImportType::GROUP_LINK], true)) {
             if (!in_array($data->getAction(), [ImportAction::INSERT, ImportAction::IGNORE], true)) {
                 // course links and group links don't support an `update` action
-                $data->setImportResult(BaseObject::RESULT_NO_UPDATE_ACTION_ALLOWED_FOR_LINKS);
+                $data->setImportResult(ImportResult::NO_UPDATE_ACTION_ALLOWED_FOR_LINKS);
                 return false;
             }
 
             if (!is_numeric($data->getRefId())) {
-                $data->setImportResult(BaseObject::RESULT_MISSING_REF_ID_FOR_LINK);
+                $data->setImportResult(ImportResult::MISSING_REF_ID_FOR_LINK);
                 return false;
             }
 
             $obj_id = ilObject::_lookupObjId($data->getRefId());
             if (!$obj_id) {
-                $data->setImportResult(BaseObject::RESULT_INVALID_REF_ID_FOR_LINK);
+                $data->setImportResult(ImportResult::INVALID_REF_ID_FOR_LINK);
                 return false;
             }
 
             if ($data->getType() === ImportType::COURSE_LINK && ilObject::_lookupType($obj_id) !== ImportType::COURSE->value) {
-                $data->setImportResult(BaseObject::RESULT_TYPE_MISMATCH_FOR_LINK);
+                $data->setImportResult(ImportResult::TYPE_MISMATCH_FOR_LINK);
                 return false;
             }
 
             if ($data->getType() === ImportType::GROUP_LINK && ilObject::_lookupType($obj_id) !== ImportType::GROUP->value) {
-                $data->setImportResult(BaseObject::RESULT_TYPE_MISMATCH_FOR_LINK);
+                $data->setImportResult(ImportResult::TYPE_MISMATCH_FOR_LINK);
                 return false;
             }
         }
