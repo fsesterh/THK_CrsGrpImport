@@ -3,6 +3,7 @@
 namespace ILIAS\Plugin\CrsGrpImport\Creator;
 
 use ilContainerReference;
+use ILIAS\Plugin\CrsGrpImport\Enum\ImportStatus;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportType;
 use ilObjCourseReference;
 use ilObject;
@@ -46,7 +47,7 @@ class ContainerLink extends BaseObject
         return $ref_id;
     }
 
-    public function update(): string
+    public function update(): ImportStatus
     {
         throw new RuntimeException('Not implemented yet');
     }
