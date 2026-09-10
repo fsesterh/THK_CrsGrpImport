@@ -25,6 +25,7 @@ use ilDBConstants;
 use ilDBInterface;
 use ilDBStepExecutionDB;
 use ilDBStepReader;
+use ILIAS\Plugin\CrsGrpImport\Repository\QueuedRepository;
 
 class DBUpdateSteps implements ilDatabaseUpdateSteps
 {
@@ -67,7 +68,9 @@ class DBUpdateSteps implements ilDatabaseUpdateSteps
             [self::class]
         );
 
-        $tables_to_drop = [];
+        $tables_to_drop = [
+            QueuedRepository::TABLE_NAME,
+        ];
 
         foreach ($tables_to_drop as $table_name) {
             $this->db->dropTable($table_name, false);
