@@ -101,7 +101,7 @@ class CrsGrpImportJob extends CronJob
     /**
      * @return int[]
      */
-    public function getAllScheduleTypes(): array
+    public function getValidScheduleTypes(): array
     {
         return [
             JobScheduleType::IN_MINUTES,
