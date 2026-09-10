@@ -212,7 +212,7 @@ class Import extends Base
                     $i = 0;
 
                     $action = ImportAction::tryFrom(strtolower($conversion->ensureStringType($data[$i++]))) ?? ImportAction::UNSUPPORTED; // 0
-                    $type = ImportType::tryFrom($conversion->ensureStringType($data[$i++])) ?? ImportType::UNSUPPORTED; // 1
+                    $type = ImportType::tryFrom(strtolower($conversion->ensureStringType($data[$i++]))) ?? ImportType::UNSUPPORTED; // 1
                     $ref_id = $conversion->ensureIntType($data[$i++]); // 2
                     $template = $conversion->ensureIntOrNullType($data[$i++]); // 3
                     $title_de = $conversion->ensureStringType($data[$i++]); // 4
