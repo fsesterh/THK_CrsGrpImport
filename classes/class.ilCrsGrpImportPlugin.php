@@ -22,6 +22,7 @@ use ILIAS\Cron\CronJob;
 use ILIAS\Cron\Job\JobProvider;
 use ILIAS\Cron\Job\JobResult;
 use ILIAS\Plugin\CrsGrpImport\Job\CrsGrpImportJob;
+use ILIAS\Plugin\CrsGrpImport\Setup\DBUpdateSteps;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -96,4 +97,24 @@ class ilCrsGrpImportPlugin extends ilUserInterfaceHookPlugin implements JobProvi
         }
         throw new Exception("No cron job found with the id '$job_id'.");
     }
+
+    public function install(): void
+    {
+        (new DBUpdateSteps())->install($this->db);
+        parent::install();
+    }
+
+    public function update(): bool
+    {
+        //DbUpdateSteps should be executed before the parent update so potential exceptions result in no il_plugin db changes
+        (new DBUpdateSteps())->install($this->db);
+
+        return parent::update();
+    }
+
+    protected function uninstallCustom(): void
+    {
+        (new DBUpdateSteps())->uninstall($this->db);
+    }
+
 }

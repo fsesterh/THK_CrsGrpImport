@@ -27,7 +27,7 @@ use ILIAS\Plugin\CrsGrpImport\Model\QueuedImport;
 
 class QueuedRepository
 {
-    protected const TABLE_NAME = "crsgrp_import_queue";
+    public const TABLE_NAME = "crsgrp_import_queue";
 
     private static ?QueuedRepository $instance = null;
 
