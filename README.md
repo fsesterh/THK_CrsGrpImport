@@ -35,10 +35,10 @@ in this document are to be interpreted as described in
 
 ## Installation
 
-1. Clone this repository to **Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/CrsGrpImport**
+1. Clone this repository to **public/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/CrsGrpImport**
 2. Install the Composer dependencies
    ```bash
-   cd Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/CrsGrpImport
+   cd public/Customizing/global/plugins/Services/UIComponent/UserInterfaceHook/CrsGrpImport
    composer install --no-dev
    ```
    Developers **MUST** omit the `--no-dev` argument.
