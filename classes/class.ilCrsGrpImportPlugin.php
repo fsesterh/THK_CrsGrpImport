@@ -18,18 +18,15 @@
 
 declare(strict_types=1);
 
-use ILIAS\Cron\CronJob;
-use ILIAS\Cron\Job\JobProvider;
-use ILIAS\Cron\Job\JobResult;
 use ILIAS\Plugin\CrsGrpImport\Job\CrsGrpImportJob;
 use ILIAS\Plugin\CrsGrpImport\Setup\DBUpdateSteps;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-class ilCrsGrpImportPlugin extends ilUserInterfaceHookPlugin implements JobProvider
+class ilCrsGrpImportPlugin extends ilUserInterfaceHookPlugin implements ilCronJobProvider
 {
-    public const string ID = 'crsgrpimport';
-    public const string PLUGIN_CMD_DETECTION_PARAMETER = 'isCrsGrpImport';
+    public const ID = 'crsgrpimport';
+    public const PLUGIN_CMD_DETECTION_PARAMETER = 'isCrsGrpImport';
 
     private static ?self $instance = null;
 
@@ -47,7 +44,7 @@ class ilCrsGrpImportPlugin extends ilUserInterfaceHookPlugin implements JobProvi
         return self::$instance;
     }
 
-    public function run(): JobResult
+    public function run(): ilCronJobResult
     {
         return (new CrsGrpImportJob())->run();
     }
@@ -88,7 +85,7 @@ class ilCrsGrpImportPlugin extends ilUserInterfaceHookPlugin implements JobProvi
     /**
      * @throws Exception
      */
-    public function getCronJobInstance(string $job_id): CronJob
+    public function getCronJobInstance(string $job_id): ilCronJob
     {
         foreach ($this->getCronJobInstances() as $cron_job_instance) {
             if ($cron_job_instance->getId() === $job_id) {

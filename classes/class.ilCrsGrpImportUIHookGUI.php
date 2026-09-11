@@ -110,7 +110,7 @@ class ilCrsGrpImportUIHookGUI extends ilUIHookPluginGUI
 
             $panel = $ui_factory->panel()->standard(
                 $this->plugin_object->txt('creation_accordion_header'),
-                $ui_factory->legacy()->content($form->getHTML())
+                $ui_factory->legacy($form->getHTML())
             );
 
             $processed_html = $ui_renderer->render($panel);

@@ -7,7 +7,7 @@ use ilDateTime;
 use ilDateTimeException;
 use ILIAS\DI\Container;
 use ILIAS\DI\Exceptions\Exception;
-use ILIAS\ILIASObject\Properties\Translations\Language;
+use ilObjectTranslation;
 use ILIAS\Plugin\CrsGrpImport\Data\ImportCsvObject;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportResult;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportStatus;
@@ -21,7 +21,7 @@ use ilObjGroup;
 
 class BaseObject implements ObjectImporter
 {
-    public const array DATE_COLUMNS = [
+    public const DATE_COLUMNS = [
         "EventStart",
         "EventEnd",
         "AvailabilityStart",
@@ -104,39 +104,43 @@ class BaseObject implements ObjectImporter
     public function handleI18nTitleAndDescription(ilObjGroup|ilObjCourse $object, bool $is_update = false): void
     {
         if (!$is_update && (is_string($this->getData()->getTitleEn()) && $this->getData()->getTitleEn() !== '')) {
-            $translation = ($object->getObjectProperties()->getPropertyTranslations())
-                ->withResetLanguages()
-                ->withDefaultTitle((string) $this->getData()->getTitleDe())
-                ->withDefaultDescription((string) $this->getData()->getDescriptionDe())
-                ->withLanguage(new Language(
-                    'en',
-                    $this->getData()->getTitleEn(),
-                    $this->getData()->getDescriptionEn(),
-                    false
-                ))
-                ->withLanguage(new Language(
-                    'de',
-                    $this->getData()->getTitleDe(),
-                    $this->getData()->getDescriptionDe(),
-                    true,
-                    true
-                ));
-            $object->getObjectProperties()->storePropertyTranslations($translation);
+            $translation = ilObjectTranslation::getInstance($object->getId());
+            $translation->setDefaultTitle((string) $this->getData()->getTitleDe());
+            $translation->setDefaultDescription((string) $this->getData()->getDescriptionDe());
+            $translation->setLanguages([]);
+            $translation->addLanguage(
+                'de',
+                $this->getData()->getTitleDe(),
+                $this->getData()->getDescriptionDe(),
+                true
+            );
+            $translation->addLanguage(
+                'en',
+                $this->getData()->getTitleEn(),
+                $this->getData()->getDescriptionEn(),
+                false
+            );
+            $translation->setMasterLanguage('de');
+            $translation->save();
         } elseif ($is_update) {
-            $translation = $object->getObjectProperties()->getPropertyTranslations();
+            $translation = ilObjectTranslation::getInstance($object->getId());
             if (is_string($this->getData()->getTitleEn()) && $this->getData()->getTitleEn() !== '') {
-                $translation = $translation->withLanguage(new Language(
+                if (isset($languages['en'])) {
+                    $translation->removeLanguage('en');
+                }
+
+                $translation->addLanguage(
                     'en',
                     $this->getData()->getTitleEn(),
                     $this->getData()->getDescriptionEn(),
                     false
-                ));
-                $object->getObjectProperties()->storePropertyTranslations($translation);
+                );
+                $translation->save();
             } else {
                 $languages = $translation->getLanguages();
                 if (isset($languages['en'])) {
-                    $translation = $translation->withoutLanguage('en');
-                    $object->getObjectProperties()->storePropertyTranslations($translation);
+                    $translation->removeLanguage('en');
+                    $translation->save();
                 }
             }
         }

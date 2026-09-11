@@ -37,7 +37,7 @@ class ilCrsGrpImportConfigGUI extends ilPluginConfigGUI
 {
     protected Container $dic;
     public ilCrsGrpImportPlugin $plugin_obj;
-    private readonly ilCtrl $ctrl;
+    private readonly ilCtrlInterface $ctrl;
     private readonly ilLanguage $lng;
     private readonly ilGlobalTemplateInterface $main_tpl;
     private readonly Renderer $ui_renderer;

@@ -29,9 +29,9 @@ use ReflectionClass;
 
 abstract class Base
 {
-    public const string CTX_IS_BASE_CLASS = 'baseClass';
-    public const string CTX_IS_COMMAND_CLASS = 'cmdClass';
-    public const string CTX_IS_COMMAND = 'cmd';
+    public const CTX_IS_BASE_CLASS = 'baseClass';
+    public const CTX_IS_COMMAND_CLASS = 'cmdClass';
+    public const CTX_IS_COMMAND = 'cmd';
 
     protected Container $dic;
     protected array $parameters = [];

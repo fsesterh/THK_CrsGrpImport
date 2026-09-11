@@ -32,7 +32,7 @@ use LogicException;
 
 class SetupAgent implements Agent
 {
-    public const string PLUGIN_NAME = "CrsGrpImport";
+    public const PLUGIN_NAME = "CrsGrpImport";
     public function __construct()
     {
     }

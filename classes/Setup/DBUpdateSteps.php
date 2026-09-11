@@ -29,7 +29,7 @@ use ILIAS\Plugin\CrsGrpImport\Repository\QueuedRepository;
 
 class DBUpdateSteps implements ilDatabaseUpdateSteps
 {
-    public const string PREFIX = "step_";
+    public const PREFIX = "step_";
 
     private ilDBInterface $db;
 
