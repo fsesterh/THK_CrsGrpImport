@@ -11,10 +11,10 @@ in this document are to be interpreted as described in
 
 ## Requirements
 
-| Component | Version(s)                                                                                    | Link                      |
-|-----------|-----------------------------------------------------------------------------------------------|---------------------------|
-| PHP       | ![](https://img.shields.io/badge/8.3-blue.svg) ![](https://img.shields.io/badge/8.4-blue.svg) | [PHP](https://php.net)    |
-| ILIAS     | ![](https://img.shields.io/badge/11-orange.svg)                                                | [ILIAS](https://ilias.de) |
+| Component | Version(s)                                                                                           | Link                      |
+|-----------|------------------------------------------------------------------------------------------------------|---------------------------|
+| PHP       | ![](https://img.shields.io/badge/8.2-blue.svg) ![](https://img.shields.io/badge/8.3-blue.svg)        | [PHP](https://php.net)    |
+| ILIAS     | ![](https://img.shields.io/badge/10-orange.svg) to ![](https://img.shields.io/badge/10.999-orange.svg) | [ILIAS](https://ilias.de) |
 
 ---
 
