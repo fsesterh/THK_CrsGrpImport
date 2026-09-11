@@ -105,9 +105,9 @@ class BaseObject implements ObjectImporter
     {
         if (!$is_update && (is_string($this->getData()->getTitleEn()) && $this->getData()->getTitleEn() !== '')) {
             $translation = ($object->getObjectProperties()->getPropertyTranslations())
+                ->withResetLanguages()
                 ->withDefaultTitle((string) $this->getData()->getTitleDe())
                 ->withDefaultDescription((string) $this->getData()->getDescriptionDe())
-                ->withResetLanguages()
                 ->withLanguage(new Language(
                     'en',
                     $this->getData()->getTitleEn(),
