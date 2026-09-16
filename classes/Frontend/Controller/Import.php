@@ -167,7 +167,7 @@ class Import extends Base
         $row = 0;
         $csv_array = [];
         if (($handle = fopen($import_file, 'rb')) !== false) {
-            while (($data = fgetcsv($handle, 1000, ";")) !== false) {
+            while (($data = fgetcsv($handle, 1000, ";", '"', '\\')) !== false) {
                 if (count($data) > 1) {
                     $row++;
                     if ($row === 1) {
