@@ -129,15 +129,17 @@ class CrsGrpImportJob extends CronJob
             foreach ($queued_imports as $queued_import) {
                 $csv_log = new CSVLog();
 
-                $csv_deserialized = unserialize(
-                    $queued_import->getCsvData(),
-                    ['allowed_classes' => [ImportCsvObject::class]]
-                );
+                $csv_deserialized = json_decode($queued_import->getCsvData(), true, 512, JSON_THROW_ON_ERROR);
+
+                $import_objects = [];
+                foreach ($csv_deserialized as $csv_import_data) {
+                    $import_objects[] = ImportCsvObject::jsonUnserialize($csv_import_data);
+                }
+
                 /**
-                 * @var  $key
                  * @var ImportCsvObject $data
                  */
-                foreach ($csv_deserialized as $key => $data) {
+                foreach ($import_objects as $data) {
                     $base_status = ImportStatus::OK;
 
                     if ($data->getType() === ImportType::COURSE) {
