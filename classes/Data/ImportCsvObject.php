@@ -10,7 +10,7 @@ use ILIAS\Plugin\CrsGrpImport\Enum\ImportType;
 class ImportCsvObject
 {
     private ImportResult $import_result;
-    private string $additional_import_result_info;
+    private string $additional_import_result_info = '';
 
     public function __construct(
         private readonly ImportAction $action,
