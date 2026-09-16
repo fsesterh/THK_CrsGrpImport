@@ -124,7 +124,7 @@ class Import extends Base
         }
 
         $csv_array = $this->convertCSVToArray($plugin, $upload_result->getPath(), $parent_ref_id);
-        if ($this->queued_repo->queueImport(serialize($csv_array), $this->dic->user()->getId())) {
+        if ($this->queued_repo->queueImport(json_encode($csv_array, JSON_THROW_ON_ERROR), $this->dic->user()->getId())) {
             $this->ui_util->sendSuccess(
                 $this->getCoreController()->getPluginObject()->txt("import.queued.success"),
                 true

@@ -2,12 +2,15 @@
 
 namespace ILIAS\Plugin\CrsGrpImport\Data;
 
+use Exception;
 use ilCourseConstants;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportAction;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportResult;
 use ILIAS\Plugin\CrsGrpImport\Enum\ImportType;
+use JsonSerializable;
+use Throwable;
 
-class ImportCsvObject
+class ImportCsvObject implements JsonSerializable
 {
     private ImportResult $import_result;
     private string $additional_import_result_info = '';
@@ -278,5 +281,105 @@ class ImportCsvObject
     public function getNewsStartDate(): string
     {
         return $this->news_start_date;
+    }
+
+    public function jsonSerialize(): array
+    {
+        return [
+            'action' => $this->getAction()->value,
+            'type' => $this->getType()->value,
+            'import_result' => $this->getImportResult()->value,
+            'additional_import_result_info' => $this->getAdditionalImportResultInfo(),
+            'ref_id' => $this->getRefId(),
+            'template_id' => $this->getTemplateIdNativeType(),
+            'title_de' => $this->getTitleDe(),
+            'title_en' => $this->getTitleEn(),
+            'description_de' => $this->getDescriptionDe(),
+            'description_en' => $this->getDescriptionEn(),
+            'event_start' => $this->getEventStart(),
+            'event_end' => $this->getEventEnd(),
+            'online' => $this->getOnline(),
+            'availability_start' => $this->getAvailabilityStart(),
+            'availability_end' => $this->getAvailabilityEnd(),
+            'availability_visible' => $this->getAvailabilityVisible(),
+            'registration' => $this->getRegistrationNative(),
+            'registration_pass' => $this->getRegistrationPass(),
+            'admission_link' => $this->getAdmissionLink(),
+            'registration_start' => $this->getRegistrationStart(),
+            'registration_end' => $this->getRegistrationEnd(),
+            'unsubscribe_end' => $this->getUnsubscribeEnd(),
+            'limit_members' => $this->getLimitMembers(),
+            'min_members' => $this->getMinMembers(),
+            'max_members' => $this->getMaxMembers(),
+            'waiting_list' => $this->getWaitingList(),
+            'news' => $this->getNews(),
+            'news_block' => $this->isNewsBlock(),
+            'news_default_access' => $this->getNewsDefaultAccess(),
+            'news_rss_feed' => $this->getNewsRssFeed(),
+            'news_timeline' => $this->getNewsTimeline(),
+            'news_time_auto_entry' => $this->getNewsTimeAutoEntry(),
+            'news_time_landing' => $this->getNewsTimeLanding(),
+            'news_start_date' => $this->getNewsStartDate(),
+            'member_gallery' => $this->getMemberGallery(),
+            'admins' => $this->getAdmins(),
+            'parent_ref_id' => $this->getParentRefId(),
+            'actor_timezone' => $this->getActorTimezone()
+        ];
+    }
+
+    /**
+     * @throws Exception
+     */
+    public static function jsonUnserialize(array $data): self
+    {
+        try {
+            return (new self(
+                ImportAction::tryFrom($data['action']) ?? ImportAction::UNSUPPORTED,
+                ImportType::tryFrom($data['type']) ?? ImportType::UNSUPPORTED,
+                $data['ref_id'],
+                $data['template_id'],
+                $data['title_de'],
+                $data['title_en'],
+                $data['description_de'],
+                $data['description_en'],
+                $data['event_start'],
+                $data['event_end'],
+                $data['online'],
+                $data['availability_start'],
+                $data['availability_end'],
+                $data['availability_visible'],
+                $data['registration'],
+                $data['registration_pass'],
+                $data['admission_link'],
+                $data['registration_start'],
+                $data['registration_end'],
+                $data['unsubscribe_end'],
+                $data['limit_members'],
+                $data['min_members'],
+                $data['max_members'],
+                $data['waiting_list'],
+                $data['news'],
+                $data['news_block'],
+                $data['news_default_access'],
+                $data['news_rss_feed'],
+                $data['news_timeline'],
+                $data['news_time_auto_entry'],
+                $data['news_time_landing'],
+                $data['news_start_date'],
+                $data['member_gallery'],
+                $data['admins'],
+                $data['parent_ref_id'],
+                $data['actor_timezone'],
+            ))
+                ->setImportResult(
+                    ImportResult::tryFrom($data['import_result']) ?? ImportResult::NONE,
+                    $data['additional_import_result_info']
+                );
+        } catch (Throwable $ex) {
+            throw new Exception(sprintf(
+                "Error occurred trying to unserialize json into ImportCsvObject. Ex.: %s",
+                $ex->getMessage()
+            ));
+        }
     }
 }
