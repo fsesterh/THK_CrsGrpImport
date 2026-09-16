@@ -28,6 +28,7 @@ in this document are to be interpreted as described in
   * [Configuration](#configuration)
   * [Settings](#settings)
     * [Example Files:](#example-files)
+  * [Notes](#notes)
   * [License](#license)
 <!-- TOC -->
 
@@ -105,6 +106,11 @@ example_files/crsgrp_importtemplate_v9_1_0.xlsx
 example_files/test_csv_9-1-0.csv
 
 ```
+
+## Notes
+
+- When to the **ILIAS 10** version of this plugin the queue db table **crsgrp_import_queue** will be emptied.  
+  Make sure any important imports have been processed prior to updating.
 
 ## License
 See [LICENSE](./LICENSE) file in this repository.

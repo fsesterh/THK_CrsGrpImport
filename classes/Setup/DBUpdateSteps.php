@@ -167,4 +167,17 @@ class DBUpdateSteps implements ilDatabaseUpdateSteps
             )
         );
     }
+
+    /** @noinspection SqlWithoutWhere */
+    public function step_3(): void
+    {
+        $table_name = 'crsgrp_import_queue';
+        $column_name = 'data';
+
+        if (!$this->db->tableColumnExists($table_name, $column_name)) {
+            return;
+        }
+
+        $this->db->manipulate("DELETE FROM $table_name");
+    }
 }
