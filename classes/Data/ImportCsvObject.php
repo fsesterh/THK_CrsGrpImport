@@ -73,9 +73,10 @@ class ImportCsvObject
         return $this->ref_id;
     }
 
-    public function setRefId(int $ref_id): void
+    public function setRefId(int $ref_id): self
     {
         $this->ref_id = $ref_id;
+        return $this;
     }
 
     public function getTemplateIdNativeType(): ?int
@@ -192,10 +193,11 @@ class ImportCsvObject
         return $this->import_result;
     }
 
-    public function setImportResult(ImportResult $import_result, string $additional_import_result_info = ""): void
+    public function setImportResult(ImportResult $import_result, string $additional_import_result_info = ""): self
     {
         $this->import_result = $import_result;
         $this->additional_import_result_info = $additional_import_result_info;
+        return $this;
     }
 
     public function getAdditionalImportResultInfo(): string
