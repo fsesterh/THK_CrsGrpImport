@@ -109,9 +109,11 @@ class ilCrsGrpImportPlugin extends ilUserInterfaceHookPlugin implements ilCronJo
         return parent::update();
     }
 
-    protected function uninstallCustom(): void
+    protected function beforeUninstall(): bool
     {
         (new DBUpdateSteps())->uninstall($this->db);
+
+        return true;
     }
 
 }
