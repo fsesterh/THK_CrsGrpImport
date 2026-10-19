@@ -1,5 +1,13 @@
 # Change-Log
 
+## 11.0.0
+
+* Added support for ILIAS 11
+
+## 10.0.0
+
+* Added support for ILIAS 10
+
 ## 9.1.1
 
 * Improvement: Reduced number of permission checks
