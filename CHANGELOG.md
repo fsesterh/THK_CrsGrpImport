@@ -4,7 +4,6 @@
 
 * Fixed: CLI setup installs and activates the plugin again. A custom setup agent no longer replaces the legacy plugin objectives.
 
-
 ## 11.0.0
 
 * Added support for ILIAS 11
